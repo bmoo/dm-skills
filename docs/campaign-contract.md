@@ -49,7 +49,7 @@ below.
 | Slot | What the campaign's docs should answer | Read by |
 |---|---|---|
 | Method handbook | Where the repo's planning-method conventions live (the guide should point at it) | all planning skills |
-| Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress | catch-up, build-session, node-map |
+| Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress | catch-up, build-session |
 | Session records / prep home | Where played-session records and prep pages live (the page format itself is library-owned) | catch-up, build-session, combat-generator, dungeon-generator, review-rewards |
 | Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, spotlight, build-session, combat-generator, dungeon-generator, catch-up, review-rewards |
 | Session transcripts | Where recordings/transcripts of play land, if the campaign keeps them | catch-up |
@@ -57,7 +57,6 @@ below.
 | Approved-items list | Which magic/notable items may be placed silently, and where the list lives (review-rewards rewrites it as the Approved Reward Pool) | dungeon-generator, review-rewards |
 | Reward review state | Where the review-rewards app's tracked JSON state lives — versioned, outside the wiki/site bundle (fallback: `rewards-review/` at the campaign root) | review-rewards |
 | Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines) | spotlight |
-| Lead typing — names vs locates | Whether the clue-web convention marks a lead that only **names** its target apart from one that **locates** it, and where that mark goes — if the campaign marks it at all (fallback: read each lead's own sentence and state the reading) | node-map |
 | Media dir + style anchor | Where images live; optionally an existing image that anchors the house style | campaign-art |
 | Sync camp | How changes land — direct to main, or PR flow | party-sync (and any skill that commits) |
 
@@ -67,13 +66,6 @@ reads that record and publishes to the campaign repo's **tracker**, so it lands
 nothing in the record and claims no slot. See the per-skill SKILL.md for the
 authoritative probe text on every slot.
 
-*Lead typing* was declared ahead of its reader: it is a record-model question,
-settled against the frozen scaffolds' clue webs before the mode that consumes it.
-That reader has since shipped — `node-map`'s **counterfactual mode**
- carries the probe and the
-absent-behavior inline, beside the grammar that draws the type, and it is the only
-mode that reads this slot. The ruling, the evidence, the degrade and the retrofit
-cost are in [Clue edges — names versus locates](clue-edges-names-vs-locates.md).
 
 ## Dependency clusters — what a selective install needs
 
@@ -113,7 +105,6 @@ stands.
 | `build-session` | `catch-up` | delegate — degrades | The pre-flight offers a catch-up run *"(if installed)"* before building on stale state. |
 | `build-session` | `seed-clues` | delegate — degrades | Step 5 widens a thin clue slate *"(if installed)"* rather than padding it by hand. |
 | `build-session` | `campaign-art` | delegate — degrades | Step 5's art pass *"(if installed)"*, with a stated ASCII fallback. |
-| `build-session` | `node-map` | delegate — degrades | The ASCII fallback itself *"(if installed)"*. |
 | `party-sync` | `spotlight` | load — degrades | The Spotlight-profile half of a sync applies the flagging heuristic in `spotlight/doctrine.md`. The sync still runs — cache, Character section, backstory, bookkeeping — but rung 1 of the data ladder never gets written, so every generator skill falls to rung 2 and derives the flags live. |
 | `catch-up` | `build-session` | citation — none | Names `build-session/session-page-format.md` as where the `Spotlight:` / `Spotlight (scene):` ledger shape is stated. catch-up reads the session *page*, not the format file. |
 | `spotlight` | `combat-generator` | citation — none | The variety check's pre-play fallback names combat-generator's *Filing format* section as the format of the `Spotlight:` lines it reads off prepped pages. |

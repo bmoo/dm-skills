@@ -18,11 +18,9 @@ findings = run_checks(artifact, producing_skill, checks)
     output text in context and hands it in. `run_checks` performs **no I/O**: it
     never reads a file, never calls a model. String in, findings out.
   - `producing_skill` — one of `"combat-generator"`, `"dungeon-generator"`,
-    `"build-session"`, `"node-map"`. Only checks owned by this skill may be
+    `"build-session"`. Only checks owned by this skill may be
     requested, so a caller applies **only its own skill's rubric subset** (spec
-    user story 17). `node-map` is the one member with no `scripts/` symlink into
-    this directory: its rows are graded by the harness, not run by the skill on
-    its own output.
+    user story 17).
   - `checks` — the rubric subset: the list of check ids to apply.
   - `context` *(optional)* — external data a roster-dependent check needs and the
     artifact text cannot carry. See **Context** below. Defaults to `None`, so

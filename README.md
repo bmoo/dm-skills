@@ -77,7 +77,7 @@ npx skills add bmoo/dm-skills --skill combat-generator --skill spotlight
 npx skills add bmoo/dm-skills --skill dungeon-generator --skill combat-generator --skill spotlight
 ```
 
-Everything else stands alone. `spotlight`, `catch-up`, `node-map`,
+Everything else stands alone. `spotlight`, `catch-up`,
 `seed-clues`, `campaign-art`, `party-sync`, `review-rewards` and
 `to-session-brief` have no hard dependency, and **`--skill build-session` on its own stays honest**: every one
 of its cross-skill edges is guarded by *"if installed"*, so it degrades to
@@ -109,7 +109,6 @@ flowchart TD
     partysync["party-sync"] -- "current party sheets" --> repo
     art["campaign-art"] -- "illustrations" --> repo
     seed["seed-clues"] -- "clues for under-clued targets" --> repo
-    repo -- "clue webs" --> nodemap["node-map"]
 
     dungeon["dungeon-generator"] -- "sizes every fight via" --> combat["combat-generator"]
     dungeon -- "keyed sites" --> repo
@@ -139,8 +138,6 @@ flowchart TD
   complication and a spotlight texture.
 - **`dungeon-generator`** — complete, runnable non-linear keyed sites with
   party-balanced fights, a dungeon-wide mechanic, and setting-true rewards.
-- **`node-map`** — high-level ASCII node-flow diagrams: nodes, hub, branch,
-  and the clue/lead edges between them.
 - **`seed-clues`** — seeds clues toward an under-clued target: a revelation
   short on evidence, or a node short on leads.
 - **`spotlight`** — spotlight doctrine ("shoot your monks"): aim situations

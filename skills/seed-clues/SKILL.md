@@ -47,7 +47,7 @@ Verify the *placed set*, not the slate:
 - **Must:** every placed clue kept a player-reachable vehicle — a concrete scene, action, check, or bargain at the table yields it. A fact stated in DM-facing text with no way for the players to obtain it is not a placed clue.
 - For a target that must land across a multi-branch stretch: sources spread across the branches, not stacked on one.
 
-Then the **exit check**: map the cluster this run touched (the repo's node-map skill draws exactly this, if installed) and confirm the loop is not closed — at least one progression edge leads *out*: an outbound lead to a node beyond the cluster, or a named, triggered proactive event that will come to the players. A cluster whose only exit is a single proactive trigger is fragile — one exit is a plan with no backups; report it. Any failed must: propose a swap, never silently place a fragile set.
+Then the **exit check**: map the cluster this run touched and confirm the loop is not closed — at least one progression edge leads *out*: an outbound lead to a node beyond the cluster, or a named, triggered proactive event that will come to the players. A cluster whose only exit is a single proactive trigger is fragile — one exit is a plan with no backups; report it. Any failed must: propose a swap, never silently place a fragile set.
 **Done when:** every must passes, or the DM has accepted the shortfall and it carries an honest flag.
 
 ### 6. Bookkeep

@@ -47,7 +47,5 @@ probe for, answered:
   placed silently; anything else needs the DM's yes first.
 - **Combat evidence** — no structured combat log; use the encounter-meta
   `Spotlight:` lines on played session pages.
-- **Lead typing (names vs locates)** — not marked; read each lead's own
-  sentence and state the reading.
 - **Media dir + style anchor** — `media/`; no style anchor image yet.
 - **Sync camp** — direct to main. No PR flow.

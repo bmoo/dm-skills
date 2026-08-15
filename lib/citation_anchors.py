@@ -95,7 +95,6 @@ INVENTORY_SECTIONS = {
     "build-session — `node-deepening.md`": "build-session",
     "build-session — the Spec axis (the session brief)": "build-session",
     "catch-up": "catch-up",
-    "node-map": "node-map",
     "spotlight": "spotlight",
     "party-sync": "party-sync",
     "campaign-art": "campaign-art",

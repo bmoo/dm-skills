@@ -25,9 +25,9 @@ that recurred, strongest of all one that recurred *after* an upstream fix.
 
 ## Scope boundary (named, not silently dropped)
 
-- **In scope:** the nine portable skills in this repo (`build-session`,
+- **In scope:** the eight portable skills in this repo (`build-session`,
   `combat-generator`, `dungeon-generator`, `spotlight`, `catch-up`, `seed-clues`,
-  `party-sync`, `campaign-art`, `node-map`).
+  `party-sync`, `campaign-art`).
 - **Out of scope:** a campaign-local site pipeline — `publish-site`,
   `links.lua`, `style.css`, `publish.sh`, topbar/mojibake/CSS lints. These are
   ~15 log entries but they correct a repo-local skill that does not live here.
