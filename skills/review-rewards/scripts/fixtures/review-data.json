@@ -1,0 +1,101 @@
+{
+  "catalogVersion": "2026-08-15T10:00:00Z#fixture1",
+  "partyLevel": 3,
+  "proposalStandard": "Current-level appropriate, exciting for at least one active PC or the whole party, nonredundant with existing gear, compatible with every Protected Challenge.",
+  "protectedChallenges": [
+    "The Unlit Lantern delve — magical-darkness navigation is the core mechanic",
+    "The Trust Job — an unbribable magistrate must be persuaded without magic"
+  ],
+  "requestedDepth": { "perPC": 2, "party": 1 },
+  "entries": [
+    {
+      "id": "lantern-of-tracking--gm-guide-2024",
+      "name": "Lantern of Tracking",
+      "source": "Game Master's Guide (2024)",
+      "rarity": "common",
+      "attunement": "no attunement",
+      "origin": "existing",
+      "target": "party",
+      "fitNote": "Still level-appropriate; the party's wilderness legs keep it useful.",
+      "gearRelation": "No overlap with owned gear.",
+      "challengeNote": "Its light is mundane, so it does not touch the delve's magical darkness.",
+      "rulesText": "While this lantern is within 300 feet of a creature type chosen at its making, its flame turns green. Fixture text standing in for the full official entry."
+    },
+    {
+      "id": "staff-of-the-adder--gm-guide-2024",
+      "name": "Staff of the Adder",
+      "source": "Game Master's Guide (2024)",
+      "rarity": "uncommon",
+      "attunement": "requires attunement by a druid",
+      "origin": "candidate",
+      "target": "Avery",
+      "fitNote": "A melee fallback that suits any Druid subclass Avery lands on.",
+      "gearRelation": "She carries only a mundane quarterstaff; this replaces nothing magical.",
+      "challengeNote": "No interaction with either Protected Challenge.",
+      "rulesText": "You can use a bonus action to make the head of this staff become that of an animate poisonous snake for 1 minute. Fixture text standing in for the full official entry."
+    },
+    {
+      "id": "pearl-of-power--gm-guide-2024",
+      "name": "Pearl of Power",
+      "source": "Game Master's Guide (2024)",
+      "rarity": "uncommon",
+      "attunement": "requires attunement by a spellcaster",
+      "origin": "candidate",
+      "target": "Avery",
+      "fitNote": "Slot recovery is strong for every Druid play style, circle unknown or not.",
+      "gearRelation": "Party owns no slot-recovery items.",
+      "challengeNote": "No interaction with either Protected Challenge.",
+      "rulesText": "While this pearl is on your person, you can use an action to regain one expended spell slot of 3rd level or lower. Fixture text standing in for the full official entry."
+    },
+    {
+      "id": "sentinel-shield--gm-guide-2024",
+      "name": "Sentinel Shield",
+      "source": "Game Master's Guide (2024)",
+      "rarity": "uncommon",
+      "attunement": "no attunement",
+      "origin": "candidate",
+      "target": "Rook",
+      "fitNote": "Rook is the party's only shield user and its scout-turned-sentinel.",
+      "gearRelation": "Upgrades his mundane shield; partial overlap with his owned Cloak of Many Fashions is cosmetic only.",
+      "challengeNote": "Advantage on Perception does not cancel the delve's darkness mechanic.",
+      "rulesText": "While holding this shield, you have advantage on initiative rolls and Wisdom (Perception) checks. Fixture text standing in for the full official entry.",
+      "secondaryFit": "Also shores up the whole party's watch rotation."
+    },
+    {
+      "id": "immovable-rod--gm-guide-2024",
+      "name": "Immovable Rod",
+      "source": "Game Master's Guide (2024)",
+      "rarity": "uncommon",
+      "attunement": "no attunement",
+      "origin": "candidate",
+      "target": "party",
+      "fitNote": "Rewards clever play across the whole party without trivializing anything prepared.",
+      "gearRelation": "No overlap with owned gear.",
+      "challengeNote": "Strong situational advantage, allowed: it does not cancel a core mechanic.",
+      "rulesText": "This flat iron rod has a button on one end. You can use an action to press the button, which causes the rod to become magically fixed in place. Fixture text standing in for the full official entry."
+    },
+    {
+      "id": "potion-of-healing--awarded-session-1",
+      "name": "Potion of Healing",
+      "source": "Player's Handbook (2024)",
+      "rarity": "common",
+      "attunement": "no attunement",
+      "origin": "awarded",
+      "owner": "Rook",
+      "rulesText": "You regain 2d4 + 2 hit points when you drink this potion. Fixture text standing in for the full official entry."
+    },
+    {
+      "id": "boots-of-elvenkind--gm-guide-2024",
+      "name": "Boots of Elvenkind",
+      "source": "Game Master's Guide (2024)",
+      "rarity": "uncommon",
+      "attunement": "no attunement",
+      "origin": "graveyard",
+      "target": "Rook",
+      "fitNote": "Removed last review as redundant with his Stealth expertise.",
+      "gearRelation": "Overlaps his existing expertise and Cloak of Many Fashions.",
+      "challengeNote": "No interaction with either Protected Challenge.",
+      "rulesText": "While you wear these boots, your steps make no sound. Fixture text standing in for the full official entry."
+    }
+  ]
+}

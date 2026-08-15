@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reward Review</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #23201a; --muted: #6b6555;
+    --line: #d9d4c8; --accent: #7a4a21; --approve: #2e6b3a; --defer: #8a6d1f;
+    --remove: #8c3a2e; --chip: #ece8de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1d1b17; --card: #26231e; --ink: #e8e3d8; --muted: #a39b89;
+      --line: #3a362e; --accent: #d8a468; --approve: #7fc38d; --defer: #d9bb5e;
+      --remove: #e08a7c; --chip: #322e27;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 Georgia, 'Times New Roman', serif;
+  }
+  main { max-width: 62rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  h1 { font-size: 1.6rem; margin: 0 0 .25rem; }
+  h2 { font-size: 1.2rem; border-bottom: 2px solid var(--line); padding-bottom: .3rem; margin-top: 2.2rem; }
+  .frame { color: var(--muted); font-size: .95rem; margin-bottom: .2rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1rem 1.1rem; margin: 1rem 0;
+  }
+  .card.awarded { opacity: .85; }
+  .card h3 { margin: 0 0 .3rem; font-size: 1.1rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: .4rem; margin: .3rem 0 .6rem; }
+  .badge {
+    background: var(--chip); border-radius: 999px; padding: .1rem .6rem;
+    font-size: .8rem; font-family: system-ui, sans-serif; color: var(--muted);
+  }
+  .badge.target { color: var(--accent); font-weight: 600; }
+  .why { margin: .4rem 0; }
+  .why .lbl { font-family: system-ui, sans-serif; font-size: .75rem; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted); display: block; }
+  .rules {
+    border-left: 3px solid var(--accent); background: var(--bg);
+    padding: .6rem .9rem; margin: .7rem 0; max-height: 18rem; overflow-y: auto;
+    white-space: pre-wrap; font-size: .95rem;
+  }
+  .controls { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center;
+    border-top: 1px dashed var(--line); padding-top: .7rem; margin-top: .7rem;
+    font-family: system-ui, sans-serif; font-size: .9rem; }
+  .controls label.opt { display: inline-flex; gap: .3rem; align-items: center; cursor: pointer; }
+  .controls input[type=text] {
+    flex: 1 1 14rem; background: var(--bg); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 6px; padding: .35rem .5rem; font-size: .9rem;
+  }
+  .opt.approve { color: var(--approve); } .opt.defer { color: var(--defer); }
+  .opt.remove { color: var(--remove); }
+  .card[data-decision=approve] { border-left: 5px solid var(--approve); }
+  .card[data-decision=defer] { border-left: 5px solid var(--defer); }
+  .card[data-decision=remove] { border-left: 5px solid var(--remove); }
+  details.graveyard > summary { cursor: pointer; font-weight: 600; }
+  button.restore {
+    font: inherit; background: var(--chip); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 6px; padding: .3rem .8rem; cursor: pointer;
+  }
+  #save-status {
+    position: fixed; top: .6rem; right: .8rem; font-family: system-ui, sans-serif;
+    font-size: .8rem; color: var(--muted); background: var(--card);
+    border: 1px solid var(--line); border-radius: 999px; padding: .2rem .7rem;
+  }
+  #save-status.error { color: var(--remove); font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="save-status">loading…</div>
+<main>
+  <h1>Reward Review</h1>
+  <div id="framing"></div>
+  <section><h2>Active review</h2><div id="active"></div></section>
+  <section><h2>Awarded items <span class="frame">(read-only history, for loot parity)</span></h2><div id="awarded"></div></section>
+  <details class="graveyard"><summary>Graveyard — removed items (restorable)</summary><div id="graveyard"></div></details>
+</main>
+<script>
+"use strict";
+let DATA = null;
+let STATE = null;
+const statusEl = document.getElementById("save-status");
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function effectiveDecision(entry) {
+  const rec = STATE.decisions[entry.id];
+  if (!rec) return entry.origin === "graveyard" ? "remove" : "unreviewed";
+  return rec.decision;
+}
+
+function record(entry) {
+  return STATE.decisions[entry.id] || { decision: effectiveDecision(entry), note: "", deferCondition: "" };
+}
+
+let saveTimer = null;
+function scheduleSave() {
+  statusEl.textContent = "saving…";
+  statusEl.classList.remove("error");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 250);
+}
+async function save() {
+  try {
+    const res = await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(STATE),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ errors: [res.statusText] }));
+      throw new Error(body.errors.join("; "));
+    }
+    statusEl.textContent = "saved";
+  } catch (err) {
+    statusEl.textContent = "NOT SAVED: " + err.message;
+    statusEl.classList.add("error");
+  }
+}
+
+function setDecision(entry, decision) {
+  const rec = record(entry);
+  rec.decision = decision;
+  if (decision !== "defer") delete rec.deferCondition;
+  if (!rec.note) delete rec.note;
+  STATE.decisions[entry.id] = { decision: rec.decision, ...(rec.note ? { note: rec.note } : {}),
+    ...(rec.deferCondition ? { deferCondition: rec.deferCondition } : {}) };
+  scheduleSave();
+  render();
+}
+function setField(entry, field, value) {
+  const rec = record(entry);
+  const stored = { decision: rec.decision };
+  const note = field === "note" ? value : rec.note;
+  const cond = field === "deferCondition" ? value : rec.deferCondition;
+  if (note) stored.note = note;
+  if (cond) stored.deferCondition = cond;
+  STATE.decisions[entry.id] = stored;
+  scheduleSave();
+}
+
+function whyLine(label, text) {
+  if (!text) return "";
+  return `<p class="why"><span class="lbl">${esc(label)}</span>${esc(text)}</p>`;
+}
+
+function card(entry, mode) {
+  const decision = effectiveDecision(entry);
+  const rec = record(entry);
+  const originLabel = { existing: "Existing eligible", candidate: "New candidate",
+    graveyard: "Restored from graveyard", awarded: "Awarded" }[entry.origin];
+  const badges = [
+    `<span class="badge target">${esc(entry.target === "party" ? "Whole party" : entry.target || entry.owner || "")}</span>`,
+    `<span class="badge">${esc(originLabel)}</span>`,
+    `<span class="badge">${esc(entry.source)}</span>`,
+    `<span class="badge">${esc(entry.rarity)}</span>`,
+    `<span class="badge">${esc(entry.attunement)}</span>`,
+  ].join("");
+  let controls = "";
+  if (mode === "review") {
+    const opts = [["unreviewed", "Unreviewed", ""], ["approve", "Approve / Keep Eligible", "approve"],
+      ["defer", "Defer", "defer"], ["remove", "Remove", "remove"]]
+      .map(([value, label, cls]) => `<label class="opt ${cls}">
+        <input type="radio" name="d-${esc(entry.id)}" value="${value}" ${decision === value ? "checked" : ""}
+          onchange="setDecision(byId('${esc(entry.id)}'), '${value}')">${label}</label>`).join("");
+    const defer = decision === "defer"
+      ? `<input type="text" placeholder="Defer until… (level or challenge condition, optional)"
+           value="${esc(rec.deferCondition || "")}"
+           onchange="setField(byId('${esc(entry.id)}'), 'deferCondition', this.value)">`
+      : "";
+    controls = `<div class="controls">${opts}${defer}
+      <input type="text" placeholder="Note (optional)" value="${esc(rec.note || "")}"
+        onchange="setField(byId('${esc(entry.id)}'), 'note', this.value)"></div>`;
+  } else if (mode === "graveyard") {
+    controls = `<div class="controls">
+      <button class="restore" onclick="setDecision(byId('${esc(entry.id)}'), 'unreviewed')">Restore to active review</button>
+      ${rec.note ? `<span>note: ${esc(rec.note)}</span>` : ""}</div>`;
+  }
+  return `<article class="card ${mode === "awarded" ? "awarded" : ""}" data-decision="${mode === "review" ? decision : ""}">
+    <h3>${esc(entry.name)}</h3>
+    <div class="badges">${badges}</div>
+    ${whyLine("Why it fits", entry.fitNote)}
+    ${whyLine("Existing gear", entry.gearRelation)}
+    ${whyLine("Protected Challenge", entry.challengeNote)}
+    <div class="rules">${esc(entry.rulesText)}</div>
+    ${controls}</article>`;
+}
+
+function byId(id) { return DATA.entries.find(e => e.id === id); }
+
+function render() {
+  const d = DATA;
+  document.getElementById("framing").innerHTML = `
+    <p class="frame">Party level ${esc(d.partyLevel)} ·
+      requested depth ${esc(d.requestedDepth.perPC)} per PC / ${esc(d.requestedDepth.party)} whole-party
+      (a quality floor may return fewer)</p>
+    <p class="frame">Protected Challenges: ${d.protectedChallenges.map(esc).join("; ") || "none"}</p>
+    <p class="frame">Proposal standard: ${esc(d.proposalStandard)}</p>
+    <p class="frame">Mark each item, then tell the waiting agent the review is done. Decisions save continuously.</p>`;
+
+  const inGraveyard = e => e.origin !== "awarded" && effectiveDecision(e) === "remove";
+  const active = d.entries.filter(e => e.origin !== "awarded" && !inGraveyard(e));
+  const awarded = d.entries.filter(e => e.origin === "awarded");
+  const graveyard = d.entries.filter(inGraveyard);
+  document.getElementById("active").innerHTML =
+    active.map(e => card(e, "review")).join("") || "<p class='frame'>Nothing to review.</p>";
+  document.getElementById("awarded").innerHTML =
+    awarded.map(e => card(e, "awarded")).join("") || "<p class='frame'>No awarded items on record.</p>";
+  document.getElementById("graveyard").innerHTML =
+    graveyard.map(e => card(e, "graveyard")).join("") || "<p class='frame'>Empty.</p>";
+}
+
+(async function init() {
+  const res = await fetch("/api/review");
+  const payload = await res.json();
+  DATA = payload.data;
+  STATE = payload.state;
+  statusEl.textContent = "saved";
+  render();
+})();
+</script>
+</body>
+</html>

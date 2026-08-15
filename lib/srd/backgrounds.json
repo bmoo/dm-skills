@@ -1,0 +1,202 @@
+[
+ {
+  "benefits": [
+   {
+    "desc": "Intelligence, Wisdom, Charisma",
+    "name": "Ability Scores",
+    "type": "ability_score"
+   },
+   {
+    "desc": "*Choose A or B:* (A) Calligrapher's Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, 8 GP; or (B) 50 GP",
+    "name": "Equipment",
+    "type": "equipment"
+   },
+   {
+    "desc": "Magic Initiate (Cleric)",
+    "name": "Feat",
+    "type": "feat"
+   },
+   {
+    "desc": "Insight and Religion",
+    "name": "Skill Proficiencies",
+    "type": "skill_proficiency"
+   },
+   {
+    "desc": "Calligrapher's Supplies",
+    "name": "Tool Proficiency",
+    "type": "tool_proficiency"
+   }
+  ],
+  "crossreferences": {
+   "to": []
+  },
+  "desc": "",
+  "document": {
+   "display_name": "5e 2024 Rules",
+   "gamesystem": {
+    "key": "5e-2024",
+    "name": "5th Edition 2024"
+   },
+   "key": "srd-2024",
+   "name": "System Reference Document 5.2",
+   "permalink": "https://dnd.wizards.com/resources/systems-reference-document",
+   "publisher": {
+    "key": "wizards-of-the-coast",
+    "name": "Wizards of the Coast"
+   },
+   "type": "SOURCE"
+  },
+  "key": "srd-2024_acolyte",
+  "name": "Acolyte"
+ },
+ {
+  "benefits": [
+   {
+    "desc": "Dexterity, Constitution, Intelligence",
+    "name": "Ability Scores",
+    "type": "ability_score"
+   },
+   {
+    "desc": "*Choose A or B:* (A) 2 Daggers, Thieves' Tools, Crowbar, 2 Pouches, Traveler's Clothes, 16 GP; or (B) 50 GP",
+    "name": "Equipment",
+    "type": "equipment"
+   },
+   {
+    "desc": "Alert",
+    "name": "Feat",
+    "type": "feat"
+   },
+   {
+    "desc": "Sleight of Hand and Stealth",
+    "name": "Skill Proficiencies",
+    "type": "skill_proficiency"
+   },
+   {
+    "desc": "Thieves' Tools",
+    "name": "Tool Proficiency",
+    "type": "tool_proficiency"
+   }
+  ],
+  "crossreferences": {
+   "to": []
+  },
+  "desc": "",
+  "document": {
+   "display_name": "5e 2024 Rules",
+   "gamesystem": {
+    "key": "5e-2024",
+    "name": "5th Edition 2024"
+   },
+   "key": "srd-2024",
+   "name": "System Reference Document 5.2",
+   "permalink": "https://dnd.wizards.com/resources/systems-reference-document",
+   "publisher": {
+    "key": "wizards-of-the-coast",
+    "name": "Wizards of the Coast"
+   },
+   "type": "SOURCE"
+  },
+  "key": "srd-2024_criminal",
+  "name": "Criminal"
+ },
+ {
+  "benefits": [
+   {
+    "desc": "Constitution, Intelligence, Wisdom",
+    "name": "Ability Scores",
+    "type": "ability_score"
+   },
+   {
+    "desc": "*Choose A or B:* (A) Quarterstaff, Calligrapher's Supplies, Book (history), Parchment (8 sheets), Robe, 8 GP; or (B) 50 GP",
+    "name": "Equipment",
+    "type": "equipment"
+   },
+   {
+    "desc": "Magic Initiate (Wizard)",
+    "name": "Feat",
+    "type": "feat"
+   },
+   {
+    "desc": "Arcana and History",
+    "name": "Skill Proficiencies",
+    "type": "skill_proficiency"
+   },
+   {
+    "desc": "Calligrapher's Supplies",
+    "name": "Tool Proficiency",
+    "type": "tool_proficiency"
+   }
+  ],
+  "crossreferences": {
+   "to": []
+  },
+  "desc": "",
+  "document": {
+   "display_name": "5e 2024 Rules",
+   "gamesystem": {
+    "key": "5e-2024",
+    "name": "5th Edition 2024"
+   },
+   "key": "srd-2024",
+   "name": "System Reference Document 5.2",
+   "permalink": "https://dnd.wizards.com/resources/systems-reference-document",
+   "publisher": {
+    "key": "wizards-of-the-coast",
+    "name": "Wizards of the Coast"
+   },
+   "type": "SOURCE"
+  },
+  "key": "srd-2024_sage",
+  "name": "Sage"
+ },
+ {
+  "benefits": [
+   {
+    "desc": "Strength, Dexterity, Constitution",
+    "name": "Ability Scores",
+    "type": "ability_score"
+   },
+   {
+    "desc": "*Choose A or B:* (A) Spear, Shortbow, 20 Arrows, Gaming Set (same as above), Healer's Kit, Quiver, Traveler's Clothes, 14 GP; or (B) 50 GP",
+    "name": "Equipment",
+    "type": "equipment"
+   },
+   {
+    "desc": "Savage Attacker",
+    "name": "Feat",
+    "type": "feat"
+   },
+   {
+    "desc": "Athletics and Intimidation",
+    "name": "Skill Proficiencies",
+    "type": "skill_proficiency"
+   },
+   {
+    "desc": "Choose one kind of Gaming Set",
+    "name": "Tool Proficiency",
+    "type": "tool_proficiency"
+   }
+  ],
+  "crossreferences": {
+   "to": []
+  },
+  "desc": "",
+  "document": {
+   "display_name": "5e 2024 Rules",
+   "gamesystem": {
+    "key": "5e-2024",
+    "name": "5th Edition 2024"
+   },
+   "key": "srd-2024",
+   "name": "System Reference Document 5.2",
+   "permalink": "https://dnd.wizards.com/resources/systems-reference-document",
+   "publisher": {
+    "key": "wizards-of-the-coast",
+    "name": "Wizards of the Coast"
+   },
+   "type": "SOURCE"
+  },
+  "key": "srd-2024_soldier",
+  "name": "Soldier"
+ }
+]

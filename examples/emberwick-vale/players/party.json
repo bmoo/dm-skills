@@ -1,0 +1,33 @@
+{
+  "confirmedAt": "2026-08-09",
+  "party": [
+    {
+      "name": "Rook Thistlewane",
+      "player": "Alex",
+      "class": "Fighter (Champion)",
+      "level": 3,
+      "source": "chat"
+    },
+    {
+      "name": "Odessa Vray",
+      "player": "Sam",
+      "class": "Druid (Circle of the Land)",
+      "level": 3,
+      "source": "chat"
+    },
+    {
+      "name": "Pip Underbough",
+      "player": "Jordan",
+      "class": "Rogue (Thief)",
+      "level": 3,
+      "source": "chat"
+    },
+    {
+      "name": "Brannock Hale",
+      "player": "Casey",
+      "class": "Cleric (Life Domain)",
+      "level": 3,
+      "source": "chat"
+    }
+  ]
+}
