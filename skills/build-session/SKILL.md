@@ -293,8 +293,8 @@ Hand off, don't inline:
   may require a node map of the session's explorable places. Generate
   them in **the session's own declared art style** (the format's
   session-art convention — never a house map default), via the repo's art
-  skill (`campaign-art`, if installed); fall back to an ASCII diagram
-  (`node-map`, if installed) if the repo has no art pipeline.
+  skill (`campaign-art`, if installed); fall back to a hand-drawn
+  ASCII diagram if the repo has no art pipeline.
 - **Keyed sites** — when Step 3 found a location the party will explore
   room-by-room, the whole site is a hand-off to the repo's dungeon skill
   (`dungeon-generator`, if installed) **through its delegate interface**

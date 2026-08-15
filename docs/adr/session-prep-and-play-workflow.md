@@ -136,5 +136,5 @@ invisible to anything in this repo: nothing declares it, and nothing fails if th
 plugin is absent.
 
 **"node page cannon" is transcribed verbatim and reads as "canon."** The label is
-kept as drawn. `skills/node-map/` is the plausible owner of this node, though the
-diagram does not name it.
+kept as drawn. The since-removed `node-map` skill was the plausible owner of this
+node; the diagram does not name one.

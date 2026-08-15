@@ -74,6 +74,20 @@ SELF_REFERENTIAL = {
 }
 
 
+# Commits named by entries that predate the public cut. This repo was released
+# as a single orphan commit, so these hashes resolve only in the private
+# predecessor's history: the tree-absence sweep still enforces every entry
+# below, but the provenance tests (commit exists, on main, quotable from its
+# removed side) skip commits in this frozen set. The set is sealed at the cut —
+# a NEW entry must name the squash commit as it lands on this repo's `main`
+# and never joins this list.
+PRE_PUBLIC_CUT = frozenset({
+    "ab0d0cb", "d1a08f9", "2c2ab3a", "8be33ec", "2b49772", "d88dc13",
+    "3aeaa2f", "93cdb6d", "37aa169", "a9f688e", "f961822", "024b1f7",
+    "dd75d5b", "c6757b8",
+})
+
+
 @dataclass(frozen=True)
 class RetiredPhrase:
     text: str

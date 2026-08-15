@@ -8,8 +8,10 @@ Two of these guard the **list itself** rather than the tree, because a denylist
 fails silently in both directions: an empty list passes vacuously forever, and an
 entry for a phrase that was never in the tree guards nothing. So the list must be
 non-empty, and every entry must be quotable from the diff of the commit it names
-when that history is present. A public orphan release retains the denylist but
-cannot carry its private predecessor commits; its tree-absence check still runs.
+when that history is present. Entries sealed in ``PRE_PUBLIC_CUT`` predate this
+repo's orphan release and name private predecessor commits; the tree-absence
+sweep still enforces them, but the provenance tests apply only to entries added
+since the cut.
 """
 
 import re
@@ -19,12 +21,23 @@ import pytest
 
 import retired_phrases
 from retired_phrases import (
+    PRE_PUBLIC_CUT,
     RETIRED,
     REPO_ROOT,
     RetiredPhrase,
     surviving_phrases,
     tracked_text_files,
 )
+
+# Entries added since the public cut — the only ones whose provenance this
+# repo's history can vouch for.
+POST_CUT = [phrase for phrase in RETIRED if phrase.retired_by not in PRE_PUBLIC_CUT]
+
+
+def _post_cut_or_skip():
+    if not POST_CUT:
+        pytest.skip("every entry predates the public cut; no local provenance to check")
+    return POST_CUT
 
 GONE = RetiredPhrase("the spotlight plan is on the page, not in chat", "ab0d0cb", "why")
 
@@ -41,25 +54,6 @@ def _commit(tree, name, text):
     (tree / name).write_text(text, encoding="utf-8")
     subprocess.run(["git", "add", name], cwd=tree, check=True)
     return name
-
-
-def _is_orphan_release() -> bool:
-    """Only a complete, one-commit release lacks retained provenance."""
-    commits = subprocess.run(
-        ["git", "rev-list", "--count", "--all"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
-    shallow = subprocess.run(
-        ["git", "rev-parse", "--is-shallow-repository"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
-    return commits == "1" and shallow == "false"
 
 
 # --- the failure mode the list exists for ------------------------------------
@@ -127,23 +121,14 @@ def test_the_denylist_is_not_empty():
     assert len(RETIRED) >= 2
 
 
-@pytest.mark.parametrize(
-    ("shallow", "expected"),
-    [("false", True), ("true", False)],
-)
-def test_only_a_complete_one_commit_repository_is_an_orphan_release(monkeypatch, shallow, expected):
-    def git_run(command, **_kwargs):
-        output = "1" if command[1] == "rev-list" else shallow
-        return subprocess.CompletedProcess(command, 0, stdout=output)
-
-    monkeypatch.setattr(subprocess, "run", git_run)
-    assert _is_orphan_release() is expected
+def test_the_sealed_set_carries_no_dead_weight():
+    """Every commit in PRE_PUBLIC_CUT is named by a live entry — a hash nothing
+    references any more is clutter, and clutter in a sealed set invites edits."""
+    assert set(PRE_PUBLIC_CUT) <= {phrase.retired_by for phrase in RETIRED}
 
 
 def test_every_entry_names_a_commit_that_exists():
-    if _is_orphan_release():
-        pytest.skip("orphan release retains the denylist without private provenance")
-    for phrase in RETIRED:
+    for phrase in _post_cut_or_skip():
         assert subprocess.run(
             ["git", "cat-file", "-e", f"{phrase.retired_by}^{{commit}}"],
             cwd=REPO_ROOT,
@@ -157,8 +142,7 @@ def test_every_named_commit_is_reachable_from_main():
     around this one would pass for the author and fail in CI. Ancestry of `main`
     is the property that survives the clone — assert it directly rather than
     trusting the module docstring's instruction to name the squash."""
-    if _is_orphan_release():
-        pytest.skip("orphan release retains the denylist without private provenance")
+    post_cut = _post_cut_or_skip()
     main = subprocess.run(
         ["git", "rev-parse", "--verify", "main^{commit}"],
         cwd=REPO_ROOT,
@@ -166,7 +150,7 @@ def test_every_named_commit_is_reachable_from_main():
     )
     if main.returncode != 0:  # a checkout without the branch; nothing to compare
         pytest.skip("no local `main` to test ancestry against")
-    for phrase in RETIRED:
+    for phrase in post_cut:
         assert subprocess.run(
             ["git", "merge-base", "--is-ancestor", phrase.retired_by, "main"],
             cwd=REPO_ROOT,
@@ -181,10 +165,8 @@ def test_every_entry_was_genuinely_removed_by_the_commit_it_names():
     """Rule 2 of the module docstring, enforced: a phrase that was never in the
     tree guards nothing and will never fire. Each entry has to be quotable from
     the removed side of its own commit's diff."""
-    if _is_orphan_release():
-        pytest.skip("orphan release retains the denylist without private provenance")
     diffs: dict[str, str] = {}
-    for phrase in RETIRED:
+    for phrase in _post_cut_or_skip():
         if phrase.retired_by not in diffs:
             raw = subprocess.run(
                 ["git", "show", "--unified=0", "--format=", phrase.retired_by],
