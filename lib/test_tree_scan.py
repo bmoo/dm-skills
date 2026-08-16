@@ -115,23 +115,29 @@ def test_a_worktree_checkout_does_not_read_as_a_spec_violation(tmp_path):
     assert restatements(tmp_path) == []
 
 
-def test_no_module_under_lib_walks_the_tree_on_its_own():
+def test_no_maintainer_or_shipped_module_walks_the_tree_on_its_own():
     """The half that keeps the fix alive. A new test that reaches for `rglob`
     directly reintroduces the raw walk in a fresh place, silently — worktrees only exist
     on the machine that ran an isolated agent, so the phantom failure shows up
-    for one person and nobody else can reproduce it."""
+    for one person and nobody else can reproduce it.
+
+    The shipped roots are swept explicitly. They used to be covered for free,
+    back when the checker lived under `lib/`; sweeping only `lib/` after the move
+    would have dropped the largest shipped module here without failing anything."""
     offenders = []
-    for path in iter_tree(REPO_ROOT / "lib", "**/*.py"):
-        if path.name in _WALKER_ALLOWLIST:
-            continue
-        for number, line in enumerate(
-            path.read_text(encoding="utf-8").splitlines(), 1
-        ):
-            code = line.split("#", 1)[0]
-            if any(call in code for call in _WALKER_CALLS):
-                offenders.append(
-                    f"{path.relative_to(REPO_ROOT).as_posix()}:{number}: {line.strip()}"
-                )
+    roots = [REPO_ROOT / "lib"] + [REPO_ROOT / shipped for shipped in _SHIPPED_DIRS]
+    for root in roots:
+        for path in iter_tree(root, "**/*.py"):
+            if path.name in _WALKER_ALLOWLIST:
+                continue
+            for number, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), 1
+            ):
+                code = line.split("#", 1)[0]
+                if any(call in code for call in _WALKER_CALLS):
+                    offenders.append(
+                        f"{path.relative_to(REPO_ROOT).as_posix()}:{number}: {line.strip()}"
+                    )
 
     assert offenders == [], (
         "walk the tree through tree_scan.iter_tree, which excludes agent "
