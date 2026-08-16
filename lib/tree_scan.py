@@ -26,12 +26,27 @@ def is_ignored(path: Path) -> bool:
     return any(part.startswith(_IGNORE_PREFIXES) for part in path.parts)
 
 
+def _nested_repo_roots(root: Path) -> set[Path]:
+    """Directories below ``root`` that are their own git checkout (a `.git`
+    directory or worktree pointer file). A clone dropped inside the tree is
+    not this repo's content, but a plain glob walks straight into it."""
+    return {
+        marker.parent
+        for marker in root.glob("**/.git")
+        if marker.parent != root
+    }
+
+
 def iter_tree(root: Path, pattern: str = "**/*") -> Iterator[Path]:
-    """Every file under ``root`` matching ``pattern``, skipping dot-directories
-    and build artifacts. The one place tree-walking tests should walk from."""
+    """Every file under ``root`` matching ``pattern``, skipping dot-directories,
+    build artifacts, and nested git checkouts. The one place tree-walking tests
+    should walk from."""
+    nested = _nested_repo_roots(root)
     for path in sorted(root.glob(pattern)):
         if not path.is_file():
             continue
         if is_ignored(path.relative_to(root)):
+            continue
+        if any(repo in path.parents for repo in nested):
             continue
         yield path
