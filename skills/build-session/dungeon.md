@@ -35,12 +35,10 @@ Fights are sized by **following the fight procedure beside this file
 ([`combat.md`](combat.md))** — hand it each fight and embed the sized
 encounter block it produces. Its `xp-budget.md` and `complications.md` are its
 references; it owns the budget math and the complication menu. What Step 5
-does load is the **spotlight** skill's
-[`doctrine.md`](../spotlight/doctrine.md) and
-[`class-patterns.md`](../spotlight/class-patterns.md) — **if that skill is
-installed** — for the textures you rotate across the site; without it, keep
-every fight `plain` and skip the rotation. That skill owns its files (library
-sync obligations: `docs/campaign-contract.md`).
+does load is [`spotlight-doctrine.md`](spotlight-doctrine.md) and
+[`class-patterns.md`](class-patterns.md) beside this file, for the textures
+you rotate across the site (library sync obligations:
+`docs/campaign-contract.md`).
 
 ## Inputs
 
@@ -108,7 +106,7 @@ classes wherever this repo tracks player characters; take the level the DM
 gives or derive it from the repo's leveling rules and campaign progress.
 State the level and size you're building for, and flag any composition gaps.
 Read each PC's **Spotlight profile** via the
-[spotlight skill's data ladder](../spotlight/SKILL.md#the-data-ladder) —
+[data ladder in `spotlight.md`](spotlight.md#the-data-ladder) —
 Step 5 textures fights with it.
 
 ## Step 3 — Pin the scale
@@ -155,8 +153,8 @@ floor item is checked off the edge list.
 ## Step 5 — Stock
 
 Open [`dungeon-design.md`](dungeon-design.md) for ecology and room
-design, and the spotlight skill's [`doctrine.md`](../spotlight/doctrine.md) and
-[`class-patterns.md`](../spotlight/class-patterns.md) (if installed) for the
+design, and [`spotlight-doctrine.md`](spotlight-doctrine.md) and
+[`class-patterns.md`](class-patterns.md) for the
 textures you rotate across the site. Per-fight sizing belongs to the fight
 procedure ([`combat.md`](combat.md)), which owns the XP budget and the
 complication menu.

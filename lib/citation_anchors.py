@@ -12,7 +12,7 @@ The citation form, everywhere in the chain::
 
     (`SKILL.md` — "each creature × count")
     (`xp-budget.md` — "three distinct stat blocks", "CR 0 sparingly")
-    (`SKILL.md` — "the DM's yes"; `spotlight/doctrine.md` — "flagged ability")
+    (`SKILL.md` — "the DM's yes"; `build-session/spotlight-doctrine.md` — "flagged ability")
 
 This module reads that form back out and asserts each phrase is still there. Two
 guards, and both are needed:
@@ -95,7 +95,7 @@ INVENTORY_SECTIONS = {
     "build-session — `node-deepening.md`": "build-session",
     "build-session — the Spec axis (the session brief)": "build-session",
     "catch-up": "catch-up",
-    "spotlight": "spotlight",
+    "build-session — the spotlight procedure (`spotlight.md`)": "build-session",
     "party-sync": "party-sync",
     "campaign-art": "campaign-art",
     "review-rewards": "review-rewards",

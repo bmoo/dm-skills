@@ -3,8 +3,8 @@
 Staging patterns per 2024 class — the judgment layer rules text can't supply:
 what to put in a scene so a class's statement fires, and the table psychology
 of why it lands. **Patterns, not inventory** — the authoritative flagged list
-for an actual PC lives on their player page (see the spotlight skill's data
-ladder); subclass and spell picks sharpen these entries, and a niche pick is
+for an actual PC lives on their player page (see the data ladder in
+[`spotlight.md`](spotlight.md)); subclass and spell picks sharpen these entries, and a niche pick is
 begging for a scene it can win. Verify any rules text you stage on via the
 sourcing chain in [`rules-sourcing.md`](rules-sourcing.md) — several abilities
 changed name or shape since 2014.

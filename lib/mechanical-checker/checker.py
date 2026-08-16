@@ -2493,7 +2493,7 @@ def spotlight_coverage(artifact: str, roster: list) -> SpotlightCoverage:
     """The deterministic spotlight-coverage pre-pass: ``roster − PCs named in
     Spotlight annotations``
     (`build-session/SKILL.md` — "every PC is either given a beat or named as
-    resting"; `spotlight/doctrine.md` — "Every PC gets a beat somewhere across a
+    resting"; `build-session/spotlight-doctrine.md` — "Every PC gets a beat somewhere across a
     scenario group — in any pillar").
 
     Newly computable since the spotlight plan became transient: every staged beat now lands
@@ -2559,7 +2559,7 @@ def check_spotlight_annotations_name_pc(artifact: str, context: Context) -> List
     ``check_targeted_spotlight_names_target_and_staging`` above already absorbs it
     on this same field. So a FIGHT field whose leading texture is ``plain`` — the
     one palette value doctrine defines as aiming at nobody
-    (`spotlight/doctrine.md` — "fiction-first, nobody aimed at. Legitimate and
+    (`build-session/spotlight-doctrine.md` — "fiction-first, nobody aimed at. Legitimate and
     necessary") — satisfies the row, which is what a doctrinally-required plain
     fight and the method doc's pocket beat
     (`build-session/SKILL.md` — "is *not* a budgeted beat — it is unplanned
