@@ -50,7 +50,7 @@ when the check has run and its findings are answered.
 
 **The criteria live in the skill text.** There is no separate rubric:
 the checker grades the artifact against the completion criteria written
-where each promise is stated, named by their stable row ids.
+where each promise is stated, named by their stable check ids.
 
 - **Launch it fresh — output, criteria, roster, nothing else.** Start a
   genuinely fresh-context, **read-only** checker and hand it only: the
@@ -63,14 +63,14 @@ where each promise is stated, named by their stable row ids.
 - **One round, one verdict, evidence required.** The checker returns a
   plain `approve | disapprove`; its default when it cannot tell is
   **disapprove**, and there are no waivers. Every finding cites its
-  row id, where on the artifact it sits, the **quoted span** it
+  check id, where on the artifact it sits, the **quoted span** it
   fired on, and a one-line **reason** — and carries **no fix**. A
   verdict with nothing behind it cannot be argued with, audited, or
   used to judge the checker itself later.
 - **Log the pass.** Through the shared library's `findings_log` module:
-  one `log_run("build-session", <the criteria row ids graded>,
+  one `log_run("build-session", <the criteria check ids graded>,
   tier="judgement", verdict=<the verdict>)`, and one
-  `log_finding("build-session", <row id>, tier="judgement",
+  `log_finding("build-session", <check id>, tier="judgement",
   disposition="raised", output_anchor=<where>, quoted_span=<the span>,
   reason=<the reason>)` per finding.
 - **On `disapprove`, one fix pass — no re-grade.** Refine the artifact

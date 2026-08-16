@@ -19,27 +19,18 @@ those through artifacts just because they're visual.
 - Keep artifacts self-contained (CSP blocks external CDNs) and theme-aware
   (light/dark) so they read well on the iPad in either theme.
 
-## Keep the verifier and skill promises aligned
+## Checks
 
-`build-session/scripts/mechanical_checker/checker.py` and its fixtures are the
-mechanical specification for build-session's runtime verifier. Subjective bars
-live as completion criteria in each skill's own text and are graded by a
-one-round fresh check.
+A check earns a place in this repo only if it verifies shipped content or a
+consumer's repo. Checks over this repo's own maintenance documents do not get
+written.
 
-So when a skill edit **adds, changes, or removes a checkable promise**
-(an arithmetic/count/format rule, a graph property, or a subjective quality
-bar like "interpretable" / "no undefined coinage"), update the chain in order:
+The mechanical checker and its fixtures are build-session's runtime
+specification. Add a mechanical rule by writing the check and its passing and
+failing fixture; subjective bars stay as completion criteria in the skill text
+and a one-round fresh check grades them.
 
-1. update the skill text, then
-2. update `checker.py` + a fixture when the promise is mechanical.
-
-The checker now lives inside the skill that runs it. Run
-`pytest checks/ skills/build-session/scripts/` to exercise the fixture you just
-added along with checks over shipped content.
-
-Add a check by registering its stable `<skill>/<rule>` slug in `checker.py` and
-adding a passing and failing fixture. A new mechanical promise is invisible
-until the checker and its fixtures cover it.
+Run `pytest checks/ skills/build-session/scripts/` for the content gate.
 
 ### When a commit reverses something the library asserts
 

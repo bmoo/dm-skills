@@ -64,9 +64,7 @@ items prep may hand out (`review-rewards`), or absorb what happened last time
 
 **Every skill installs alone.** No skill has a hard dependency on another:
 every optional cross-skill step is offered only when its companion is installed,
-and the rest of the skill degrades gracefully without it. For the maintainer
-contract, see
-[docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs).
+and the rest of the skill degrades gracefully without it.
 
 ## How the skills fit together
 

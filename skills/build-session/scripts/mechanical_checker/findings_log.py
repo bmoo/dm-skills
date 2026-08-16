@@ -9,7 +9,8 @@ silently corrects it and nobody is told. This module is where those records land
 
 Two record kinds, one line of JSON each, distinguished by ``record``:
 
-  - ``"finding"`` — one broken promise, keyed by ``inventory_row``. That key is
+  - ``"finding"`` — one broken promise, keyed by its stable check id. The
+    serialized field is named ``inventory_row`` for compatibility. That key is
     the whole point: recurrence ranking becomes a ``GROUP BY`` instead of an
     excavation through a campaign's git history.
   - ``"run"`` — one per verification pass, carrying its ``tier`` and its
@@ -209,10 +210,10 @@ def log_finding(
       ``"build-session"``, ``"build-session"``). One prep session emits
       findings from up to three skills, interleaved, because delegation is a
       chain.
-    - ``inventory_row`` — the promise-pointer: the stable row id this finding
-      broke, which for a mechanical finding is the ``Finding``'s
-      ``check_id`` verbatim. **The grouping key**, and a row id rather than a line
-      citation because a line citation inherits the rot problem.
+    - ``inventory_row`` — the serialized promise-pointer field: the stable check
+      id this finding broke, which for a mechanical finding is the ``Finding``'s
+      ``check_id`` verbatim. **The grouping key**, using a stable id rather than
+      a line citation because a line citation inherits the rot problem.
     - ``tier`` — ``"mechanical"`` or ``"judgement"``.
     - ``disposition`` — ``"healed"`` / ``"unhealable"`` for mechanical,
       ``"raised"`` for judgement (one record per round it appears).
