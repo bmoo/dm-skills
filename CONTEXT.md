@@ -47,8 +47,10 @@ hand-edited out of sync with its inventory row.
 _Avoid_: generated file, downstream artifact
 
 **Check method**:
-How a row is settled: `regex`, `parse`, `graph`, `trace`, `diff`, or `judgement`.
-The first five are code, run by the deterministic tier (a **mechanical check**);
+How a row is settled: `regex`, `parse`, `graph`, or `judgement`. (Two further
+classes, `trace` and `diff`, were retired without ever executing — see the
+inventory's "Deliberately removed" note.)
+The first three are code, run by the deterministic tier (a **mechanical check**);
 a **judgement row** is one no code can settle, graded by a checker reading the
 artifact.
 _Avoid_: check type, validator kind, subjective check

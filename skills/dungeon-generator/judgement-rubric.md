@@ -158,8 +158,7 @@ mechanical row (spec user stories 9/20).
   defect, not foreshadowing.**" The inventory row `lead-interpretability` cites
   the same Leads-planted promise (`SKILL.md` — "is every planted lead
   **interpretable with only what the players already know**"); it is the delivery-package
-  bullet, not the Step-8 filing checklist's clue-web bookkeeping —
-  `leads-both-ends-bookkeeping` covers that mechanically.)*
+  bullet, not the Step-8 filing checklist's clue-web bookkeeping.)*
 
 - **Roster use:** **None** — but not for the structural reason `npc-rows-named`
   gives. `lead-interpretability` turns on **what the party already knows** — their

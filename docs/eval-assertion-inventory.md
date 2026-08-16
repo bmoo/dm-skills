@@ -22,18 +22,26 @@ Rewriting skill text is a different job.
 
 ## Check methods
 
-The initial design named four; later analysis established that a headless run also
-yields the tool-call stream, which makes two
-more available:
-
 | Method | What it means |
 |---|---|
 | **regex** | A pattern over the emitted text or a written file. |
 | **parse** | Structured extraction, then an assertion over the fields (arithmetic, counts, set membership, enum). |
 | **graph** | A property of the edge list / clue web as a graph. |
-| **trace** | An assertion over the `stream-json` tool-use stream — which skill fired, which MCP tools were called and in what order, whether any file was written. |
-| **diff** | An assertion over the fixture repo's before/after state. |
 | **judgement** | Needs a model or a human. Not free. |
+
+**Deliberately removed: the trace and diff classes.** This file once carried
+67 rows in two further classes — `trace`, asserting over the agent's tool-use
+stream (premised on the observation that a headless run also
+yields the tool-call stream), and `diff`, asserting over the fixture repo's
+before/after state. None was ever executed: no harness existed, and
+`lib/mechanical-checker/checker.py` registered none of them, so every skill
+edit paid their upkeep for checks that never ran. They were removed rather
+than kept as dead weight
+([Decide the fate of the never-executed trace and diff rows](https://github.com/bmoo/dm-skills/issues/8));
+the promises they cited still live where they are authored, in the skill
+text's own MUSTs, and `docs/backpressure-candidates.md` records the history.
+The realized rows that grade the same ground through real tests
+(`review-rewards`, below) stay.
 
 Methods combine where a row has two halves — `graph` plus `parse`, and in one row
 (`build-session/brief-locked-subject-canon`) **code plus judgement**: the parse half
@@ -60,10 +68,6 @@ skill text itself**, not over a run's output. Those cost nothing — no model, n
 | combat-generator/spotlight-texture-in-palette | `Spotlight:` names a texture from the palette — aimed / puzzle / steamroll / plain / curveball (`SKILL.md` — "aimed / puzzle / steamroll / plain / curveball"; `spotlight/doctrine.md` — "Give every designed situation exactly one **texture**") | parse (enum) | Yes |
 | combat-generator/targeted-spotlight-names-target-and-staging | An aimed or puzzle fight names *whom* it shoots at and the staging that fires their ability (`SKILL.md` — "if aimed or puzzle, who it shoots at and the staging that fires their ability") | parse | Yes |
 | combat-generator/swarm-carries-fragile-creatures | More than two creatures per character → fragile creatures included (`xp-budget.md` — "more than **two creatures per character**", "include **fragile creatures that can be defeated quickly**") | parse (ratio) + judgement | Trigger yes, remedy no |
-| combat-generator/every-creature-looked-up | Rules sourcing: a sourcing-chain lookup made for every creature placed; **no** creature named that was never looked up (`SKILL.md` — "Look up every creature you place") | trace | Yes |
-| combat-generator/catalog-browse-before-lookup | A catalog browse of the chosen source happens *before* the first creature lookup (`SKILL.md` — "browse the chosen source's catalog", "*before* shortlisting") | trace (ordering) | Yes |
-| combat-generator/no-invented-stats-when-chain-dry | Nothing in the sourcing chain answers a lookup (no content tool and the bundled SRD misses) → say so and name the gap; no stat block or XP figure invented from memory (`SKILL.md` — "say so and name the gap") | trace (negative) | Yes — assert no invented rules figures |
-| combat-generator/filing-offered-not-assumed | Filing is **offered, but don't assume** — no file write before the DM's yes (`SKILL.md` — "Then **offer**, but don't assume", "until the DM says to keep it. Wait for the yes") | trace (no Write/Edit) | Yes |
 | combat-generator/complication-from-menu | At least one complication, drawn from the menu (`SKILL.md` — "choose **at least one** complication", "An encounter without a complication is not finished") | — | No parse target — see `unenforceable/complication-field-missing` |
 | combat-generator/set-piece-two-complication-sections | Set-piece fights take two complications from different menu sections (`SKILL.md` — "for a set-piece fight, take **two, from different menu sections**"; sections at the `complications.md` H2s — "## Terrain & the battlefield") | parse (section membership) | Section half yes; trigger no — see `unenforceable/set-piece-undefined` |
 
@@ -89,19 +93,11 @@ skill text itself**, not over a run's output. Those cost nothing — no model, n
 | dungeon-generator/fight-budget-and-complication | Every fight carries budget arithmetic and a complication; two for the set piece (`SKILL.md` — "the sized encounter block — budget arithmetic", "the complication(s) from its menu") | parse | Inherits combat-generator's encounter arithmetic — XP totals, per-char budget, the DMG-table check, the distinct-stat-block cap — and its complication rules |
 | dungeon-generator/every-flagged-pc-staged | Every PC's flagged ability is staged somewhere in the site (`SKILL.md` — "every flagged PC staged somewhere in the site") | parse (set cover vs roster) | Yes |
 | dungeon-generator/aimed-slots-balanced | Aimed slots are balanced across the flagging roster — nobody takes a second while another who flagged has zero, and per-PC counts stay within one (`SKILL.md` — "the aimed slots balanced across the flagging roster", "Balance is a property of the finished key list") | count (aimed slots per PC; assert max−min ≤ 1) | Yes |
-| dungeon-generator/aimed-slots-respect-session-plan | Built inside a session prep run, the rotation spends that session's plan: no aimed slot for a PC the plan names as resting (`SKILL.md` — "the rotation *spends* that plan rather than minting a second one", "A PC the plan names as deliberately resting gets no aimed slot here") | trace (prep-run transcript) | In-run only — the plan is transient and leaves no durable artifact to diff against |
-| dungeon-generator/slate-stop-before-keying | The slate stop: no keyed rooms emitted while either pick is still open — the DM's picks where a DM is in the run to make them, the generator's own self-serve picks where there is not, so the stop terminates in both modes (`SKILL.md` — "**Don't proceed past the slate with either pick still open.**", "take the reinforcing pairing you flagged") | trace (negative) | Yes |
 | dungeon-generator/magic-item-on-approved-list | A magic item is placed silently only if on the repo's approved list (`SKILL.md` — "A magic item may be placed silently **only if it's on the repo's approved list**") | parse (set membership) | Yes |
-| dungeon-generator/item-placement-loot-parity | Candidate item picks read recent item receipts from the campaign record and favor PCs light on recent loot (`SKILL.md` — "favor PCs light on recent loot") | diff (candidates vs receipts in a fixture record) | Partial — the read yes, "favor" is judgement |
-| dungeon-generator/fights-file-as-encounter-meta | Filing checklist: every fight files as an encounter-meta block (`SKILL.md` — "Each fight files as an encounter-meta block per combat-generator's filing format") | diff + regex | Yes |
 | dungeon-generator/noncombat-beat-files-spotlight-scene | A non-combat beat the site stages for a PC files its own `Spotlight (scene):` line at that key (`SKILL.md` — "files its own `Spotlight (scene):` line at that key") | regex | Yes |
-| dungeon-generator/leads-both-ends-bookkeeping | Every planted lead gets both-ends bookkeeping (`SKILL.md` — "Every planted lead gets **both-ends** bookkeeping") | diff + graph | Yes |
-| dungeon-generator/inbound-lead-or-gap-flagged | Inbound reachability: ≥ 1 inbound lead promising the objective, else flag the gap — **never invent one here** (`SKILL.md` — "the anchor needs at least one inbound lead promising the objective", "flag the gap to `seed-clues` rather than inventing a lead here") | graph + diff (no lead written) | Yes |
 | dungeon-generator/lead-interpretability | Leads interpretable with only what players already know (`SKILL.md` — "is every planted lead **interpretable with only what the players already know**") | judgement | No |
-| dungeon-generator/render-size-matches-model | Render: `--size` equals the gpt-image-2 size exactly (`map-render.md` — "`--size` must equal the gpt-image-2 `--size` exactly") | trace (arg check) | Yes |
 | dungeon-generator/verification-slate-derived-from-edges | Verification slate is **derived from the edge list**: one line per edge, per secret, per trap, per hazard, per room, plus legend · scale bar · labels · inventions · surround (`map-render.md` — "Derive the slate **mechanically from the edge list before looking at the image**", "one line per **edge**", "one **surround** line") | parse (line count == derived count) | Yes — the slate's *shape* |
 | dungeon-generator/verification-slate-verdicts-against-image | Every verification-slate line carries a pass/amend/critical verdict judged against the rendered image (`map-render.md` — "Read the rendered image and mark every line **pass / amend / critical**") | judgement (vision) | No |
-| dungeon-generator/slate-rewalk-on-filed-image | Re-walk every slate line on the image being filed, not the diff (`map-render.md` — "**Walk the slate on the image you are filing, not the diff from the last one.**", "Re-walk every line, every render") | trace | Partial — can assert a fresh full walk exists per render |
 
 ## seed-clues
 
@@ -110,7 +106,6 @@ skill text itself**, not over a run's output. Those cost nothing — no model, n
 | seed-clues/three-clue-rule | Three Clue Rule: ≥ 3 independent clues / leads at the target (`SKILL.md` — "any place they must go needs the same in leads") | parse (count) | Yes |
 | seed-clues/sources-on-different-nodes | **Must:** sources sit on different nodes (`SKILL.md` — "**Must:** sources sit on different nodes") | parse (distinct count == clue count) | Yes |
 | seed-clues/one-clue-ungated | **Must:** ≥ 1 clue is ungated — no check, cost, or favor (`SKILL.md` — "at least one clue is ungated — no check, no cost, no favor") | parse (cost field) | Yes |
-| seed-clues/two-concrete-now-on-built-nodes | **Must:** ≥ 2 are concrete-now, on built nodes (`SKILL.md` — "at least two are concrete-now, on built nodes") | parse + diff (node exists) | Yes |
 | seed-clues/discovery-mechanisms-diverse | **Should:** discovery mechanisms are diverse (`SKILL.md` — "**Should:** discovery mechanisms are diverse") | — | No — see `unenforceable/discovery-mechanisms-diverse` |
 | seed-clues/clue-interpretability | **Must:** every clue interpretable with only what players already know (`SKILL.md` — "every clue is interpretable using only what the players already know at the moment of discovery") | judgement | No |
 | seed-clues/player-reachable-vehicle | **Must:** every placed clue has a player-reachable vehicle — scene, action, check, or bargain (`SKILL.md` — "every placed clue kept a player-reachable vehicle — a concrete scene, action, check, or bargain") | judgement (weak regex proxy) | Partial |
@@ -119,18 +114,14 @@ skill text itself**, not over a run's output. Those cost nothing — no model, n
 | seed-clues/one-proactive-candidate | ≥ 1 **proactive** candidate on the slate (`SKILL.md` — "Include at least one **proactive** candidate") | parse (count) | Yes |
 | seed-clues/delivery-timing-tag-verbatim | Delivery-timing tag is one of two **verbatim** strings — `surfaces late in node` / `latest & flattest — offhand, once, no chaseable trail` (`SKILL.md` — "a plain forward/exit lead → **surfaces late in node**", "**latest & flattest — offhand, once, no chaseable trail**") | regex (exact) | Yes — cleanest string assertion in the library |
 | seed-clues/only-forward-lead-tagged | Only the forward/exit lead is tagged; lateral leads carry no tag (`SKILL.md` — "Only that lead is tagged", "Lateral leads need no tag") | parse (count ≤ 1) | Yes |
-| seed-clues/rejected-candidates-never-written | Rejected and deferred candidates are **never written** to the record (`SKILL.md` — "Rejected → discard; write nothing. Deferred → also write nothing", "Never park unpicked candidates in the campaign record") | diff (no candidate text lands) | Yes |
-| seed-clues/clue-exists-at-both-ends | Each picked clue exists at **both** of its ends (`SKILL.md` — "every picked clue exists at both of its ends") | diff + graph | Yes |
 | seed-clues/cluster-has-exit-edge | Exit check: ≥ 1 progression edge leads out of the touched cluster (`SKILL.md` — "confirm the loop is not closed — at least one progression edge leads *out*") | graph | Yes |
 | seed-clues/single-proactive-exit-reported-fragile | A cluster whose only exit is one proactive trigger is reported as fragile (`SKILL.md` — "A cluster whose only exit is a single proactive trigger is fragile") | graph + regex | Yes |
-| seed-clues/bookkeeping-checklist-complete | Bookkeeping: checklist entry, both ends, open-questions record, log entry — each done or N/A-with-reason (`SKILL.md` — "Complete every item, or mark it N/A with the reason", "Operation log entry written") | diff | Yes |
 | seed-clues/candidate-slate-oversupply | Roughly twice as many candidates as the gap needs (`SKILL.md` — "Draft roughly twice as many candidates as the gap needs") | — | No — see `unenforceable/candidate-slate-oversupply` |
 
 ## build-session + session-page-format
 
 | Slug | Promise (source) | Method | Enforceable as written? |
 |---|---|---|---|
-| build-session/unabsorbed-session-routes-to-catch-up | Opening hand-off: an unabsorbed played session routes to `catch-up` before anything is built (`SKILL.md` — "If it shows a played session not yet absorbed, hand off to the repo's absorption skill") | trace (routing) | Yes — cheap, no output parsing |
 | build-session/skeleton-sections-in-order | All nine skeleton sections present, in order, each filled or its gap named (`session-page-format.md` — "Sections, in order. Every section is either filled or its gap named on the page", "Every skeleton section is filled or its gap is named on the page") | parse (heading order) | Yes for presence/order; "gap named" is judgement |
 | build-session/key-npcs-header | Key NPCs table header is exactly **Name \| Personality \| Role \| Stat Block \| Location** (`session-page-format.md` — "**Key NPCs** — one table, one row per NPC or creature likely to appear", "**Personality** is a single character from popular fiction" — the disputed fifth column) | regex | Yes — but see `unenforceable/npc-roster-column-contradiction` |
 | build-session/role-word-count | Role is 3–8 words (`session-page-format.md` — "**Role** is a short phrase (3–8 words)") | parse (word count) | Yes |
@@ -155,22 +146,13 @@ skill text itself**, not over a run's output. Those cost nothing — no model, n
 | build-session/keyed-site-carries-map | A page with keyed areas embeds its rendered map — required because the abolished exits enumeration leaves prose and the map as the site's only readable topology (`session-page-format.md` — "**A keyed site carries its map.**", "**embeds its rendered map**", "**the room prose and the map are the only human-readable topology the site has**", "**silent data loss — a keyed dungeon the DM cannot navigate**") **Deliberately not merged with `build-session/hotspot-map`**: that row fires on a *hotspot treatment that already exists* and counts its badges against the keys, so it is silent on a page carrying no map at all — different trigger, different failure. Its unimplemented no-redundant-ASCII-duplicate clause stays its own, and out of this row | parse (keyed areas present → a `> [!map]` embed present) | Yes |
 | build-session/edges-not-dm-visible | The render-ready edge table is filed on the page but concealed, and no edge ID survives anywhere a DM reads — a keyed area's exits, body prose, a `> [!dm-sidebar]`, an `> [!encounter-meta]` terrain line; keyed-area IDs are exempt (`session-page-format.md` — "**wrapped in an HTML comment**, so it renders to nothing and no reader ever sees it", "**stays on the page — never deleted**", "**Edge IDs appear nowhere a DM reads**", "**Keyed-area IDs are unaffected**", "**The per-key exits enumeration is abolished, not de-coded.**") | regex (negative, over the page's DM-visible text) | Yes for the codes and the concealment; whether a connection is described where it is narratively relevant is judgement |
 | build-session/spotlight-coverage | Spotlight plan covers every PC — a beat or named resting (`SKILL.md` — "The plan is done when every PC is either given a beat or named as resting", "the spotlight plan covers every PC (a beat or named resting)"; `spotlight/doctrine.md` — "Every PC gets a beat somewhere across a scenario group — in any pillar") | judgement (over a deterministic pre-pass) | No, but newly checkable. The old "no durable artifact" verdict is stale: once the plan became transient, every staged beat landed as its own page annotation naming its target PC, so the **covered set is derivable from the finished page**. A deterministic pre-pass (`spotlight_coverage`) computes `roster − PCs named in Spotlight annotations` (both shapes, `session-page-format.md` — "**Spotlight lines.**") and hands the uncovered set + per-PC beat share to the judge. It **cannot fail a page alone** — "absence is the record: a PC named nowhere on the page was planned as resting" (`session-page-format.md` — "a PC named nowhere on the page was planned as resting"), so an uncovered PC is *either* a deliberate rest or a dropped beat, and only judgement separates them |
-| build-session/spotlight-plan-not-filed | The spotlight plan is **never filed on the page** — no table, no Preparation entry, on a full or lean-sheet run (`SKILL.md` — "The spotlight plan is not filed on a lean-sheet run either"; `session-page-format.md` — "**The session spotlight plan is not filed here** — or anywhere on the page as a table", "The plan itself appears nowhere on the page: no table, no Preparation entry") | diff (negative) | Yes |
+| build-session/spotlight-plan-not-filed | The spotlight plan is **never filed on the page** — no table, no Preparation entry, on a full or lean-sheet run (`SKILL.md` — "The spotlight plan is not filed on a lean-sheet run either"; `session-page-format.md` — "**The session spotlight plan is not filed here** — or anywhere on the page as a table", "The plan itself appears nowhere on the page: no table, no Preparation entry"). Long mis-classed `diff (negative)` and re-methoded when the trace/diff classes were removed: the registered check (`checker.py`) needs no before/after state — it reads the finished page alone for five filing shapes (a spotlight heading, a plan label, a plan-shaped table, annotations nested under Preparation, a filed resting roster) | regex (negative, pure output) | Yes — realized in `checker.py` |
 | build-session/spotlight-annotations-name-pc | Every beat the plan staged carries its page annotation, each naming its target PC — encounter-meta `Spotlight:` for a fight, a `Spotlight (scene):` sidebar line otherwise (`session-page-format.md` — "**Every staged beat names its target PC** — an unnamed line is a defect", "Every beat the session's spotlight plan staged carries its page annotation"). **Absorbed exception — the plain fight and the pocket beat**: the encounter-meta `Spotlight:` field is a **required** label on *every* fight (`session-page-format.md` — "Party, Enemies, Budget, Terrain, Spotlight, and Objective are required"), so a fight that stages no beat still carries one and has nothing to name — the library's own doctrine then produced a page its own gate failed. The shipped format already scopes the who-clause to the targeted textures (`session-page-format.md` — "if aimed/puzzle, who and the staging that fires their ability"), and `combat-generator/targeted-spotlight-names-target-and-staging` already absorbs that exception on this same field; this row had simply over-read its neighbouring sentence. So a **fight** field satisfies this row by declaring the one palette texture doctrine defines as aiming at nobody (`spotlight/doctrine.md` — "fiction-first, nobody aimed at. Legitimate and necessary", "**No single situation must aim at anyone.**") — which is what a doctrinally-required plain fight and the method doc's pocket beat (`build-session/SKILL.md` — "is *not* a budgeted beat — it is unplanned reserve that may never fire") both are. **Narrow by construction, not an escape hatch:** only the affirmative `plain` declaration excuses, so an `aimed` fight naming nobody — or any other unnamed value — still fires; and a `Spotlight (scene):` line is **never** excused, because a scene line exists only where a beat was staged (`session-page-format.md` — "each beat it stages appears at the scene that stages it"), so relabelling one `plain` does not rescue it. A page of nothing but plain fights passes this row **by design**: that page's uncovered set is `build-session/spotlight-coverage`'s to rule on, and firing here would usurp its ruled legal absence (`session-page-format.md` — "a PC named nowhere on the page was planned as resting") | regex (shape + a PC name from the roster, or the palette's `plain` texture on a fight field) | Yes |
 | build-session/spotlight-shapes-separate | The two shapes stay separate: no `Spotlight (scene):` line inside an encounter-meta block, so the fight-variety ledger stays fights-only (`session-page-format.md` — "**The two labels are deliberately distinct.**", "a scene line must never read as a fight in that ledger") | regex (negative) | Yes |
-| build-session/spotlight-unplaced-beat-reported | A beat the plan allocated but the page couldn't stage is **reported unplaced in the run** — never left to read as a deliberate rest (`SKILL.md` — "name the PC and the beat that went unplaced"; `session-page-format.md` — "A beat the plan allocated but the page could not stage is neither") | trace (prep-run transcript) | In-run only. `build-session/spotlight-coverage` became checkable because the *covered* set is on the page; what the plan **allocated** is not, and dies with the run, so nothing on the page reconstructs "allocated but never staged". That row's judgement catches only its page-visible shadow — an uncovered PC — and by construction cannot say whether it was a drop or a rest, which is exactly why it is judgement and this row remains trace |
-| build-session/lean-sheet-write-allowlist | Lean-sheet run files **only** its one durable product (the Key NPCs roster) (`SKILL.md` — "only its one durable product (the Key NPCs roster) is filed") | diff (write allowlist) | Yes |
-| build-session/monster-prep-routes-to-combat | Never do monster prep inline — fights hand off to the combat skill (`SKILL.md` — "**Never do monster prep inline.** Fights are a trade to the combat skill") | trace (routing) | Yes |
-| build-session/maps-route-to-art-skill | Maps route to the art skill in the session's own declared style; ASCII fallback only where no art pipeline exists (`SKILL.md` — "Generate them in **the session's own declared art style**", "fall back to a hand-drawn ASCII diagram") | trace (routing) | Yes |
-| build-session/thin-clues-route-to-seed-clues | Thin clue coverage hands off to `seed-clues` rather than padding by hand (`SKILL.md` — "hand the gap to the repo's clue-seeding skill", "rather than padding the slate by hand") | trace (routing) | Yes |
-| build-session/room-by-room-routes-to-dungeon-generator | A location the party explores room-by-room routes to `dungeon-generator`, not `node-deepening.md` (`SKILL.md` — "**An interior to explore room-by-room**", "that's a keyed site, a trade to the dungeon skill, not a deepening pass") | trace (routing) | Yes |
-| build-session/keyed-site-fights-not-double-routed | A keyed site's fights are **not** also sent to the combat skill — the dungeon skill sizes them (`SKILL.md` — "Don't also send those fights to the combat skill; the dungeon skill sizes them") | trace (negative) | Yes |
 | build-session/stat-block-sweep-page-wide | Stat-block sweep: every creature name anywhere on the page carries a resolvable reference (`session-page-format.md` — "A bare creature name is a defect: a missing link is not a broken link", "The stat-block sweep is done") | judgement | No — see `unenforceable/stat-block-sweep-page-wide` |
 | build-session/plain-language | Plain-language sweep: no run-time line rests on an undefined coinage (`session-page-format.md` — "**Plain language in run-time text.**", "no run-time line depends on an undefined coinage or metaphor") | judgement | No |
 | build-session/read-aloud-boundary | Read-aloud sweep: every read-aloud block carries only what the characters perceive from where they stand — no hidden history, causes, intent, or meanings; no imposed emotions or decisions; nothing beyond the party's vantage; dialogue, readable text, sensation-scoped atmosphere, and involuntary physical reactions stay legal (`session-page-format.md` — "**Read-aloud is what they perceive.**", "could someone standing there perceive this, from where they stand, right now?", "The read-aloud sweep is done") | judgement | No |
-| build-session/stub-references-swept | Stub references swept — any page calling this session a stub now reflects the build (`session-page-format.md` — "Stub references swept: any page that called this session a stub or placeholder now reflects the build") | diff + regex | Yes |
 | build-session/aimed-item-names-pc | An item reward aimed at a particular PC names them in the Conclusion (`session-page-format.md` — "an item aimed at a particular PC names its intended PC"; `SKILL.md` — "The Conclusion line for an aimed item names its target PC") | parse (a roster PC name on the reward line) | Yes |
-| build-session/loot-parity-aim | An item reward is aimed at a PC light on recent loot, read from the record's recent recaps and player pages, never at a PC who banked items in the last played session; a promised item overrides parity (`SKILL.md` — "aim the item at a PC light on recent loot, never at a PC who banked items in the last played session", "A promised item overrides parity") | diff (aimed PC vs receipts in a fixture record) | Yes, against a fixture record |
 
 ## build-session — `node-deepening.md`
 
@@ -179,16 +161,9 @@ The node-deepening procedure `build-session` loads at Step 3 (formerly the
 
 | Slug | Promise (source) | Method | Enforceable as written? |
 |---|---|---|---|
-| build-session/seed-section-deleted | *(promote)* The seed section is deleted from the seed-ideas file (`node-deepening.md` — "*(promote)* Seed section deleted from its seed-ideas file") | diff | Yes |
-| build-session/page-catalog-updated | *(promote)* The repo's page catalog is updated (`node-deepening.md` — "*(promote)* The repo's page catalog updated") | diff | Yes |
 | build-session/node-frontmatter-conventions | Frontmatter matches the page's directory and status conventions (`node-deepening.md` — "Frontmatter matches the page's directory and status conventions") | regex (vs fixture conventions) | Yes |
 | build-session/clue-web-section-present | Clue-web section present with its glance line, even when leads are few (`node-deepening.md` — "Clue-web section present with its glance line (even if leads are few)") | regex | Yes |
-| build-session/node-enrolled-in-scenario-group | Node enrolled in its scenario group and the group's map updated (`node-deepening.md` — "node enrolled in its scenario group, and the group's map updated") | diff | Yes |
-| build-session/live-status-layer-updated | Live status layer updated wherever this node changed it (`node-deepening.md` — "Live status layer updated wherever this node changed it") | diff | Yes |
-| build-session/operation-log-entry-written | Operation log entry written (`node-deepening.md` — "Operation log entry written") | diff | Yes |
-| build-session/node-leads-indexed-and-reachable | Outbound leads indexed; **≥ 1 inbound lead placed** so the node is reachable (`node-deepening.md` — "outbound leads indexed, at least one inbound lead placed") | graph + diff | Yes |
 | build-session/ious-keyed-or-rejected | Every IOU from step 1 keyed or explicitly rejected (`node-deepening.md` — "**IOUs** this pass must honor", "every IOU keyed or explicitly rejected") | parse (set cover) | Yes, given IOUs are marked in the fixture |
-| build-session/inbound-edits-need-dm-nod | Inbound placements edit other pages **only after the DM's nod** (`node-deepening.md` — "edit the other pages only after the DM's nod") | trace/diff (negative) | Yes |
 | build-session/clue-web-indexes-only | Clue content lives in the body under its own headings; the clue-web section only indexes (`node-deepening.md` — "Clue *content* lives in the body under its own headings; the clue-web section only indexes it") | parse | Yes |
 | build-session/clue-interpretability | Every clue carries a player-reachable vehicle and is interpretable when found (`node-deepening.md` — "must carry a player-reachable vehicle: a concrete scene, action, check, or bargain yields it", "interpretable using only what the players already know when they could plausibly find it") | judgement | No |
 | build-session/node-is-durable-situation | The page reads as a durable situation — more material than one session consumes (`node-deepening.md` — "the page reads as a durable situation — more material than one session consumes") | — | No — see `unenforceable/node-is-durable-situation` |
@@ -278,19 +253,9 @@ finding survived deliberately** and is described in `brief-revelation-paid-down`
 
 | Slug | Promise (source) | Method | Enforceable as written? |
 |---|---|---|---|
-| catch-up/no-unabsorbed-session-stands-down | No unabsorbed session → say so and stand down; **zero writes** (`SKILL.md` — "If none, say so and stand down — there is nothing to catch up") | trace/diff (negative) | Yes |
-| catch-up/never-builds-inline | Catch-up never builds — new content becomes a named handoff, never inline work (`SKILL.md` — "a consequence demanding new content becomes a named handoff") | diff (no new node pages) | Yes |
-| catch-up/progress-marker-advances-exactly | The progress marker advances by exactly the sessions absorbed (`SKILL.md` — "the progress marker (session count and, if the campaign keeps one, the in-fiction date)") | diff (parse) | Yes |
-| catch-up/superseded-beats-struck-not-deleted | Superseded beats are **struck through, never deleted** (`SKILL.md` — "intervened timelines restruck (superseded beats struck through, never deleted)") | diff (no line deletions; `~~` added) | Yes |
-| catch-up/found-clues-and-revelations-marked | Found clues ticked and landed revelations marked (`SKILL.md` — "found clues ticked and landed revelations marked per the repo's convention") | diff | Yes |
-| catch-up/ring-one-touched-nodes-updated | Ring 1: every node the players touched is updated (`SKILL.md` — "**Directly impacted pages** — every node the players touched, changed, or learned from. Update always") | diff (set vs scripted transcript) | Yes, against a fixture transcript |
-| catch-up/ring-two-contradiction-only | Ring 2 checks neighbors for **contradiction only** — no enrichment (`SKILL.md` — "checking neighbors for *contradiction only*: update what now misstates the world, don't enrich what doesn't") | diff (change scope) | Partial — scope yes, intent judgement |
 | catch-up/spotlights-reconciled-from-annotations | Staged spotlights reconciled **from the page's annotations** — every encounter-meta `Spotlight:` field and `Spotlight (scene):` line — recording which **fired** and which were **denied or skipped**; the plan itself is transient and is never the source (`SKILL.md` — "the ledger is the session page itself: every encounter-meta `Spotlight:` field and every `Spotlight (scene):` sidebar line", "Record which of those staged beats **fired** and which were **denied or skipped**") | regex (player pages) + parse (set cover vs the page's annotations) | Yes |
-| catch-up/discrepancy-resolution-asked | Never pick for the DM how a discrepancy resolves — retcon vs. correct is asked, per item (`SKILL.md` — "**Never pick for the DM how a discrepancy resolves**", "let the DM pick per item") | trace (a question per docket item, no unilateral write) | Yes |
 | catch-up/reactions-proposed-not-invented | Reactions are proposed, consequences recorded — a deferred reaction is left blank, never a speculative beat (`SKILL.md` — "left honestly undecided (the trigger event recorded, the response blank)", "consequences are recorded freely, reactions are proposed") | judgement | No |
-| catch-up/recap-filed-and-linked | Recap filed and densely linked per the repo's conventions (`SKILL.md` — "Assemble the reconciled account into the session record's recap section, densely linked per the repo's conventions") | diff + link check | Presence yes, completeness judgement |
 | catch-up/loot-receipts-recorded | The recap names which PC received each item the session handed out (`SKILL.md` — "the recap names which PC received each item the session handed out") | parse (recap vs scripted transcript) | Yes, against a fixture transcript |
-| catch-up/leftover-loot-reaimed | Aimed item rewards in prepped-but-unreached material are re-aimed away from PCs who banked items this session, toward PCs lighter on recent loot; a promised item is exempt (`SKILL.md` — "re-aim any item whose named PC banked items this session", "A promised item keeps its PC") | diff (reward-line names before/after vs the session's receipts) | Yes, against a fixture record |
 
 
 ## spotlight
@@ -299,51 +264,27 @@ finding survived deliberately** and is described in `brief-revelation-paid-down`
 |---|---|---|---|
 | spotlight/one-texture-per-situation | Exactly one texture per designed situation, from the five-value palette (`doctrine.md` — "Give every designed situation exactly one **texture**, and rotate") | parse (enum, count = 1) | Yes |
 | spotlight/table-experience-rung-enum | **Table experience** rung ∈ {`new`, `learning`, `seasoned`} (`doctrine.md` — "a three-rung ordinal — lives here and nowhere else") | parse (enum) | Yes |
-| spotlight/rung-never-defaulted | The rung is **never defaulted** — missing → ask the DM, naming the three choices (`doctrine.md` — "finds it missing asks the DM, naming the three choices") | trace (negative: no output, a question emitted) | Yes |
-| spotlight/off-list-rung-rejected | An off-list rung value is rejected loudly, never silently coerced (`doctrine.md` — "an off-list value is rejected loudly, never silently coerced") | trace (negative test on a poisoned fixture) | Yes |
-| spotlight/rung-never-written-by-a-skill | No skill writes or graduates the rung — not catch-up, not party-sync (`doctrine.md` — "no skill writes or graduates it (not catch-up, not party-sync)") | diff (negative) | Yes |
 | spotlight/flagged-ability-pillar-and-staging | Every flagged ability tagged with its pillar ∈ {combat, social, exploration} and the staging that fires it (`doctrine.md` — "Tag every flag with the **pillar** it lives in") | parse | Yes |
 | spotlight/no-repeat-staging-per-pc | Never the same staging for the same PC twice running (`doctrine.md` — "**Never the same staging for the same PC twice running.**") | parse (vs the ledger) | Yes |
 | spotlight/curveball-on-request-only | Curveball is **on request only**, roughly once per adventure, and names whose tricks it denies (`doctrine.md` — "**On request only**, roughly once per adventure: name whose tricks it denies") | parse | "Names whose" yes; frequency no |
-| spotlight/no-spotlight-without-party-cache | Data ladder: no party cache → say so and offer party-sync; **don't spotlight from memory** (`SKILL.md` — "**No party cache at all?** Say so and offer a party-sync run. Don't spotlight from memory") | trace (negative) | Yes |
-| spotlight/stale-profile-derived-live | Profile stale (> 7 days) → derive live rather than trusting it (`SKILL.md` — "**Profile missing or stale (>7 days)?** Derive the flags live") | trace (date arithmetic + tool calls) | Yes |
-| spotlight/variety-evidence-from-this-campaign | Variety-check evidence comes from **this campaign's record only** (`SKILL.md` — "**Only this campaign's record feeds this** — never another campaign's data, even for the same players") | trace (no reads outside the fixture — plant a decoy campaign dir) | Yes |
-| spotlight/prepped-blocks-as-fallback-evidence | Before played sessions exist, fall back to `Spotlight:` lines in prepped encounter-meta blocks (`SKILL.md` — "Before played sessions exist, fall back to `Spotlight:` lines in prepped encounter-meta blocks") | trace | Yes |
-| spotlight/no-auto-rescrape | Never auto-trigger a re-scrape of a third-party service (`SKILL.md` — "Never auto-trigger a re-scrape of a third-party service — a real re-sync is the DM's call") | trace (no character-tool calls the DM didn't ask for) | Yes |
 
 ## party-sync
 
 | Slug | Promise (source) | Method | Enforceable as written? |
 |---|---|---|---|
-| party-sync/intake-chain-order | Character data comes from the intake chain in order — an environment character tool first, the DM in chat as the floor (`SKILL.md` — "Take the first rung that answers") | trace (rung order) | Yes |
-| party-sync/no-invented-stats | A number neither rung can source is named as a gap, never filled from training-data memory (`SKILL.md` — "never fill the gap from memory") | trace + diff (negative) | Yes |
-| party-sync/failures-handled-per-character | Tool failures handled **per character**, not wholesale: a character the tool errors on falls to the interview rung; sync what succeeds (`SKILL.md` — "**Handle failures per character**, not wholesale") | trace + diff | Yes |
-| party-sync/failed-sync-changes-nothing | A wholly failed sync changes nothing and earns **no log entry** (`SKILL.md` — "A wholly failed sync changes nothing in the campaign record and earns no log entry") | diff (negative) | Yes |
-| party-sync/only-character-section-rewritten | Only the `## Character` section of a player page is rewritten (`SKILL.md` — "rewrite only the `## Character` section of the player's page") | diff (section scope) | Yes |
-| party-sync/player-half-of-profile-preserved | The **player half** of the Spotlight profile is never rewritten from sheet data (`SKILL.md` — "never rewrite it from sheet data") | diff (negative) | Yes |
 | party-sync/draft-placeholders-never-filed | Unknown or unfilled fields file as named gaps, never as placeholder numbers presented as canon (`SKILL.md` — "never file placeholder stats as canon") | regex (absence in the written page) | Yes |
 | party-sync/player-matches-page-basename | `player` in the cache matches a player page basename (`SKILL.md` — "`player` must match a player page basename — that's the join key for page updates") | parse (set membership) | Yes |
 | party-sync/unconfirmed-party-prompts-refresh | Cache not confirmed since before the last played session → say so and offer a refresh before relying on numbers (`SKILL.md` — "hasn't been confirmed since your last session") | parse (`confirmedAt` vs latest session date) + regex | Yes |
 | party-sync/source-provenance-recorded | Each character's cache entry records which rung produced it — the tool's name or `interview` (`SKILL.md` — "records the source that produced it") | parse (field presence) | Yes |
-| party-sync/cache-lands-where-repo-says | The party cache lands where the campaign repo's guide keeps it (`SKILL.md` — "read its guide (`CLAUDE.md` or equivalent) for where player pages and the party cache are kept") | diff | Yes |
-| party-sync/uncorroborated-roster-goes-to-dm | Roster mappings that can't be corroborated go to the DM, not assumed (`SKILL.md` — "put any mapping you can't corroborate to the DM rather than assuming") | trace (a question emitted) | Partial |
 | party-sync/character-section-is-prose | Character section is prose plus a compact stat line, not a generated dump (`SKILL.md` — "short prose plus a compact stat line, not a generated dump") | judgement | No |
 
 ## campaign-art
 
 | Slug | Promise (source) | Method | Enforceable as written? |
 |---|---|---|---|
-| campaign-art/size-matches-subject-type | `--size` matches the subject type: portrait `1024x1536`, location/scene `1536x1024`, item `1024x1024` (or the doubled variants) (`SKILL.md` — "Pass `--size` explicitly, matched to the subject", "For extra detail, double the dimensions") | trace (arg check) | Yes |
-| campaign-art/size-edges-and-aspect-ratio | Both `--size` edges are multiples of 16 and the aspect ratio ≤ 3:1 (`SKILL.md` — "Constraints: both edges multiples of 16, aspect ratio ≤ 3:1") | trace (arithmetic) | Yes |
-| campaign-art/quality-defaults-high | `--quality` defaults to `high` (`SKILL.md` — "Default `--quality` to `high`") | trace | Yes |
-| campaign-art/no-style-no-anchor-ask | No style direction given and no anchor in the repo → **ask**, don't generate (`SKILL.md` — "no locked house style; every image takes a style direction") | trace (negative: no script call) | Yes |
 | campaign-art/output-basename-matches-page | Output basename is kebab-case and matches the page basename (`SKILL.md` — "a descriptive kebab-case basename. Match the page basename") | regex (output path) | Yes |
-| campaign-art/output-in-declared-media-dir | The output lands in the repo's declared media directory (`SKILL.md` — "**where images live** (the media directory)") | diff (path) | Yes |
 | campaign-art/prompt-carries-exclude-clause | Prompt carries the Exclude clause — no text, captions, watermarks, frame (`SKILL.md` — "Exclude: no text, captions, watermarks, or frame/border — unless asked") | regex (prompt string) | Yes |
-| campaign-art/embed-offered-not-inserted | The embed is **offered**, not inserted; no page edit before the yes (`SKILL.md` — "**Offer**, but don't assume: to insert the embed at a sensible spot in the page", "Wait for the DM to say yes") | diff (negative) | Yes |
-| campaign-art/api-key-from-environment | `OPENAI_API_KEY` comes from the environment, never the repo (`SKILL.md` — "reads `OPENAI_API_KEY` from the environment — a personal secret") | diff + regex | Yes |
 | campaign-art/prompt-composes-eight-parts | The prompt composes all eight labelled parts (`SKILL.md` — "write them as flowing sentences, not literally as a form") | — | No — see `unenforceable/prompt-composes-eight-parts` |
-| campaign-art/page-subject-read-whole | When the subject is a page, read the whole page and use its words (`SKILL.md` — "When the subject is a page, **read the whole page**", "use its words, don't invent") | trace (a Read of the page) + judgement | Read yes; fidelity no |
 
 ## review-rewards
 
@@ -421,19 +362,15 @@ wording. Some are cheap wording fixes; some are real design questions.
 
 ## What this exposes about the harness
 
-Three shapes fall out of the sweep, and they are not equally priced:
+Two shapes fall out of the sweep, and they are not equally priced:
 
 1. **The static lints** need no model at all. They catch real, already-filed
    defects and cost nothing to run on every commit.
-2. **Trace assertions** — routing, tool-call ordering, negative tests ("stop and
-   say so", "offer, don't assume", "never write X") — are cheap, need no output
-   parsing, and cover the largest single block of rows here. Every "**never**"
-   and "**MUST**" in the library is one of these. Confirmed feasible by
-   the headless which-skill-fired research spike.
-3. **Parse/graph assertions** need real output from a real run — the expensive
-   tier. combat-generator's XP arithmetic, dungeon-generator's xandering floor,
+2. **Parse/graph assertions** need real output from a real run — the expensive
+   tier. In practice every one of them runs against a hand-authored fixture
+   today. combat-generator's XP arithmetic, dungeon-generator's xandering floor,
    and seed-clues' clue-web musts are the densest, most valuable cases here.
 
-**Judgement rows are a minority** — roughly one in seven. The doctrine that
+**Judgement rows are a minority.** The doctrine that
 matters most at the table (is the clue interpretable, is the prose plain, is the
 NPC named rather than described) is exactly the part that stays judgement.
