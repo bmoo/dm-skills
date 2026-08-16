@@ -32,7 +32,7 @@ edit paid their upkeep for checks that never ran. They were removed rather
 than kept as dead weight
 ([Decide the fate of the never-executed trace and diff rows](https://github.com/bmoo/dm-skills/issues/8));
 the promises they cited still live where they are authored, in the skill
-text's own MUSTs, and `docs/backpressure-candidates.md` records the history.
+text's own MUSTs.
 The realized rows that grade the same ground through real tests
 (`review-rewards`, below) stay.
 
