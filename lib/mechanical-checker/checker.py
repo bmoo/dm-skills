@@ -1,6 +1,6 @@
 """Model-free mechanical checker for generator output.
 
-The deterministic tier of the runtime output-verification back-pressure loop.
+The deterministic tier of the runtime output-verification loop.
 A generator runs these checks on its *own* output text to
 catch mechanical promise-breaks — arithmetic, counts, format, graph properties —
 before it offers the output to file.
@@ -2700,9 +2700,9 @@ def check_clue_web_indexes_only(artifact: str) -> List[Finding]:
 # a whole-page phrase search is what makes two rows satisfiable by one sentence.
 
 # The brief's Locked fields, in template order, mapped to the row that grades
-# each. `Premise` and `Fit to established geography` are rubric-graded and
+# each. `Premise` and `Fit to established geography` are judgement-graded and
 # deliberately carry no mechanical id
-# (`skills/to-session-brief/SKILL.md` — "*(rubric-graded: does the page enact it)*").
+# (`skills/to-session-brief/SKILL.md` — "does the page enact it").
 _BRIEF_FIELD_CHECKS = (
     ("introduced canon", "build-session/brief-introduced-canon"),
     ("environmental ground rules", "build-session/brief-ground-rules-stated"),
@@ -3921,7 +3921,7 @@ def check_brief_locked_subject_canon(artifact: str, context: Context) -> List[Fi
     (`skills/build-session/session-page-format.md` — "**Adventure Background** —
     what is actually going on, written for the DM") — and fires where a sentence
     naming a locked subject carries a **quantity** neither source supplies. The
-    judgement half, in `skills/build-session/spec-axis-rubric.md`, grades what a
+    judgement half, graded by build-session's one-round fresh check, covers what a
     number does not mark: the frozen arm's sharpest invention carried one (*"made
     it himself, forty years ago"*) and its next one carried none (*"and he made it
     badly on purpose"*).

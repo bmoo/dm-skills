@@ -1,12 +1,12 @@
 # Self-heal loop — the deterministic refinement loop
 
 This is how a generator acts on the [mechanical findings](README.md) `run_checks`
-returns. It is the **deterministic sibling** of the judgement tier's
-[back-pressure driver](../judgement-checker/back-pressure-driver.md): same place in
-the run (it fires where the generator would offer to file), same 3-attempt ceiling,
+returns. It is the **deterministic sibling** of the judgement tier's one-round
+fresh check: same place in
+the run (it fires where the generator would offer to file),
 same read-only law. It differs in two ways that matter — the grader is **code, not
-a subagent**, so a passing check is *certain*; and the ceiling is counted
-**per check**, not per whole-output round.
+a subagent**, so a passing check is *certain*; and it retries, up to
+**3 fix attempts per check**, where the fresh check grades once.
 
 This doc ships to every consumer through the `mechanical_checker` symlink, so
 `combat-generator`, `dungeon-generator`, and `build-session` drive
@@ -76,8 +76,8 @@ unhealable one.
 
 The ceiling is counted **per check id**, independently. Each finding gets up to
 **3 fix attempts**, each followed by a re-run of *that one check*. This is the
-structural difference from the judgement driver, which re-launches a fresh checker
-over the *whole* output up to 3 rounds. Here there is no fresh grader to re-launch
+structural difference from the judgement tier's fresh check, which grades the
+*whole* output once and never re-grades. Here there is no fresh grader at all
 and no cross-finding interaction to re-weigh — a finding is a single mechanical
 break with a single deterministic fix, so it is healed on its own budget. One
 check exhausting its three attempts does not consume another check's.
@@ -86,7 +86,7 @@ check exhausting its three attempts does not consume another check's.
 
 A check still failing after its third attempt is **unhealable by the generator**.
 Those survivors become the
-[terminal mechanical-escalation list](../judgement-checker/verdict-contract.md#channel-2--terminal-mechanical-escalation-generator--dm)
+**terminal mechanical-escalation list**
 — a **list**, one entry per surviving check, each carrying the `Finding`'s four
 fields (`check_id`, `expected`, `actual`, `output_location`) **plus
 `heal-attempts-tried`** (what the generator already tried, so the DM acts without
@@ -116,4 +116,5 @@ The loop runs **before the file-offer** — after the output is drafted, before 
 skill says "offer, but don't assume". It is the deterministic slice of the skill's
 Definition of done. The judgement tier (a fresh-context checker subagent) is a
 separate, later slice per skill; where both are wired, the deterministic self-heal
-runs first (silent, in-context) and the judgement loop gates completion after.
+runs first (silent, in-context) and the one-round fresh check gates completion
+after.

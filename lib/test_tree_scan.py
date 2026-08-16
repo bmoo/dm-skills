@@ -18,8 +18,8 @@ from tree_scan import is_ignored, iter_tree
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # `tree_scan` itself is where the walking lives; the guard below allows it there
-# and nowhere else under `lib/`. Note the sweep also covers `lib/mechanical-checker/`
-# and `lib/judgement-checker/`, which *ship* — `tree_scan` does not, so a walk that
+# and nowhere else under `lib/`. Note the sweep also covers `lib/mechanical-checker/`,
+# which *ships* — `tree_scan` does not, so a walk that
 # genuinely belongs in a shipped checker earns a row here rather than an import.
 _WALKER_ALLOWLIST = {
     "tree_scan.py",
@@ -38,7 +38,7 @@ _WALKER_CALLS = tuple(f"{name}(" for name in (".rglob", ".glob", "os.walk", "glo
 # generator's `scripts/` reaches them by symlink, at the consumer they are real
 # copies with nothing above them. Nothing under here may import a module that
 # stays behind.
-_SHIPPED_DIRS = ("mechanical-checker", "judgement-checker")
+_SHIPPED_DIRS = ("mechanical-checker",)
 
 
 def _fake_worktree(tree: Path) -> Path:

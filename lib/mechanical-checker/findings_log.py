@@ -18,8 +18,8 @@ Two record kinds, one line of JSON each, distinguished by ``record``:
     skill) or 12 of 400 (noise). It is also **the entry condition**: a pass
     that raised nothing writes this row and nothing else, so a tier that ran
     clean stays distinguishable from a tier that never ran. Both tiers write one
-    — the judgement checker by hand, from its launch protocol — which is why the
-    row names its tier.
+    through this module — which is why the row names its tier, and why a
+    judgement run row also carries its ``verdict``.
 
 Design constraints this module is built to:
 
@@ -93,14 +93,17 @@ _TIERS = {"mechanical", "judgement"}
 
 # Which dispositions each tier may record. Mechanical findings end up healed (the
 # silent class) or unhealable (the terminal escalation to the DM). A judgement
-# finding only ever records that it was *raised*, once per round: whether it was
-# resolved (present round 1, absent round 2) or survived to the DM (present in the
-# final round) is inferred at read time from the sequence. Observed behaviour beats
-# a generator's own account of whether it fixed something.
+# finding only ever records that it was *raised* — the check is one round, so
+# whether the generator's single fix pass resolved it is the generator's ledger
+# to report to the DM, not this log's to infer.
 _DISPOSITIONS_BY_TIER = {
     "mechanical": {"healed", "unhealable"},
     "judgement": {"raised"},
 }
+
+# The two verdicts a judgement run may carry. A mechanical run carries none —
+# deterministic findings are their own verdict.
+_VERDICTS = {"approve", "disapprove"}
 
 
 # --------------------------------------------------------------------------- #
@@ -192,6 +195,8 @@ def log_finding(
     disposition: str,
     heal_attempts: Optional[int] = None,
     output_anchor: str = "",
+    quoted_span: str = "",
+    reason: str = "",
     path: Optional[Path] = None,
 ) -> bool:
     """Append one finding record. Returns whether the write landed.
@@ -212,18 +217,23 @@ def log_finding(
     - ``disposition`` — ``"healed"`` / ``"unhealable"`` for mechanical,
       ``"raised"`` for judgement (one record per round it appears).
     - ``heal_attempts`` — how many tries before the disposition stuck (the loop
-      caps at 3). Left ``None`` for a judgement finding: the checker is stateless
-      across rounds by design, and handing it its own round number would tell it
-      that prior fix attempts happened — exactly the leak the independence rule
-      forbids. Round order is recovered at read time from ``timestamp``, which is
-      the same read-time inference that already distinguishes a finding the
-      generator resolved from one that survived to the DM.
+      caps at 3). Left ``None`` for a judgement finding: the fresh check is one
+      round, so there is no attempt count to carry.
     - ``output_anchor`` — where in the output it broke (a ``Finding``'s
       ``output_location``, or the judgement finding's anchor).
+    - ``quoted_span`` — the exact span of output text the finding fired on.
+      **Required for a judgement finding**, empty for a mechanical one: a
+      deterministic check states expected-vs-actual, but a judgement verdict
+      with nothing behind it cannot be argued with, audited, or used to judge
+      the checker itself later.
+    - ``reason`` — one line of why the span breaks the criterion. **Required
+      for a judgement finding** on the same evidence contract; empty for a
+      mechanical one.
 
-    Raises ``ValueError`` on an unknown tier or a disposition that tier cannot
-    produce. That is a caller bug, caught at authoring time, not a runtime I/O
-    condition — unlike the I/O itself, which is best-effort (see ``_append``).
+    Raises ``ValueError`` on an unknown tier, a disposition that tier cannot
+    produce, or a judgement finding missing its evidence. That is a caller bug,
+    caught at authoring time, not a runtime I/O condition — unlike the I/O
+    itself, which is best-effort (see ``_append``).
     """
     if tier not in _TIERS:
         raise ValueError(f"unknown tier {tier!r}; expected one of {sorted(_TIERS)}")
@@ -232,6 +242,11 @@ def log_finding(
         raise ValueError(
             f"disposition {disposition!r} is not one the {tier} tier can produce; "
             f"expected one of {sorted(allowed)}"
+        )
+    if tier == "judgement" and (not quoted_span or not reason):
+        raise ValueError(
+            "a judgement finding requires both quoted_span and reason — "
+            "a verdict with nothing behind it cannot be audited"
         )
 
     return _append(
@@ -244,6 +259,8 @@ def log_finding(
             "disposition": disposition,
             "heal_attempts": heal_attempts,
             "output_anchor": output_anchor,
+            "quoted_span": quoted_span,
+            "reason": reason,
         },
         path,
     )
@@ -253,6 +270,7 @@ def log_run(
     skill: str,
     checks_evaluated: List[str],
     tier: str = "mechanical",
+    verdict: Optional[str] = None,
     path: Optional[Path] = None,
 ) -> bool:
     """Append one run record — the denominator for every finding row, and the
@@ -270,16 +288,22 @@ def log_run(
     to ``"mechanical"`` on the ``context=`` precedent that keeps a shipped
     signature backward-compatible: the two-argument call in ``self-heal-loop.md``
     is the mechanical one, so every pre-existing call site stays correct rather
-    than becoming silently mislabelled. A judgement pass names itself — its
-    checker writes this record by hand, from
-    ``lib/judgement-checker/checker-launch-protocol.md``, having no import path to
-    this module. Unknown tiers raise, exactly as in ``log_finding``.
+    than becoming silently mislabelled. Unknown tiers raise, exactly as in
+    ``log_finding``.
+
+    ``verdict`` is the judgement run's ``approve`` / ``disapprove`` — **required
+    for a judgement run, forbidden for a mechanical one** (deterministic findings
+    are their own verdict). It rides on the run row rather than the findings
+    because the verdict is a property of the pass: an approve run with zero
+    findings and a run that never happened must stay distinguishable.
 
     Recorded so it is not rediscovered at read time: a ``"run"`` row carrying **no**
-    ``tier`` at all predates , and is **mechanical** — the mechanical tier was
-    the only one that wrote run rows before this commit.
+    ``tier`` at all predates the tier field, and is **mechanical** — the
+    mechanical tier was the only one that wrote run rows before it. A judgement
+    run row with no ``verdict`` predates the one-round fresh check and came from
+    the retired multi-round loop.
 
-    For the judgement tier ``checks_evaluated`` is the **rubric rows it graded**,
+    For the judgement tier ``checks_evaluated`` is the **criteria rows it graded**,
     which is the same quantity by the same argument: a row's failure rate needs the
     count of passes where that row was in force.
 
@@ -299,14 +323,25 @@ def log_run(
     """
     if tier not in _TIERS:
         raise ValueError(f"unknown tier {tier!r}; expected one of {sorted(_TIERS)}")
+    if tier == "judgement":
+        if verdict not in _VERDICTS:
+            raise ValueError(
+                f"a judgement run requires verdict in {sorted(_VERDICTS)}, "
+                f"got {verdict!r}"
+            )
+    elif verdict is not None:
+        raise ValueError(
+            "a mechanical run carries no verdict — deterministic findings are "
+            "their own verdict"
+        )
 
-    return _append(
-        {
-            "record": "run",
-            "timestamp": _now_iso(),
-            "skill": skill,
-            "tier": tier,
-            "checks_evaluated": list(checks_evaluated),
-        },
-        path,
-    )
+    record: Dict[str, Any] = {
+        "record": "run",
+        "timestamp": _now_iso(),
+        "skill": skill,
+        "tier": tier,
+        "checks_evaluated": list(checks_evaluated),
+    }
+    if verdict is not None:
+        record["verdict"] = verdict
+    return _append(record, path)

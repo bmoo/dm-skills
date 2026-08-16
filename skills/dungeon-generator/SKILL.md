@@ -361,62 +361,63 @@ and there is no unconcealed window between the self-check and the hand-off.
   log, per [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md).
 
 This is the deterministic slice of done. The subjective promises are the
-judgement pass below — run it after this self-check, before Step 8.
+fresh check below — run it after this self-check, before Step 8.
 
-## Definition of done — the judgement pass
+## Definition of done — the fresh check
 
 The subjective promises the *site* owns — do the ≥ 2 routes to the objective
 each cost something **different**, is every planted lead **interpretable with
 only what the players already know** — need a grader that isn't you: you mark
 your own homework, and you mark it kindly. Once the package is drafted and
-self-healed, hand it to a fresh checker. This gates *completion*: Step 8's
-offer forms only when the checker approves or the loop exhausts.
+self-healed, hand it to **one fresh-context checker**, one round. This gates
+*completion*: Step 8's offer forms only when the check has run and its
+findings are answered.
+
+**Lead interpretability's boundaries, pinned:** salient prior knowledge and
+**grounded common regional knowledge** a local would plausibly hold both
+count as what the players already know; a symbol they glimpsed earlier only
+as unremarked scenery does not — seeing is not knowing. A lead whose meaning
+is first defined deeper in the same delve is a forward reference and fails;
+a lead whose actionable payload rides on content the party already holds
+passes even when adjacent content stays opaque.
 
 **The inheritance split.** Every fight arrived from combat-generator already
-judgement-checked (its **stat-block-refs-in-prose** and
-**swarm-carries-fragile-creatures** rows, graded by combat's fresh checker
-when it built the block). This pass grades only the two rows the *site*
+checked (its **stat-block-refs-in-prose** and
+**swarm-carries-fragile-creatures** criteria, graded by combat's fresh check
+when it built the block). This check grades only the two criteria the *site*
 owns — **objective-routes-cost-differently** and **lead-interpretability** —
-and the checker is handed the rubric subset
-`[dungeon-generator/objective-routes-cost-differently,
-dungeon-generator/lead-interpretability]` and nothing else, so it is
-structurally unable to re-grade a fight.
+so it is structurally unable to re-grade a fight.
 
-- **Launch a fresh checker — output, rubric, roster, nothing else.** Per
-  [`scripts/judgement_checker/checker-launch-protocol.md`](scripts/judgement_checker/checker-launch-protocol.md),
-  start a genuinely fresh-context, **read-only** checker and hand it **only
-  three things**: (1) the drafted dungeon package exactly as it stands, (2)
-  dungeon-generator's [`judgement-rubric.md`](judgement-rubric.md) — the rows
-  **objective-routes-cost-differently** and **lead-interpretability**, named
-  as dungeon's so it grades against no other skill's promises — and (3) the
-  party roster (**lead-interpretability** turns on *what the party already
-  knows*, not the roster's flagged abilities, and
-  **objective-routes-cost-differently** is structural; the roster is handed in
-  per protocol regardless). Withhold your own reasoning — chain of thought,
-  heal telemetry, any note arguing the site is good: a checker that sees only
-  what a reader sees grades what a reader gets. It returns a plain
-  `approve | disapprove` with advisory findings beneath — each citing the
-  inventory row it broke
-  (`dungeon-generator/objective-routes-cost-differently` /
-  `dungeon-generator/lead-interpretability`) and where in the package (the
-  route pair, the key/clue-note), carrying **no fix**. Its default when it
-  cannot tell is **disapprove**.
-- **Back-pressure — refine and re-drive, up to three rounds.** On
-  `disapprove`, drive the loop in
-  [`scripts/judgement_checker/back-pressure-driver.md`](scripts/judgement_checker/back-pressure-driver.md):
-  you — this same invocation — refine the package against the ranked findings
-  (the promise-pointers *are* the instruction; you own *how* to fix —
-  differentiate two same-cost routes, ground a lead that needs unseen
-  content), then launch a **new** fresh checker on the revised package. You
-  own the cross-round ledger, marking each finding `fixed` / `skipped` /
-  `no_change_needed`. At most **three rounds** — if round 3 still returns
-  `disapprove`, the loop **exhausts**.
-- **On exhaustion, enrich Step 8's one offer.** The surviving findings fold
-  into the existing file-offer, carrying their promise-pointers, package
-  anchors, and your outcome ledger — *"N issues I couldn't resolve — file
-  anyway, or take over."* — in the same enriched list as any unhealed
-  mechanical escalation from the self-check above. An `approve` run returned
-  an **empty** findings list, so the offer reads exactly as it always has.
+- **Launch it fresh — output, criteria, roster, nothing else.** Start a
+  genuinely fresh-context, **read-only** checker and hand it **only three
+  things**: (1) the drafted dungeon package exactly as it stands, (2) the
+  two criteria as this skill's own text states them — the route-cost
+  promise in [`xandering.md`](xandering.md), the lead promise and its
+  boundaries above — named as dungeon-generator's rows
+  `[dungeon-generator/objective-routes-cost-differently,
+  dungeon-generator/lead-interpretability]`, and (3) the party roster.
+  Withhold your own reasoning — chain of thought, heal telemetry, any note
+  arguing the site is good: a checker that sees only what a reader sees
+  grades what a reader gets. It returns a plain `approve | disapprove`;
+  every finding cites its inventory row, where in the package it sits (the
+  route pair, the key/clue-note), the **quoted span** it fired on, and a
+  one-line **reason** — and carries **no fix**. Its default when it cannot
+  tell is **disapprove**. Log the pass through the shared library
+  ([`scripts/mechanical_checker`](scripts/mechanical_checker), module
+  `findings_log`): one `log_run` with `tier="judgement"` and the verdict,
+  one `log_finding` per finding with its quoted span and reason.
+- **On `disapprove`, one fix pass — no re-grade.** Refine the package
+  against the findings once (the promise-pointers *are* the instruction;
+  you own *how* — differentiate two same-cost routes, ground a lead that
+  needs unseen content), marking each finding `fixed` / `skipped` /
+  `no_change_needed`. Do not launch a second checker: one fresh read is the
+  signal.
+- **Survivors enrich Step 8's one offer.** Findings you skipped or could
+  not fix fold into the existing file-offer, carrying their
+  promise-pointers, quoted spans, and your outcome ledger — *"N issues I
+  couldn't resolve — file anyway, or take over."* — in the same enriched
+  list as any unhealed mechanical escalation from the self-check above. An
+  `approve` leaves the offer reading exactly as it always has.
   Judgement gates *completion*, not filing.
 - **File nothing.** The checker is read-only over your package; the DM's yes
   in Step 8 stays the sole trigger that writes to a page. The checker's one

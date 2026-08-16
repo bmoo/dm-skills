@@ -74,6 +74,11 @@ order:
    the brief is silent.
 3. The live campaign state (scenario timelines, active threads,
    revelations tracker) and the most recent session's ending.
+4. The standing-feedback file — `.claude/standing-feedback.md` at the
+   campaign repo root, **if present** (its absence is a no-op, never an
+   error). It holds the DM's accumulated corrections from past builds —
+   one file, DM-authored, campaign-owned. Treat every entry as a
+   standing constraint on tonight's page, at method-doc precedence.
 
 **Done when:** the record's marker and the session history agree on where
 play stands, and you can name the session's number, its likely destination
@@ -159,11 +164,18 @@ names what it filled.
   back the allocated budget — a beat or a named rest per PC plus a
   texture per likely set-piece — and the **roster it read**, each PC with
   the flagged abilities and the rung the ladder resolved. That roster is
-  what the Step 5 trades, the Step 6 checks, and the judgement pass are
+  what the Step 5 trades, the Step 6 checks, and the fresh check are
   all handed; never climb the ladder a second time for it. The plan is
   done when every PC is either given a beat or named as resting — pull it
   from the record, not memory; a plan that leaves a PC unaccounted for
-  goes back before you spend it. The plan itself is **transient prep-run
+  goes back before you spend it. **A named rest must be defensible
+  against the page's own content.** Subject matter alone never makes a
+  scene owe a PC a beat — a funeral on the page with nothing staged in
+  it leaves the cleric's rest intact — but a staged action her flagged
+  ability answers (the widow asks; the rite has a consequence), annotated
+  for no one, is a dropped beat, and so is one PC hoarding most of the
+  page's beats while others sit silent. A PC named only inside another
+  PC's beat counts as covered — naming is the test; primacy is not. The plan itself is **transient prep-run
   state**: spend it in this run — hand it to the Step 5 trades, land its
   effects as one annotation per staged beat (Step 4) — and file it
   nowhere.
@@ -392,14 +404,13 @@ invisible to its check.
   (a library-owned row with a fixed id, not a check of your own
   invention). A field the brief left blank yielded no id at Step 2 and is
   graded nowhere — silence is never a constraint. The brief's
-  rubric-graded fields belong to the Spec checker in the judgement pass
-  below.
+  judgement-graded fields belong to the fresh check below.
 - **Compute the spotlight-coverage pre-pass.** Call
   `spotlight_coverage(output, <the Step 3 spotlight roster>)` from the
   same library. It is **not a check** — an uncovered PC is legal
   ("absence is the record": a PC named nowhere was planned as resting).
   It returns the uncovered set and each PC's beat share; carry that
-  forward to the judgement pass, where **spotlight-coverage** rules on
+  forward to the fresh check, where **spotlight-coverage** rules on
   whether each rest is defensible — the only place the coverage promise
   is graded.
 - **Self-heal, then escalate.** Drive the findings through the shared
@@ -416,79 +427,74 @@ invisible to its check.
 
 **Done when:** every check passes or heals, and any unhealable survivor
 is stated for the DM — a named gap is prep information; a silent one is a
-defect. The subjective rows the page owns are the judgement pass below,
+defect. The subjective rows the page owns are the fresh check below,
 which runs next and gates completion before Step 8's offer.
 
-## Step 7 — Definition of done — the judgement pass
+## Step 7 — Definition of done — the fresh check
 
 The self-check above settled the promises a compiler can settle. The
 subjective ones — named NPC rows, interpretable clues, defensible rests,
-plain run-time language — you must not grade yourself: you mark your own
-homework, and you mark it kindly. Once the page (and any deepened node)
-is drafted and self-healed, launch a **fresh checker** per
-[`scripts/judgement_checker/checker-launch-protocol.md`](scripts/judgement_checker/checker-launch-protocol.md)
-and let it try to disprove the artifact. This gates *completion*: Step
-8's report/offer does not form until the checker approves or the loop
-exhausts.
+plain run-time language, the brief enacted — you must not grade yourself:
+you mark your own homework, and you mark it kindly. Once the page (and
+any deepened node) is drafted and self-healed, launch **one fresh-context
+checker** and let it try to disprove the artifact. This gates
+*completion*: Step 8's report/offer does not form until the check has
+run and its findings are answered.
 
-**Inherit, don't re-grade.** The checker is handed only build-session's
-rubric subset — no combat row, no dungeon row — so it is structurally
+**The criteria live in the skill text.** There is no separate rubric:
+the checker grades the artifact against the completion criteria written
+where each promise is stated —
+[`session-page-format.md`](session-page-format.md) for the session page
+(named NPC rows, no page-history preamble, lead actionability, the
+page-wide stat-block sweep, plain run-time language, the read-aloud
+perception boundary, spotlight lines), this skill's Step 3 for spotlight
+coverage, and [`node-deepening.md`](node-deepening.md) for a deepened
+node page (clue interpretability, no plot decisions) — run the node
+criteria only when a node was deepened this run. The brief's
+judgement-graded fields (premise enacted, fit to established geography,
+Locked-subject canon) are graded in the same pass, against the brief
+itself.
+
+**Launch it fresh, read-only.** Hand the checker only: the artifact as
+it stands; the criteria files above; the brief as a **tracker issue URL,
+body only** — never retyped text, never the comment thread — plus the
+campaign canon record extract; the party roster; and the
+spotlight-coverage pre-pass output (computed fact any reader could
+re-derive, never your reasoning). It sees the output, never the
+reasoning that produced it — a checker handed the builder's rationale
+grades the rationale.
+
+**Inherit, don't re-grade.** The checker grades build-session's criteria
+only — no combat criterion, no dungeon criterion — so it is structurally
 unable to re-grade a delegated fight or keyed site, exactly as the
 mechanical self-check re-runs no delegate row.
 
-**Two artifacts, two subsets** of
-[`judgement-rubric.md`](judgement-rubric.md):
-
-- the **session-page subset** `[build-session/npc-rows-named,
-  build-session/no-page-history-preamble, build-session/lead-actionability,
-  build-session/spotlight-coverage, build-session/stat-block-sweep-page-wide,
-  build-session/plain-language]` grades the **session page**;
-- the **node-page subset** `[build-session/clue-interpretability,
-  build-session/no-plot-decisions]` grades the **deepened node page** —
-  run it only when a node was deepened this run.
-
-**Two axes, two checkers.** Both subsets above are the Standards axis and
-see no brief — they grade against library promises, a rubric identical on
-every run. Tonight's contract has a different source of truth, and one
-agent holding both can trade them off ("the brief asked for this, so the
-plain-language row can slide"), so the **Spec axis is a separate checker,
-launched in parallel with these and its verdict never merged into
-theirs**. Hand it the brief as a **tracker issue URL, body only** — never
-retyped text, never the comment thread — plus the campaign canon record
-extract. Its whole rubric is
-[`spec-axis-rubric.md`](spec-axis-rubric.md) — the subset
-`[build-session/brief-premise-enacted, build-session/brief-fit-to-geography,
-build-session/brief-locked-subject-canon]` — and it carries no Standards
-row. There are no waivers on either axis.
-
-- **Launch per the protocol.** Each checker is fresh-context and
-  read-only, handed only: the artifact as it stands, its rubric subset
-  (named as build-session's), the party roster, and — session-page
-  subset only — the spotlight-coverage pre-pass output (computed fact
-  any reader could re-derive, never your reasoning). It returns a plain
-  `approve | disapprove` with advisory findings citing inventory rows
-  and locations, carrying no fix; its default when it cannot tell is
-  disapprove. **plain-language**, **clue-interpretability**, and
-  **spotlight-coverage** carry labeled golden corpora
-  ([`corpus/plain-language/`](corpus/plain-language/),
-  [`corpus/clue-interpretability/`](corpus/clue-interpretability/),
-  [`corpus/spotlight-coverage/`](corpus/spotlight-coverage/)) the
-  checker reads to pin their boundaries.
-- **Back-pressure — up to three rounds.** On `disapprove`, drive
-  [`scripts/judgement_checker/back-pressure-driver.md`](scripts/judgement_checker/back-pressure-driver.md):
-  you — this same invocation — refine the artifact against the ranked
-  findings, then launch a **new** fresh checker; you own the cross-round
-  ledger (`fixed` / `skipped` / `no_change_needed`). A round with any
-  **`build-session/brief-*`** finding regenerates instead of refining:
-  a fresh builder rebuilds the page from the capped carry-forward,
-  never from the discarded draft. Three rounds, then the loop exhausts.
-- **On exhaustion, enrich Step 8's one offer.** Surviving findings fold
-  into the existing report/offer — promise-pointers, artifact anchors,
-  and your outcome ledger: *"N issues I couldn't resolve — file anyway,
-  or take over."* An `approve` leaves the offer indistinguishable from
-  today's. Judgement gates *completion*, not filing: the checker is
-  read-only over your page, and the DM's yes stays the sole trigger that
-  writes to one.
+- **One round, one verdict, evidence required.** The checker returns a
+  plain `approve | disapprove`; its default when it cannot tell is
+  disapprove, and there are no waivers. Every finding carries its
+  inventory-row pointer, where on the artifact it sits, the **quoted
+  span** it fired on, and a one-line **reason** — a verdict with nothing
+  behind it cannot be argued with, audited, or used to judge the checker
+  itself later.
+- **Log the pass.** Through the shared library beside this skill
+  ([`scripts/mechanical_checker`](scripts/mechanical_checker), module
+  `findings_log`): one `log_run("build-session", <the criteria row ids
+  graded>, tier="judgement", verdict=<the verdict>)`, and one
+  `log_finding("build-session", <row id>, tier="judgement",
+  disposition="raised", output_anchor=<where>, quoted_span=<the span>,
+  reason=<the reason>)` per finding.
+- **On `disapprove`, one fix pass — no re-grade.** Refine the artifact
+  against the findings once, recording per finding `fixed` / `skipped` /
+  `no_change_needed`. Do not launch a second checker: one fresh read is
+  the signal; re-grading your own fix re-opens the negotiation the
+  fresh context existed to close.
+- **Survivors enrich Step 8's one offer.** Findings you skipped or could
+  not fix fold into the existing report/offer — promise-pointers,
+  quoted spans, and your outcome ledger: *"N issues I couldn't resolve —
+  file anyway, or take over."* An `approve` leaves the offer
+  indistinguishable from today's. The check gates *completion*, not
+  filing: the checker is read-only over your page, and the DM's yes
+  stays the sole trigger that writes to one.
 
 ## Step 8 — Report
 

@@ -28,10 +28,10 @@ After copying, the setup skill sets `WIKI_TITLE` in
 runs `python3 scripts/wiki-index.py` once to generate the initial catalog —
 index files are generated, so none ship here.
 
-This library lives under `lib/` for the same reason `mechanical-checker` and
-`judgement-checker` do: it is canonical source the consuming skill
+This library lives under `lib/` for the same reason `mechanical-checker`
+does: it is canonical source the consuming skill
 materialises, not skill prose. The `setup` skill reaches this directory the
-same way the generators reach those — the relative symlink
+same way the generators reach that one — the relative symlink
 `skills/setup/wiki-scaffold`, dereferenced into a real copy at install; the
 pair sits on `lib/test_symlink_integrity.py`'s roster.
 

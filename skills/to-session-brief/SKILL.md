@@ -67,7 +67,7 @@ wrong-but-editable does not belong here even when it matters. Under
 
 ### Canon — what becomes true, and cannot be un-trued by editing
 - **Premise.** One sentence: what is happening tonight and why the party is in it.
-  *(rubric-graded: does the page enact it)*
+  *(graded by build-session's fresh check: does the page enact it)*
 - **Introduced canon.** Facts tonight asserts that the record does not already
   hold — or "none; all derived." *(checked as a diff against the campaign canon
   record, which the checker is handed)*
@@ -87,7 +87,7 @@ wrong-but-editable does not belong here even when it matters. Under
 
 ### Layout — what the geography commits to
 - **Map topology.** The shape.
-- **Fit to established geography.** *(rubric-graded)*
+- **Fit to established geography.** *(graded by build-session's fresh check)*
 
 ## Not tonight
 

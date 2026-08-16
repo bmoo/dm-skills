@@ -1,6 +1,6 @@
 # mechanical-checker
 
-The **deterministic tier** of the runtime output-verification back-pressure loop. A model-free library a
+The **deterministic tier** of the runtime output-verification loop. A model-free library a
 generator runs on its *own* output to catch mechanical promise-breaks —
 arithmetic, counts, format, graph properties — before it offers the output to
 file. A generator cannot cheat a compiler, so no external grader is needed.
@@ -104,9 +104,8 @@ Two rules that look like implementation detail and are neither:
 `canon_record` is a **durable record extract handed in as its own named input**,
 on the party roster's precedent — not a pre-pass. It is not derivable from the
 artifact, so it could never qualify under the pre-pass test, and the judgement
-tier's protocol files it beside the roster instead
-(`lib/judgement-checker/checker-launch-protocol.md` — "The campaign canon record
-extract").
+tier's fresh check is handed it beside the roster on the same terms
+(`skills/build-session/SKILL.md` — "campaign canon record extract").
 
 ## Context — the backward-compatible extension for roster-dependent checks
 
@@ -179,13 +178,12 @@ only place with a perfect record of that and, until now, no way to report it.
     `checks_evaluated` is the **list** of check ids, not a count:
     a run-level total would inflate the failure rate of conditional checks and
     deflate the unconditional ones. `tier` is there because **both** tiers write
-    one — mechanical through `log_run`, judgement by hand from its
-    [launch protocol](../judgement-checker/checker-launch-protocol.md) — and a
-    denominator attributed to the wrong tier is worse than none.
+    one through `log_run` — and a
+    denominator attributed to the wrong tier is worse than none. A judgement
+    run row also carries its `verdict` (`approve` / `disapprove`).
 - **All three channels are logged** — healed mechanical, terminal mechanical
-  escalation, and (from the judgement tier's
-  [launch protocol](../judgement-checker/checker-launch-protocol.md)) judgement
-  findings. **Nothing is filtered at write time**: weight is a property of the
+  escalation, and the fresh check's judgement
+  findings, each of those carrying its required `quoted_span` and `reason`. **Nothing is filtered at write time**: weight is a property of the
   *group*, not the finding. One healed arithmetic slip carries none; forty are the
   top-ranked defect class.
 - **Stdlib only** (`json`, `sys`, `datetime`, `pathlib`) — the shipped library takes no
