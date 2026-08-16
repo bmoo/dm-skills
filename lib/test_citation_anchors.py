@@ -7,8 +7,9 @@ real repo, which is what gates a commit: ``pytest lib/`` is the gate; there is n
 hook to install and nothing to remember.
 
 Like ``test_symlink_integrity.py`` beside it, this lives at the ``lib/`` top
-level rather than inside ``lib/mechanical-checker/`` — that directory
-materialises into every consumer through a symlink, and a check over *this
+level rather than inside the shipped checker at
+``skills/build-session/scripts/mechanical_checker/`` — that directory
+materialises into every consumer, and a check over *this
 repo's* maintenance docs must not ship with it.
 """
 

@@ -48,7 +48,8 @@ seven entries between them — that were already naming vanished branch commits.
 Keep entries long enough to be unambiguous and short enough to survive an
 unrelated reword nearby — one clause of the retired claim, not a paragraph.
 
-This guard lives at the ``lib/`` top level, outside ``lib/mechanical-checker/``,
+This guard lives at the ``lib/`` top level, outside the shipped checker at
+``skills/build-session/scripts/mechanical_checker/``,
 for the same reason the anchor check does: that directory materialises into every
 consumer, and this is a check over *this repo's* history. It runs here
 (``pytest lib/``) and never ships.

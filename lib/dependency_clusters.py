@@ -41,10 +41,10 @@ and they are only as true as the last person to read the surrounding step. What
 it does catch is the failure that actually occurs: a new `../other-skill/` load
 added to a skill and never declared anywhere.
 
-Lives at the ``lib/`` top level beside ``citation_anchors.py``, outside
-``lib/mechanical-checker/`` — that directory materialises into every consumer
-through a symlink, and this check is about *this repo's* install-time docs. It
-runs under ``pytest lib/`` and never ships.
+Lives at the ``lib/`` top level beside ``citation_anchors.py``, outside the
+shipped checker at ``skills/build-session/scripts/mechanical_checker/`` — that
+directory materialises into every consumer, and this check is about *this repo's*
+install-time docs. It runs under ``pytest lib/`` and never ships.
 """
 
 from __future__ import annotations

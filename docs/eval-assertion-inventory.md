@@ -2,7 +2,7 @@
 
 The mechanically checkable promises this library already makes, swept out of all
 `skills/*/SKILL.md` files and every reference file beside them. This is the
-master list the runtime checker (`lib/mechanical-checker/checker.py`) is
+master list the runtime checker (`build-session/scripts/mechanical_checker/checker.py`) is
 derived from.
 `zoom-in` has since been collapsed into `build-session`
 as `node-deepening.md`,
@@ -35,7 +35,7 @@ Rewriting skill text is a different job.
 stream (premised on the observation that a headless run also
 yields the tool-call stream), and `diff`, asserting over the fixture repo's
 before/after state. None was ever executed: no harness existed, and
-`lib/mechanical-checker/checker.py` registered none of them, so every skill
+`build-session/scripts/mechanical_checker/checker.py` registered none of them, so every skill
 edit paid their upkeep for checks that never ran. They were removed rather
 than kept as dead weight
 ([Decide the fate of the never-executed trace and diff rows](https://github.com/bmoo/dm-skills/issues/8));

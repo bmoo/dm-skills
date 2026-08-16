@@ -23,7 +23,7 @@ those through artifacts just because they're visual.
 
 `docs/eval-assertion-inventory.md` is the **master** list of every checkable
 promise the skills make. The runtime verifier derived from it is
-`lib/mechanical-checker/checker.py` + its fixtures — the chain is
+`build-session/scripts/mechanical_checker/checker.py` + its fixtures — the chain is
 **inventory → `checker.py` only**. (Subjective bars are no longer derived
 artifacts: since the verification-chain cut they live as completion criteria
 in each skill's own text, graded by a one-round fresh check, so editing one
@@ -35,6 +35,10 @@ bar like "interpretable" / "no undefined coinage"), update the chain in order:
 
 1. **the inventory row first** (master), then
 2. `checker.py` + a fixture, where the promise is mechanical.
+
+The checker now lives inside the skill that runs it, so its units are outside
+`pytest lib/`: run `pytest lib/ skills/build-session/scripts/` to exercise the
+fixture you just added along with the maintainer guards.
 
 Never hand-edit the checker out of sync with the inventory. The anchor
 check below covers one half of the drift mechanically — reword a passage a row

@@ -8,8 +8,8 @@ same read-only law. It differs in two ways that matter — the grader is **code,
 a subagent**, so a passing check is *certain*; and it retries, up to
 **3 fix attempts per check**, where the fresh check grades once.
 
-This doc ships to every consumer through the `mechanical_checker` symlink, so
-`build-session`'s fight, keyed-site, and page flows drive
+This doc ships to every consumer inside `build-session`'s own `scripts/`, so
+that skill's fight, keyed-site, and page flows drive
 the identical loop over their own check subsets.
 
 ## The loop

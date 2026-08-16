@@ -52,9 +52,10 @@ owning skill (``checker.py``, the non-skill inventory sections, the library
 prose) must spell the skill out.
 
 This guard lives at the ``lib/`` top level, beside ``test_symlink_integrity.py``
-and outside ``lib/mechanical-checker/`` — that directory materialises into every
-consumer through a symlink, and this check is about *this repo's* maintenance
-docs. It runs here (``pytest lib/``) and never ships.
+and outside every directory that materialises into a consumer — the shipped
+checker under ``skills/build-session/scripts/mechanical_checker/`` among them.
+This check is about *this repo's* maintenance docs, so it runs here
+(``pytest lib/``) and never ships.
 """
 
 from __future__ import annotations
@@ -130,9 +131,9 @@ INVENTORY = "docs/eval-assertion-inventory.md"
 # guards.
 SWEPT_FILES: dict[str, str | None] = {
     INVENTORY: None,  # per-section; see INVENTORY_SECTIONS
-    "lib/mechanical-checker/checker.py": None,
-    "lib/mechanical-checker/README.md": None,
-    "lib/mechanical-checker/test_checker.py": None,
+    "skills/build-session/scripts/mechanical_checker/checker.py": None,
+    "skills/build-session/scripts/mechanical_checker/README.md": None,
+    "skills/build-session/scripts/mechanical_checker/test_checker.py": None,
     "lib/test_session_fixture_sweep.py": None,
     "CLAUDE.md": None,
     # Maintainer prose, not the derivation chain — but its scaffold-as-default
