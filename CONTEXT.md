@@ -60,8 +60,8 @@ reasoning instead of the output.
 _Avoid_: validator, reviewer, judge
 
 **Finding**:
-One break a checker reports: where in the artifact the break sits, the row id it
-cites — the **promise-pointer**, which *is* the instruction
+One break a checker reports: where in the artifact the break sits, the stable
+check id it cites — the **promise-pointer**, which *is* the instruction
 to the generator, naming which promise broke and never how to repair it — and,
 for a judgement finding, the **quoted span** it fired on plus a one-line
 reason.
