@@ -1,8 +1,8 @@
 """Maintainer guard: the declared dependency clusters match the tree.
 
 The CLI installs one skill at a time, but some skills reach across a skill
-boundary — `build-session`'s fight and keyed-site procedures open
-`../spotlight/doctrine.md` mid-step. A selective
+boundary — `party-sync`'s Spotlight-profile refresh opens
+`../build-session/spotlight-doctrine.md` mid-step. A selective
 install of the dependent alone leaves a dangling load or a missing delegate, so
 the library **declares** the edges: the master table lives under
 *Dependency clusters* in ``docs/campaign-contract.md`` (maintainer-side, never
@@ -66,7 +66,7 @@ README_HEADING = "### Dependency clusters"
 KINDS = ("load", "delegate", "citation")
 STRENGTHS = ("hard", "degrades", "none")
 
-# `build-session` | `spotlight` | load — degrades | …
+# `party-sync` | `build-session` | load — degrades | …
 _CELL_SKILL_RE = re.compile(r"^`([a-z][a-z0-9-]*)`$")
 _COUPLING_RE = re.compile(r"^\**([a-z]+)\**\s*—\s*\**([a-z]+)\**$")
 

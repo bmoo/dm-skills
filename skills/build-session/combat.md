@@ -13,10 +13,10 @@ Two reference files sit beside this one; load them when their step says to:
   action-economy guardrails.
 - [`complications.md`](complications.md) — the menu of complications.
 
-Spotlight doctrine lives in the sibling [`spotlight` skill](../spotlight/SKILL.md)
-— Steps 2 and 5 load its `doctrine.md` and `class-patterns.md` **if that skill
-is installed**. Without it, skip the ladder and doctrine reads and mark the
-fight's texture `plain` — the fight is still sized; only the aiming is lost.
+Spotlight doctrine lives beside this file — Steps 2 and 5 load
+[`spotlight.md`](spotlight.md)'s data ladder,
+[`spotlight-doctrine.md`](spotlight-doctrine.md), and
+[`class-patterns.md`](class-patterns.md).
 
 ## Inputs
 
@@ -102,7 +102,7 @@ alongside level.
   undecided, leave it undecided.
 - **Builds, not just head-count.** For each PC with a sheet, read their
   **Spotlight profile** via the
-  [spotlight skill's data ladder](../spotlight/SKILL.md#the-data-ladder): the
+  [data ladder in `spotlight.md`](spotlight.md#the-data-ladder): the
   character half carries the flagged setup-dependent abilities, the player half
   the observed style that outranks them. A missing or stale rung self-heals per
   the ladder — read it regardless.
@@ -132,8 +132,8 @@ The fight is sized when the math is on the page and under budget.
 
 ## Step 5 — Give the fight a texture (spotlight doctrine)
 
-Open the spotlight skill's [`doctrine.md`](../spotlight/doctrine.md), and
-[`class-patterns.md`](../spotlight/class-patterns.md) if the fight ends up
+Open [`spotlight-doctrine.md`](spotlight-doctrine.md), and
+[`class-patterns.md`](class-patterns.md) if the fight ends up
 aimed:
 
 - **Session plan first.** Inside a session build the session has already
@@ -149,7 +149,7 @@ aimed:
 - **Texturing stages the roster Step 4 already bought** — adding creatures is
   Step 4's job, finished before this step.
 - **Set legibility on an aimed or puzzle beat.** Texture picks *what* fires;
-  the doctrine's [Legibility](../spotlight/doctrine.md#legibility) axis picks
+  the doctrine's [Legibility](spotlight-doctrine.md#legibility) axis picks
   *how plainly the DM points at it*. Read the target PC's **Table experience**
   rung from their profile's player half and calibrate the tell as that section
   prescribes — this skill reads the rung, never writes it.
@@ -297,7 +297,7 @@ On the yes, the encounter's vitals land on the page as an **encounter-meta
 callout** (the prose — terrain, tactics, the complication's staging — lives
 around it as normal page text). This is the machine-findable summary other
 tooling greps for: the `Spotlight:` line is the variety check's fallback ledger
-before played sessions exist (see the spotlight skill) and — because the
+before played sessions exist (see [`spotlight.md`](spotlight.md)) and — because the
 session spotlight plan is transient — half of what catch-up reconciles after
 play, so an aimed or puzzle fight names the PC it shoots at. **Never file an
 encounter without one.**

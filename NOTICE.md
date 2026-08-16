@@ -45,5 +45,6 @@ and the prose here is independently written:
   technique taxonomy ("xandering") that `skills/build-session/xandering.md`
   teaches in its own words:
   https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon
-- **Dungeon Dudes** — the spotlight doctrine in `skills/spotlight/doctrine.md`
+- **Dungeon Dudes** — the spotlight doctrine in
+  `skills/build-session/spotlight-doctrine.md`
   distills advice from their "Shoot Your Monks" episode.

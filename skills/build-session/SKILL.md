@@ -5,9 +5,9 @@ description: >-
   Lazy DM Prep against the campaign record, then compile the result into a
   durable session page in the library's WotC-convention format — or stop at
   a lean in-chat prep sheet when that's all the DM wants. Builds the
-  session's fights (XP-budgeted encounters) and keyed sites (non-linear
-  dungeons) with its own procedures, orchestrates the repo's other prep
-  skills (spotlight plan, clue slate, maps), and verifies the page against
+  session's fights (XP-budgeted encounters), keyed sites (non-linear
+  dungeons), and spotlight plan with its own procedures, orchestrates the
+  repo's other prep skills (clue slate, maps), and verifies the page against
   the format's definition of done; renders a styled PDF on request. Use
   when the DM wants a session built or made table-ready, asks "what do I
   need before Thursday," or wants a printable PDF of a session page. Not
@@ -35,6 +35,9 @@ Reference beside this file — load each when its step says to:
 - [`node-deepening.md`](node-deepening.md) — promoting a seed into its own
   node page, or building a thin node out in place. Load at Step 3, when a
   location tonight's play needs is too thin to run cold.
+- [`spotlight.md`](spotlight.md) — the spotlight-plan procedure: the data
+  ladder, the allocated budget, the roster read. Load at Step 3, for the
+  session's spotlight plan.
 - [`combat.md`](combat.md) — the fight procedure: XP-budgeted, complicated,
   spotlight-textured encounters. Load at Step 5, once per fight.
 - [`dungeon.md`](dungeon.md) — the keyed-site procedure: non-linear keyed
@@ -156,13 +159,12 @@ names what it filled.
   every lens every time. Where a lens wants a fact the record doesn't
   hold (how does this PC know that place?), surface it as a question for
   that player at the table — their PC's history is theirs to answer.
-- **The spotlight plan** — a trade like any other: if this repo has a
-  spotlight skill, hand it the session **through that skill's delegate
-  interface** (its *Invoked as a delegate* section) — the party, this
-  session's planned situations with the pillar each lives in (social,
-  exploration, combat), and any beat already fixed. It owns the data
-  ladder, the palette, and the legibility calibration behind that
-  boundary. Hand it **planned situations alone**: the method doc's
+- **The spotlight plan** — load [`spotlight.md`](spotlight.md) beside this
+  file and follow it, handing it the party, this session's planned
+  situations with the pillar each lives in (social, exploration, combat),
+  and any beat already fixed. It owns the data ladder, the palette, and
+  the legibility calibration. Hand it **planned situations alone**: the
+  method doc's
   **pocket beat** is *not* a budgeted beat — it is unplanned reserve that
   may never fire and never discharges a PC's guaranteed beat. It hands
   back the allocated budget — a beat or a named rest per PC plus a

@@ -52,12 +52,12 @@ below.
 | Method handbook | Where the repo's planning-method conventions live (the guide should point at it) | all planning skills |
 | Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress | catch-up, build-session |
 | Session records / prep home | Where played-session records and prep pages live (the page format itself is library-owned) | catch-up, build-session, review-rewards |
-| Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, spotlight, build-session, catch-up, review-rewards |
+| Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, build-session, catch-up, review-rewards |
 | Session transcripts | Where recordings/transcripts of play land, if the campaign keeps them | catch-up |
 | Reward economy | What treasure and payment run on (gold? favors?) | build-session (the keyed-site procedure) |
 | Approved-items list | Which magic/notable items may be placed silently, and where the list lives (review-rewards rewrites it as the Approved Reward Pool) | build-session (the keyed-site procedure), review-rewards |
 | Reward review state | Where the review-rewards app's tracked JSON state lives — versioned, outside the wiki/site bundle (fallback: `rewards-review/` at the campaign root) | review-rewards |
-| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines) | spotlight |
+| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines) | build-session |
 | Media dir + style anchor | Where images live; optionally an existing image that anchors the house style | campaign-art |
 | Sync camp | How changes land — direct to main, or PR flow | party-sync (and any skill that commits) |
 
@@ -97,18 +97,16 @@ stands.
 
 | Skill | Needs | Coupling | Without it |
 |---|---|---|---|
-| `build-session` | `spotlight` | load — degrades | Step 3 hands the session to spotlight's *Invoked as a delegate* interface for the session spotlight plan, and the fight and keyed-site procedures (`combat.md`, `dungeon.md`) open `doctrine.md`, `class-patterns.md`, and the data ladder in `spotlight/SKILL.md`, every site guarded by *"if that skill is installed"*. Without spotlight the page is built with no spotlight plan and no staged-beat annotations, and fights are still sized but keep the `plain` texture. |
 | `build-session` | `catch-up` | delegate — degrades | The pre-flight offers a catch-up run *"(if installed)"* before building on stale state. |
 | `build-session` | `seed-clues` | delegate — degrades | Step 5 widens a thin clue slate *"(if installed)"* rather than padding it by hand. |
 | `build-session` | `campaign-art` | delegate — degrades | Step 5's art pass *"(if installed)"*, with a stated ASCII fallback. |
-| `party-sync` | `spotlight` | load — degrades | The Spotlight-profile half of a sync applies the flagging heuristic in `spotlight/doctrine.md`. The sync still runs — cache, Character section, backstory, bookkeeping — but rung 1 of the data ladder never gets written, so the generator flows fall to rung 2 and derive the flags live. |
+| `party-sync` | `build-session` | load — degrades | The Spotlight-profile half of a sync applies the flagging heuristic in build-session's `spotlight-doctrine.md`, guarded by *"if that skill is installed"*. The sync still runs — cache, Character section, backstory, bookkeeping — but rung 1 of the data ladder never gets written, so the prep flows fall to rung 2 and derive the flags live. |
 | `catch-up` | `build-session` | citation — none | Names `build-session/session-page-format.md` as where the `Spotlight:` / `Spotlight (scene):` ledger shape is stated. catch-up reads the session *page*, not the format file. |
-| `spotlight` | `build-session` | citation — none | The variety check's pre-play fallback names the *Filing format* section of build-session's `combat.md` as the format of the `Spotlight:` lines it reads off prepped pages. |
 | `to-session-brief` | `seed-clues` | citation — none | The brief template's `Exit edge` line names seed-clues Step 5 as where that convention is stated. The brief is drafted and published without opening any of seed-clues' files, so nothing dangles when it is absent. |
 
-No hard edge remains — the generator merge collapsed the old
+No hard edge remains — the generator and spotlight merges collapsed the old
 spotlight + combat-generator + dungeon-generator cluster into build-session's
-own reference files, and both of the surviving cross-skill loads are guarded.
+own reference files, and the one surviving cross-skill load is guarded.
 Any skill installs alone and degrades per its row above.
 
 The lint pins the *presence* of an edge and the README's agreement with it. It
@@ -129,8 +127,8 @@ live here, out of the shipped skill bodies.
 | `> [!encounter-meta]` block | build-session (*session-page-format.md*, *The encounter-meta block*) — the shape ships beside the page format it lands on | build-session's fight procedure (`combat.md`), whose *Filing format* section cites the spec and owns what goes in the fields; its keyed-site procedure (`dungeon.md`), which files its fights in the same shape; catch-up, which reads its `Spotlight:` field as half the fired/denied ledger. The two code paths that read the block (`build-session/scripts/session_parser.py` and `lib/mechanical-checker/checker.py`) are pinned to the spec by `lib/encounter_meta_spec.py`, so a shape change fails `pytest lib/` until both move with it |
 | The `Spotlight (scene):` line | build-session (*session-page-format.md*, Conventions) | build-session's keyed-site procedure (`dungeon.md`), which files one for a keyed area's non-combat beat; catch-up, which reads it as the other half of the fired/denied ledger — the non-fight one |
 | `xp-budget.md`, `complications.md` | build-session's fight procedure (`combat.md`, skill-internal) | Nobody loads these across a skill boundary any more — since the generator merge they sit beside the fight procedure inside build-session, and the page and keyed-site flows size fights by following `combat.md`, which owns these files |
-| `doctrine.md`, `class-patterns.md` | spotlight | build-session's fight and keyed-site procedures (guarded, *"if that skill is installed"*) and party-sync. build-session's Step 3 invokes spotlight's **delegate interface** for the session plan and loads neither file there; `catch-up` reads the page's annotations and loads neither either |
-| The **session spotlight plan** — transient, handed back in-run, never filed | spotlight (*Invoked as a delegate — the interface*) | build-session (Step 3), which invokes it and spends the plan inside the same run; the fight and keyed-site procedures, which are handed a beat from it and spend that instead of allocating texture independently inside a session build |
+| `spotlight-doctrine.md`, `class-patterns.md` | build-session (skill-internal since the spotlight merge) | build-session's spotlight, fight, and keyed-site procedures (`spotlight.md`, `combat.md`, `dungeon.md`) load them beside themselves; party-sync loads `spotlight-doctrine.md` across the skill boundary (guarded, *"if that skill is installed"*); `catch-up` reads the page's annotations and loads neither |
+| The **session spotlight plan** — transient, handed back in-run, never filed | build-session (`spotlight.md`, *Allocating the plan*) | build-session's Step 3, which loads `spotlight.md` and spends the plan inside the same run; the fight and keyed-site procedures, which are handed a beat from it and spend that instead of allocating texture independently inside a session build |
 | The **findings-log record schema** — the `"run"` and `"finding"` lines of `.claude/validator-findings/findings.jsonl` | `lib/mechanical-checker/findings_log.py`, the canonical definition and the only code that writes it — both tiers call it since the verification-chain cut gave the judgement tier real parameters (`verdict`, `quoted_span`, `reason`) | `lib/mechanical-checker/self-heal-loop.md`, whose pseudocode carries the mechanical call sites; the fresh-check log instructions in build-session's SKILL.md, `combat.md` and `dungeon.md`; and the schema bullets in `lib/mechanical-checker/README.md`. The old unpinned by-hand judgement writer is retired; a field change now lands in the module and its tests first |
 
 The session-page skeleton's own coupling (`render.md` and

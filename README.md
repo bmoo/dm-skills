@@ -64,9 +64,8 @@ items prep may hand out (`review-rewards`), or absorb what happened last time
 
 **Every skill installs alone.** No skill has a hard dependency on another:
 every cross-skill edge is guarded by *"if installed"* and degrades. What each
-skill loses when a soft dependency is absent — `build-session` without
-`spotlight` skips the session spotlight plan and leaves its fights untextured;
-`party-sync` without it skips the Spotlight-profile refresh — is declared edge
+skill loses when a soft dependency is absent — `party-sync` without
+`build-session` skips the Spotlight-profile refresh — is declared edge
 by edge in
 [docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs),
 which `lib/dependency_clusters.py` holds to the tree.
@@ -92,8 +91,6 @@ flowchart TD
     partysync["party-sync"] -- "current party sheets" --> repo
     art["campaign-art"] -- "illustrations" --> repo
     seed["seed-clues"] -- "clues for under-clued targets" --> repo
-
-    build -. "spotlight plan & fight textures, if installed" .-> spot["spotlight"]
 ```
 
 ## Roster
@@ -108,17 +105,17 @@ flowchart TD
   Eight Steps of Lazy DM Prep against the campaign record and compiles the
   result into a durable session page (or stops at a lean sheet). Builds the
   session's fights (sized to the party's action economy with the SRD 5.2
-  XP-budget table, each carrying a complication and a spotlight texture) and
-  its keyed sites (complete, runnable non-linear dungeons with a dungeon-wide
-  mechanic and setting-true rewards) with its own bundled procedures. Carries
+  XP-budget table, each carrying a complication and a spotlight texture), its
+  keyed sites (complete, runnable non-linear dungeons with a dungeon-wide
+  mechanic and setting-true rewards), and its session spotlight plan
+  ("shoot your monks": every PC gets a beat somewhere) with its own bundled
+  procedures. Carries
   the library's single statement of the session-page format and an optional
   PDF renderer.
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.
 - **`seed-clues`** — seeds clues toward an under-clued target: a revelation
   short on evidence, or a node short on leads.
-- **`spotlight`** — spotlight doctrine ("shoot your monks"): aim situations
-  at a PC's build, audit prep for spotlight coverage and repeated tells.
 - **`party-sync`** — keeps the party cache JSON and each player page's
   Character section current so other skills work from current sheets.
 - **`campaign-art`** — campaign illustrations (portraits, locations, items,
