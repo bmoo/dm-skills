@@ -339,11 +339,12 @@ reported unplaced.
 
 The checklist in [`session-page-format.md`](session-page-format.md) is
 the authority; this step runs its **mechanical rows as executable
-self-checks** over the drafted page you hold in context, before Step 8
-reports and offers. Checking is not filing: the DM's yes in Step 8 stays
-the sole trigger that writes to a page. Where a checklist item and the
-method doc disagree, the method doc wins; the brief wins over both, per
-Step 0.
+self-checks** over the drafted page you hold in context — Part 1 of the
+shared verification protocol in [`verification.md`](verification.md),
+which owns the self-heal loop, the unhealable escalation, and the
+file-nothing rule: the DM's yes in Step 8 stays the sole trigger that
+writes to a page. Where a checklist item and the method doc disagree,
+the method doc wins; the brief wins over both, per Step 0.
 
 **Inherit, don't re-check.** The fights and keyed sites on the page
 arrived already self-checked by the procedures that built them
@@ -394,18 +395,15 @@ invisible to its check.
   into the same library: `run_checks(output, "build-session", <the ids
   brief_checks returned>, context={"brief": <the brief body, verbatim>,
   "canon_record": <the campaign canon record extract>})`. **Hand the
-  brief verbatim** — the library reads the fields out of it, and a
-  retyped contract is the one place a builder could paraphrase its own
-  constraints in its own favour. **brief-introduced-canon** and
-  **brief-locked-subject-canon** are defined as diffs against the
-  campaign canon record, so both need that extract and refuse to run
-  without it. **brief-locked-subject-canon** grades the Locked lines as a
-  whole rather than any one field, so it is not in `brief_checks`'
-  fill-in set — include its id in this call whenever a brief is in force
-  (a library-owned row with a fixed id, not a check of your own
-  invention). A field the brief left blank yielded no id at Step 2 and is
-  graded nowhere — silence is never a constraint. The brief's
-  judgement-graded fields belong to the fresh check below.
+  brief verbatim** — a retyped contract is the one place a builder could
+  paraphrase its own constraints in its own favour.
+  **brief-introduced-canon** and **brief-locked-subject-canon** are
+  diffs against the campaign canon record, so both refuse to run without
+  that extract. **brief-locked-subject-canon** grades the Locked lines
+  as a whole, so it is not in `brief_checks`' fill-in set — include its
+  id whenever a brief is in force. A field the brief left blank yielded
+  no id at Step 2 and is graded nowhere — silence is never a constraint.
+  The brief's judgement-graded fields belong to the fresh check below.
 - **Compute the spotlight-coverage pre-pass.** Call
   `spotlight_coverage(output, <the Step 3 spotlight roster>)` from the
   same library. It is **not a check** — an uncovered PC is legal
@@ -414,17 +412,8 @@ invisible to its check.
   forward to the fresh check, where **spotlight-coverage** rules on
   whether each rest is defensible — the only place the coverage promise
   is graded.
-- **Self-heal, then escalate.** Drive the findings through the shared
-  [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md):
-  re-derive each finding, up to three attempts per check, re-running that
-  check after each. A finding that heals is telemetry and never reaches
-  the DM. A check still failing after three attempts is **unhealable** —
-  surface it in Step 8's report/offer as a terminal mechanical
-  escalation: which check, expected vs. actual, where on the page, and
-  what you tried. No confidence hedge — a compiler is certain. The
-  loop's only writes are the out-of-band run record and findings-log
-  appends it instructs; the page itself stays untouched until the DM's
-  yes.
+Then self-heal and escalate per
+[`verification.md`](verification.md) Part 1.
 
 **Done when:** every check passes or heals, and any unhealable survivor
 is stated for the DM — a named gap is prep information; a silent one is a
@@ -435,12 +424,9 @@ which runs next and gates completion before Step 8's offer.
 
 The self-check above settled the promises a compiler can settle. The
 subjective ones — named NPC rows, interpretable clues, defensible rests,
-plain run-time language, the brief enacted — you must not grade yourself:
-you mark your own homework, and you mark it kindly. Once the page (and
-any deepened node) is drafted and self-healed, launch **one fresh-context
-checker** and let it try to disprove the artifact. This gates
-*completion*: Step 8's report/offer does not form until the check has
-run and its findings are answered.
+plain run-time language, the brief enacted — are Part 2 of
+[`verification.md`](verification.md): one fresh-context checker, one
+round, gating Step 8's report/offer.
 
 **The criteria live in the skill text.** There is no separate rubric:
 the checker grades the artifact against the completion criteria written
@@ -456,14 +442,11 @@ judgement-graded fields (premise enacted, fit to established geography,
 Locked-subject canon) are graded in the same pass, against the brief
 itself.
 
-**Launch it fresh, read-only.** Hand the checker only: the artifact as
-it stands; the criteria files above; the brief as a **tracker issue URL,
-body only** — never retyped text, never the comment thread — plus the
-campaign canon record extract; the party roster; and the
-spotlight-coverage pre-pass output (computed fact any reader could
-re-derive, never your reasoning). It sees the output, never the
-reasoning that produced it — a checker handed the builder's rationale
-grades the rationale.
+**This caller's checker inputs:** the artifact as it stands; the
+criteria files above; the brief as a **tracker issue URL, body only** —
+never retyped text, never the comment thread — plus the campaign canon
+record extract; the party roster; and the spotlight-coverage pre-pass
+output (computed fact any reader could re-derive, never your reasoning).
 
 **Inherit, don't re-grade.** The checker grades the session page's criteria
 only — no fight criterion, no site criterion; those were graded by the
@@ -471,32 +454,8 @@ fight and keyed-site procedures' own fresh checks when the blocks were
 built — so it is structurally unable to re-grade a fight or keyed site,
 exactly as the mechanical self-check re-runs none of their rows.
 
-- **One round, one verdict, evidence required.** The checker returns a
-  plain `approve | disapprove`; its default when it cannot tell is
-  disapprove, and there are no waivers. Every finding carries its
-  inventory-row pointer, where on the artifact it sits, the **quoted
-  span** it fired on, and a one-line **reason** — a verdict with nothing
-  behind it cannot be argued with, audited, or used to judge the checker
-  itself later.
-- **Log the pass.** Through the shared library beside this skill
-  ([`scripts/mechanical_checker`](scripts/mechanical_checker), module
-  `findings_log`): one `log_run("build-session", <the criteria row ids
-  graded>, tier="judgement", verdict=<the verdict>)`, and one
-  `log_finding("build-session", <row id>, tier="judgement",
-  disposition="raised", output_anchor=<where>, quoted_span=<the span>,
-  reason=<the reason>)` per finding.
-- **On `disapprove`, one fix pass — no re-grade.** Refine the artifact
-  against the findings once, recording per finding `fixed` / `skipped` /
-  `no_change_needed`. Do not launch a second checker: one fresh read is
-  the signal; re-grading your own fix re-opens the negotiation the
-  fresh context existed to close.
-- **Survivors enrich Step 8's one offer.** Findings you skipped or could
-  not fix fold into the existing report/offer — promise-pointers,
-  quoted spans, and your outcome ledger: *"N issues I couldn't resolve —
-  file anyway, or take over."* An `approve` leaves the offer
-  indistinguishable from today's. The check gates *completion*, not
-  filing: the checker is read-only over your page, and the DM's yes
-  stays the sole trigger that writes to one.
+Survivors fold into Step 8's one offer per the protocol; the DM's yes
+stays the sole trigger that writes to a page.
 
 ## Step 8 — Report
 

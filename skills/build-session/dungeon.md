@@ -258,23 +258,26 @@ Present the dungeon in chat as a runnable package:
   know on finding it — a lead that requires unseen content to mean anything
   is a defect, not foreshadowing.
 
-## Definition of done — the mechanical self-check
+## Definition of done
 
-Before Step 8 offers to file, **check the drafted package against the
-mechanical promises the *site* owns** — the ones a compiler can settle: the
-structural floor the edge list encodes, the edge grammar, the one signature
-technique and the one dungeon mechanic, and the cross-fight properties that
-hold across the whole key list. Checking is not filing: the check runs over
-the package you hold in context, and nothing is written until the DM's yes in
-Step 8.
+Before Step 8 offers to file, run both parts of the shared verification
+protocol in [`verification.md`](verification.md) over the drafted package.
+The self-check settles the mechanical promises the *site* owns — the
+structural floor the edge list encodes, the edge grammar, the slate picks,
+and the cross-fight properties no single fight block can see; the fresh
+check grades the site's two subjective criteria. Nothing is written until
+the DM's yes in Step 8.
 
 **The inheritance split.** Every fight arrived from the fight procedure
-already self-checked against its own mechanical promises (the six required
-lines, the XP arithmetic, the palette texture, the bare-name rule). This
-self-check verifies only what the *site* owns — the facets no single fight
-block can see — and where it reads a field off a block (a `Budget:`
+already checked — its mechanical rows (the six required lines, the XP
+arithmetic, the palette texture, the bare-name rule) by its own self-check,
+its **stat-block-refs-in-prose** and **swarm-carries-fragile-creatures**
+criteria by its own fresh check. Both passes here verify only what the
+*site* owns: where a check reads a field off a block (a `Budget:`
 difficulty label, a `Spotlight:` target), it reads what the fight build
-produced and re-grades none of that block's arithmetic.
+produced and re-grades none of that block's arithmetic, and the fresh
+checker is handed no fight criterion, so it is structurally unable to
+re-grade a fight.
 
 **The shapes the checks read.** The drafted package carries the site-owned
 facets in fixed shapes: a single **`## Edges (render-ready)`** table
@@ -292,76 +295,41 @@ The edge section carries its HTML-comment wrapper from the moment it is
 drafted: every check reads raw markdown, so concealment is invisible to them
 and there is no unconcealed window between the self-check and the hand-off.
 
-- **Run the checks.** Hand the drafted package to
-  `run_checks(output, "build-session", ["build-session/two-entrances",
-  "build-session/at-least-one-loop",
-  "build-session/no-secret-gated-spine",
-  "build-session/objective-two-routes",
-  "build-session/guarded-approach-holds",
-  "build-session/edge-types-in-vocabulary",
-  "build-session/type-column-token-strictness",
-  "build-session/slate-picks-in-header",
-  "build-session/one-signature-technique",
-  "build-session/one-dungeon-mechanic",
-  "build-session/mechanic-four-part-box", "build-session/default-scale",
-  "build-session/fight-mix", "build-session/every-flagged-pc-staged",
-  "build-session/aimed-slots-balanced"], context={"roster": <the Step 2
-  flagged-ability roster>, "scale_overridden": <True if the DM asked for a
-  non-default scale in Step 3>})` — the runnable checks live beside this skill
-  at [`scripts/mechanical_checker`](scripts/mechanical_checker). Each is one
-  site-owned promise, under the `build-session/` qualifier: **the graph
-  floor** off the edge list — **two-entrances** ≥ 2 entrances,
-  **at-least-one-loop** ≥ 1 interior loop, **no-secret-gated-spine** the
-  objective still reachable with every `secret` edge removed,
-  **objective-two-routes** the objective reachable by ≥ 2 edge-disjoint
-  routes, **guarded-approach-holds** no route reaching the objective slipping
-  past every room the `**Guarded approach:**` line names (silent where the
-  line is absent); **the edge grammar** — **edge-types-in-vocabulary** every
-  edge type token from the closed vocabulary,
-  **type-column-token-strictness** everything before the first em-dash in the
-  Type column is typed tokens, prose only after; **the site's commitments** —
-  **slate-picks-in-header** both slate picks named in the header,
-  **one-signature-technique** exactly one signature technique from the twelve,
-  **one-dungeon-mechanic** exactly one dungeon-wide mechanic or an explicit
-  vanilla waiver, **mechanic-four-part-box** the mechanic ships as its
-  four-part box (Trigger/Clock · Effect · Tells · Exploit); and **the
-  cross-fight facets** — **default-scale** the default scale (6–12 keyed
-  areas, 1–2 levels, 2–4 combats) unless the DM overrode it, **fight-mix** the
-  fight mix (one High set piece, the rest Low/Moderate),
-  **every-flagged-pc-staged** every flagged PC staged somewhere in the site,
-  **aimed-slots-balanced** the aimed slots balanced across the flagging
-  roster. **Always hand the roster in** — the two roster-dependent staging
-  checks refuse to run without it rather than fake a verdict. For the floor
-  checks to read the objective, the edge list tags the objective room
-  `{objective}` at its endpoint.
-- **Self-heal, silently.** Drive each finding through the shared
-  [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md) —
-  reroute the topology to add the missing loop or second route, retype an
-  off-vocabulary edge, restage a flagged PC who drew no beat, rebalance the
-  aimed slots — up to **three attempts per check**, re-running that check
-  after each. A finding that heals is telemetry.
-- **Escalate what won't heal.** A check still failing after three attempts is
-  **unhealable** — surface it in Step 8's offer as a terminal mechanical
-  escalation: which check, expected vs. actual, where in the package, how
-  many attempts. A compiler is certain — no confidence hedge.
-- **File nothing.** The self-check runs over the package you hold in context;
-  the DM's yes in Step 8 stays the sole trigger that writes to a page. The
-  loop's one write is out-of-band: it appends a **run record** for the pass,
-  then each finding — healed and unhealable alike — to the validator findings
-  log, per [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md).
+**The self-check** (Part 1) hands the drafted package to
+`run_checks(output, "build-session", [<the ids below, under the
+build-session/ qualifier>], context={"roster": <the Step 2 flagged-ability
+roster>, "scale_overridden": <True if the DM asked for a non-default scale
+in Step 3>})`. **Always hand the roster in** — the two roster-dependent
+staging checks refuse to run without it rather than fake a verdict; for the
+floor checks to read the objective, the edge list tags the objective room
+`{objective}` at its endpoint. Each id is one site-owned promise:
 
-This is the deterministic slice of done. The subjective promises are the
-fresh check below — run it after this self-check, before Step 8.
+| Check id | Promise |
+|---|---|
+| `two-entrances` | ≥ 2 entrances, off the edge list |
+| `at-least-one-loop` | ≥ 1 interior loop |
+| `no-secret-gated-spine` | the objective still reachable with every `secret` edge removed |
+| `objective-two-routes` | the objective reachable by ≥ 2 edge-disjoint routes |
+| `guarded-approach-holds` | no route reaching the objective slipping past every room the `**Guarded approach:**` line names (silent where the line is absent) |
+| `edge-types-in-vocabulary` | every edge type token from the closed vocabulary |
+| `type-column-token-strictness` | everything before the first em-dash in the Type column is typed tokens, prose only after |
+| `slate-picks-in-header` | both slate picks named in the header |
+| `one-signature-technique` | exactly one signature technique from the twelve |
+| `one-dungeon-mechanic` | exactly one dungeon-wide mechanic or an explicit vanilla waiver |
+| `mechanic-four-part-box` | the mechanic ships as its four-part box (Trigger/Clock · Effect · Tells · Exploit) |
+| `default-scale` | the default scale (6–12 keyed areas, 1–2 levels, 2–4 combats) unless the DM overrode it |
+| `fight-mix` | the fight mix (one High set piece, the rest Low/Moderate) |
+| `every-flagged-pc-staged` | every flagged PC staged somewhere in the site |
+| `aimed-slots-balanced` | the aimed slots balanced across the flagging roster |
 
-## Definition of done — the fresh check
-
-The subjective promises the *site* owns — do the ≥ 2 routes to the objective
-each cost something **different**, is every planted lead **interpretable with
-only what the players already know** — need a grader that isn't you: you mark
-your own homework, and you mark it kindly. Once the package is drafted and
-self-healed, hand it to **one fresh-context checker**, one round. This gates
-*completion*: Step 8's offer forms only when the check has run and its
-findings are answered.
+**The fresh check** (Part 2) grades the two criteria the *site* owns — do
+the ≥ 2 routes to the objective each cost something **different** (the
+route-cost promise in [`xandering.md`](xandering.md)), and is every planted
+lead **interpretable with only what the players already know** (the lead
+promise and its boundaries below) — named as their inventory rows
+`[build-session/objective-routes-cost-differently,
+build-session/lead-interpretability]`, with the party roster as the
+checker's third input.
 
 **Lead interpretability's boundaries, pinned:** salient prior knowledge and
 **grounded common regional knowledge** a local would plausibly hold both
@@ -370,48 +338,6 @@ as unremarked scenery does not — seeing is not knowing. A lead whose meaning
 is first defined deeper in the same delve is a forward reference and fails;
 a lead whose actionable payload rides on content the party already holds
 passes even when adjacent content stays opaque.
-
-**The inheritance split.** Every fight arrived from the fight procedure
-already checked (its **stat-block-refs-in-prose** and
-**swarm-carries-fragile-creatures** criteria, graded by the fight's fresh
-check when it built the block). This check grades only the two criteria the
-*site* owns — **objective-routes-cost-differently** and
-**lead-interpretability** — so it is structurally unable to re-grade a fight.
-
-- **Launch it fresh — output, criteria, roster, nothing else.** Start a
-  genuinely fresh-context, **read-only** checker and hand it **only three
-  things**: (1) the drafted dungeon package exactly as it stands, (2) the
-  two criteria as this skill's own text states them — the route-cost
-  promise in [`xandering.md`](xandering.md), the lead promise and its
-  boundaries above — named as their inventory rows
-  `[build-session/objective-routes-cost-differently,
-  build-session/lead-interpretability]`, and (3) the party roster.
-  Withhold your own reasoning — chain of thought, heal telemetry, any note
-  arguing the site is good: a checker that sees only what a reader sees
-  grades what a reader gets. It returns a plain `approve | disapprove`;
-  every finding cites its inventory row, where in the package it sits (the
-  route pair, the key/clue-note), the **quoted span** it fired on, and a
-  one-line **reason** — and carries **no fix**. Its default when it cannot
-  tell is **disapprove**. Log the pass through the shared library
-  ([`scripts/mechanical_checker`](scripts/mechanical_checker), module
-  `findings_log`): one `log_run` with `tier="judgement"` and the verdict,
-  one `log_finding` per finding with its quoted span and reason.
-- **On `disapprove`, one fix pass — no re-grade.** Refine the package
-  against the findings once (the promise-pointers *are* the instruction;
-  you own *how* — differentiate two same-cost routes, ground a lead that
-  needs unseen content), marking each finding `fixed` / `skipped` /
-  `no_change_needed`. Do not launch a second checker: one fresh read is the
-  signal.
-- **Survivors enrich Step 8's one offer.** Findings you skipped or could
-  not fix fold into the existing file-offer, carrying their
-  promise-pointers, quoted spans, and your outcome ledger — *"N issues I
-  couldn't resolve — file anyway, or take over."* — in the same enriched
-  list as any unhealed mechanical escalation from the self-check above. An
-  `approve` leaves the offer reading exactly as it always has.
-  Judgement gates *completion*, not filing.
-- **File nothing.** The checker is read-only over your package; the DM's yes
-  in Step 8 stays the sole trigger that writes to a page. The checker's one
-  write is the out-of-band findings-log append its launch protocol instructs.
 
 ## Step 8 — Offer filing
 
