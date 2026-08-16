@@ -88,8 +88,8 @@ LINE_CITATION_RES = (
 # explicit rather than derived. ``None`` = no owning skill, so every citation in
 # that section must name one.
 INVENTORY_SECTIONS = {
-    "combat-generator": "combat-generator",
-    "dungeon-generator": "dungeon-generator",
+    "build-session — the fight procedure (`combat.md`)": "build-session",
+    "build-session — the keyed-site procedure (`dungeon.md`)": "build-session",
     "seed-clues": "seed-clues",
     "build-session + session-page-format": "build-session",
     "build-session — `node-deepening.md`": "build-session",

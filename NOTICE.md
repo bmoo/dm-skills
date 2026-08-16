@@ -23,7 +23,7 @@ https://creativecommons.org/licenses/by/4.0/legalcode.
 
 SRD material in this repository has been modified from the SRD: the skill
 text adapts and abridges SRD rules text (for example, the encounter XP budget
-material in `skills/combat-generator/xp-budget.md`), and the `lib/srd/`
+material in `skills/build-session/xp-budget.md`), and the `lib/srd/`
 dataset restructures SRD content as JSON.
 
 ## Lazy GM's Resource Document (Sly Flourish)
@@ -42,7 +42,7 @@ license conditions — the underlying techniques are not copyrighted material,
 and the prose here is independently written:
 
 - **Justin Alexander (The Alexandrian)** — originated the dungeon-connectivity
-  technique taxonomy ("xandering") that `skills/dungeon-generator/xandering.md`
+  technique taxonomy ("xandering") that `skills/build-session/xandering.md`
   teaches in its own words:
   https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon
 - **Dungeon Dudes** — the spotlight doctrine in `skills/spotlight/doctrine.md`

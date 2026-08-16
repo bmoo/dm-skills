@@ -205,11 +205,14 @@ def test_tree_declarations_name_real_skills():
     assert not problems, "\n".join(problems)
 
 
-def test_tree_declares_the_spotlight_cluster():
-    """A smoke test with teeth: the one cluster this library has. If these rows
-    vanish, the table was replaced by something the parser silently accepts."""
+def test_tree_declares_the_spotlight_edges():
+    """A smoke test with teeth: the load edges the generator merge left. If
+    these rows vanish, the table was replaced by something the parser silently
+    accepts."""
     edges = {(row.skill, row.needs): row for row in declarations()}
-    assert edges[("combat-generator", "spotlight")].strength == "hard"
-    assert edges[("dungeon-generator", "combat-generator")].kind == "delegate"
+    assert edges[("build-session", "spotlight")].kind == "load"
     assert edges[("build-session", "spotlight")].strength == "degrades"
-    assert install_commands()  # the README block still parses as commands
+    assert edges[("party-sync", "spotlight")].kind == "load"
+    # The generator merge removed the last hard edge; the README's cluster
+    # section went with it, and only a returning hard row may demand it back.
+    assert hard_closure() == {}

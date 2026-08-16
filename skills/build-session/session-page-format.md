@@ -92,7 +92,7 @@ page — a named gap is prep information; a silent one is a defect.
    rules), then **keyed areas** (`T1`, `R3`…) each with its run content — read-aloud
    text, NPC voices and tells, clue payloads (each one self-contained
    block in the conventions' shape below), and fights as
-   `> [!encounter-meta]` blocks in the combat skill's format.
+   `> [!encounter-meta]` blocks in the fight procedure's format.
 8. **Conclusion** — how the session's likely endings resolve, rewards owed
    (an item, a favor, information, access — an item aimed at a particular
    PC names its intended PC, so the handout reconciles after play; aiming
@@ -127,8 +127,8 @@ page — a named gap is prep information; a silent one is a defect.
   that key's section — never as a plain unlabeled image. Keys the art
   gives no landmark still get a badge at a plausible spot. Without such a
   renderer, the keyed link list beside the map carries the correlation.
-  When the keyed site has a rendered tactical map (the dungeon skill's
-  render step), **that render is the hotspot map** — one map, the sheet
+  When the keyed site has a rendered tactical map (the keyed-site
+  procedure's render step), **that render is the hotspot map** — one map, the sheet
   the DM actually runs from; an earlier stylized site illustration is
   replaced in place when it files, never shipped alongside. Badge
   positions start from the layout's room centers but are verified
@@ -198,7 +198,7 @@ page — a named gap is prep information; a silent one is a defect.
   page as a table; each beat it stages appears at the scene that stages
   it, so the page records what was aimed where without holding the plan.
   A **fight** carries it as the `Spotlight:` field of its
-  `> [!encounter-meta]` block (combat skill's *Filing format*; the block's
+  `> [!encounter-meta]` block (the fight procedure's *Filing format*; the block's
   shape is specified below, in
   [The encounter-meta block](#the-encounter-meta-block)). Any other
   scene — a body situation section, a keyed area, a Potential Scene —
@@ -309,8 +309,9 @@ page — a named gap is prep information; a silent one is a defect.
 Every fight on the page files as an `> [!encounter-meta]` callout — the
 machine-findable summary of the fight's vitals, with the prose it sits in
 (terrain, tactics, the complication's staging) as normal page text around it.
-combat-generator composes the block (its *Filing format* section) and
-dungeon-generator files its fights in the same shape; **this section is the
+the fight procedure (`combat.md`) composes the block (its *Filing format*
+section) and the keyed-site procedure (`dungeon.md`) files its fights in the
+same shape; **this section is the
 library's one statement of that shape** — nothing else restates it.
 
 ```markdown
@@ -375,7 +376,7 @@ Walk every box; each points at the authority it checks against:
       tagged foreshadow, and only true leads count toward the
       Conclusion's exits.
 - [ ] Every fight is an `> [!encounter-meta]` block, complete per the
-      combat skill's own rules.
+      fight procedure's own rules.
 - [ ] Maps are embedded per location set and depict only what the page
       establishes.
 - [ ] Where the repo's site renderer offers a clickable keyed-map

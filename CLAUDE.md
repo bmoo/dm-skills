@@ -48,8 +48,8 @@ Every citation in that chain — inventory row, `checker.py` docstring —
 names a **file plus a phrase that appears verbatim in it**:
 
 ```
-(`combat-generator/SKILL.md` — "each creature × count with looked-up XP")
-(`combat-generator/xp-budget.md` — "three distinct stat blocks", "CR 0 sparingly")
+(`build-session/combat.md` — "each creature × count with looked-up XP")
+(`build-session/xp-budget.md` — "three distinct stat blocks", "CR 0 sparingly")
 (`build-session/SKILL.md` — "the DM's yes"; `spotlight/doctrine.md` — "flagged ability")
 ```
 

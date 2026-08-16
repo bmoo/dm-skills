@@ -65,8 +65,8 @@ CheckFn = Callable[..., List[Finding]]
 # Each check is registered under its check id and tagged with the producing
 # skill that owns it. Adding a check is a one-function, one-registration
 # operation: write ``def _my_check(artifact) -> list[Finding]`` and decorate it
-# with ``@register_check("combat-generator/enemies-line-arithmetic",
-# "combat-generator")``. ``run_checks`` then selects it whenever a caller
+# with ``@register_check("build-session/enemies-line-arithmetic",
+# "build-session")``. ``run_checks`` then selects it whenever a caller
 # requests that id.
 
 _REGISTRY: Dict[str, "_RegisteredCheck"] = {}
@@ -140,7 +140,7 @@ def run_checks(
             and the test seam a plain string-in / findings-out. NO file is read
             inside this function.
         producing_skill: which skill produced the output — one of
-            ``"combat-generator"``, ``"dungeon-generator"``, ``"build-session"``.
+            ``"build-session"``, ``"build-session"``, ``"build-session"``.
             Only checks owned by this skill may be requested, so a caller applies
             only its own skill's rubric subset (spec user story 17).
         checks: the rubric subset — the list of check ids to apply.
@@ -189,14 +189,14 @@ def run_checks(
 
 
 # --------------------------------------------------------------------------- #
-# Reference check — the encounter-meta required lines (combat-generator).
+# Reference check — the encounter-meta required lines (the fight procedure).
 # --------------------------------------------------------------------------- #
 #
 # From docs/eval-assertion-inventory.md: the `> [!encounter-meta]` block must
 # carry its six required lines — Party, Enemies, Budget, Terrain, Spotlight,
 # Objective (Note optional). The block spec lives in the format doc the block
 # travels on (`build-session/session-page-format.md` — "Note is optional"),
-# which combat-generator's *Filing format* section cites rather than
+# which the fight procedure's *Filing format* section cites rather than
 # restates.
 #
 # The list below stays a **literal**: this directory materialises into every
@@ -205,7 +205,7 @@ def run_checks(
 # test asserting this tuple equals the labels the shipped section declares.
 #
 # This one check proves the whole path end to end.  extends the same registry
-# with the rest of combat-generator's mechanical rows.
+# with the rest of the fight procedure's mechanical rows.
 
 _ENCOUNTER_META_REQUIRED = ("Party", "Enemies", "Budget", "Terrain", "Spotlight", "Objective")
 
@@ -238,7 +238,7 @@ def _extract_encounter_meta_block(artifact: str) -> str | None:
     return "\n".join(block_lines)
 
 
-@register_check("combat-generator/encounter-meta-required-lines", "combat-generator")
+@register_check("build-session/encounter-meta-required-lines", "build-session")
 def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
     """The encounter-meta block carries all six required lines.
 
@@ -250,7 +250,7 @@ def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
     if block is None:
         return [
             Finding(
-                check_id="combat-generator/encounter-meta-required-lines",
+                check_id="build-session/encounter-meta-required-lines",
                 expected="an encounter-meta block with lines: "
                 + ", ".join(_ENCOUNTER_META_REQUIRED),
                 actual="no `> [!encounter-meta]` block found",
@@ -265,7 +265,7 @@ def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
     present = [label for label in _ENCOUNTER_META_REQUIRED if label not in missing]
     return [
         Finding(
-            check_id="combat-generator/encounter-meta-required-lines",
+            check_id="build-session/encounter-meta-required-lines",
             expected="all six required lines: " + ", ".join(_ENCOUNTER_META_REQUIRED),
             actual="missing " + ", ".join(missing)
             + (" (present: " + ", ".join(present) + ")" if present else ""),
@@ -275,7 +275,7 @@ def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
 
 
 # --------------------------------------------------------------------------- #
-# combat-generator's content checks.
+# The fight procedure's content checks.
 # --------------------------------------------------------------------------- #
 #
 # Scope discipline (shared with /): the required-lines check owns
@@ -348,7 +348,7 @@ def _parse_creatures(enemies_line: str) -> list[_Creature]:
     return creatures
 
 
-@register_check("combat-generator/enemies-line-arithmetic", "combat-generator")
+@register_check("build-session/enemies-line-arithmetic", "build-session")
 def check_enemies_line_arithmetic(artifact: str) -> List[Finding]:
     """On the `Enemies:` line, Σ(count × per-creature XP) equals the stated
     total (`build-session/session-page-format.md` — "each creature × count with
@@ -373,7 +373,7 @@ def check_enemies_line_arithmetic(artifact: str) -> List[Finding]:
     terms = " + ".join(f"{c.count}×{c.per_xp}" for c in creatures)
     return [
         Finding(
-            check_id="combat-generator/enemies-line-arithmetic",
+            check_id="build-session/enemies-line-arithmetic",
             expected=f"Σ(count × XP) = {computed} ({terms})",
             actual=f"stated total {stated}",
             output_location=location,
@@ -382,7 +382,7 @@ def check_enemies_line_arithmetic(artifact: str) -> List[Finding]:
 
 
 # The XP-budget-per-character table, transcribed from
-# `combat-generator/xp-budget.md` — "XP Budget per Character" (SRD 5.2
+# `build-session/xp-budget.md` — "XP Budget per Character" (SRD 5.2
 # "Combat Encounter Difficulty"). Embedded as data so the checker stays pure
 # and self-contained;
 # the citation is the sync obligation if the table ever changes.
@@ -427,11 +427,11 @@ def _parse_budget(block: str):
     return line, _BUDGET_RE.search(line)
 
 
-@register_check("combat-generator/budget-line-arithmetic", "combat-generator")
+@register_check("build-session/budget-line-arithmetic", "build-session")
 def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
     """The `Budget:` line's arithmetic holds — per-char × N = budget, and
     spent ≤ budget (`build-session/session-page-format.md` — "<per-char> × <N> =
-    **<budget>**"; `combat-generator/SKILL.md` — "multiply by party size"). The two are independent
+    **<budget>**"; `build-session/combat.md` — "multiply by party size"). The two are independent
     fixes, so each violation is its own finding."""
     location = "> [!encounter-meta] block, `Budget:` line"
     block = _extract_encounter_meta_block(artifact)
@@ -445,7 +445,7 @@ def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
     if perchar * n != budget:
         findings.append(
             Finding(
-                check_id="combat-generator/budget-line-arithmetic",
+                check_id="build-session/budget-line-arithmetic",
                 expected=f"per-char × N = budget: {perchar} × {n} = {perchar * n}",
                 actual=f"stated budget {budget}",
                 output_location=location,
@@ -456,7 +456,7 @@ def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
         if spent > budget:
             findings.append(
                 Finding(
-                    check_id="combat-generator/budget-line-arithmetic",
+                    check_id="build-session/budget-line-arithmetic",
                     expected=f"spent ≤ budget ({budget})",
                     actual=f"spent {spent} exceeds budget by {spent - budget}",
                     output_location=location,
@@ -465,10 +465,10 @@ def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
     return findings
 
 
-@register_check("combat-generator/per-char-matches-budget-table", "combat-generator")
+@register_check("build-session/per-char-matches-budget-table", "build-session")
 def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
     """The per-char figure matches the SRD 5.2 budget table for that level ×
-    difficulty (`combat-generator/xp-budget.md` — "Cross-reference party level
+    difficulty (`build-session/xp-budget.md` — "Cross-reference party level
     with difficulty on the table below"). The band must be Low/Moderate/High — a
     stray band (`Hard`) has no column and is itself the defect."""
     location = "> [!encounter-meta] block, `Budget:` line"
@@ -484,7 +484,7 @@ def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
     if band not in _BUDGET_BANDS:
         return [
             Finding(
-                check_id="combat-generator/per-char-matches-budget-table",
+                check_id="build-session/per-char-matches-budget-table",
                 expected=f"difficulty ∈ {{{', '.join(_BUDGET_BANDS)}}} (budget bands)",
                 actual=f"difficulty {raw_band!r} names no column in the budget table",
                 output_location=location,
@@ -497,7 +497,7 @@ def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="combat-generator/per-char-matches-budget-table",
+            check_id="build-session/per-char-matches-budget-table",
             expected=f"per-char {expected} ({band}, level {level})",
             actual=f"stated per-char {perchar}",
             output_location=location,
@@ -505,10 +505,10 @@ def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("combat-generator/distinct-stat-block-cap", "combat-generator")
+@register_check("build-session/distinct-stat-block-cap", "build-session")
 def check_distinct_stat_block_cap(artifact: str) -> List[Finding]:
     """Never more than three distinct stat blocks in one encounter — the
-    hard rule (`combat-generator/xp-budget.md` — "Never put more than **three
+    hard rule (`build-session/xp-budget.md` — "Never put more than **three
     distinct stat blocks** in one encounter"). Copies of a type are fine; it's
     the number
     of *kinds* that is capped."""
@@ -528,7 +528,7 @@ def check_distinct_stat_block_cap(artifact: str) -> List[Finding]:
     names = ", ".join(sorted({c.name for c in creatures}))
     return [
         Finding(
-            check_id="combat-generator/distinct-stat-block-cap",
+            check_id="build-session/distinct-stat-block-cap",
             expected="≤ 3 distinct stat blocks (hard rule)",
             actual=f"{len(distinct)} distinct stat blocks: {names}",
             output_location=location,
@@ -536,11 +536,11 @@ def check_distinct_stat_block_cap(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("combat-generator/stat-block-refs-on-enemies-line", "combat-generator")
+@register_check("build-session/stat-block-refs-on-enemies-line", "build-session")
 def check_enemies_carry_stat_block_reference(artifact: str) -> List[Finding]:
     """Every creature on the `Enemies:` line carries a `{monster:Name}` token
     or a stat-block link; a bare name is a filing defect
-    (`combat-generator/SKILL.md` — "a bare creature name is a filing defect")."""
+    (`build-session/combat.md` — "a bare creature name is a filing defect")."""
     location = "> [!encounter-meta] block, `Enemies:` line"
     block = _extract_encounter_meta_block(artifact)
     if block is None:
@@ -553,7 +553,7 @@ def check_enemies_carry_stat_block_reference(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="combat-generator/stat-block-refs-on-enemies-line",
+            check_id="build-session/stat-block-refs-on-enemies-line",
             expected="every creature carries `{monster:Name}` or a stat-block link",
             actual="bare creature name(s): " + ", ".join(bare),
             output_location=location,
@@ -577,10 +577,10 @@ def _spotlight_texture(block: str):
     return line, (m.group(1).lower() if m else None)
 
 
-@register_check("combat-generator/spotlight-texture-in-palette", "combat-generator")
+@register_check("build-session/spotlight-texture-in-palette", "build-session")
 def check_spotlight_texture_in_palette(artifact: str) -> List[Finding]:
     """The `Spotlight:` line names a texture from the palette — aimed /
-    puzzle / steamroll / plain / curveball (`combat-generator/SKILL.md` —
+    puzzle / steamroll / plain / curveball (`build-session/combat.md` —
     "aimed / puzzle / steamroll / plain / curveball")."""
     location = "> [!encounter-meta] block, `Spotlight:` line"
     block = _extract_encounter_meta_block(artifact)
@@ -593,7 +593,7 @@ def check_spotlight_texture_in_palette(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="combat-generator/spotlight-texture-in-palette",
+            check_id="build-session/spotlight-texture-in-palette",
             expected="a texture from {" + ", ".join(_SPOTLIGHT_PALETTE) + "}",
             actual=f"leading texture {texture!r}" if texture else "no texture word",
             output_location=location,
@@ -601,10 +601,10 @@ def check_spotlight_texture_in_palette(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("combat-generator/targeted-spotlight-names-target-and-staging", "combat-generator")
+@register_check("build-session/targeted-spotlight-names-target-and-staging", "build-session")
 def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Finding]:
     """An aimed or puzzle fight names *whom* it shoots at and carries a
-    staging clause (`combat-generator/SKILL.md` — "if aimed or puzzle, who it
+    staging clause (`build-session/combat.md` — "if aimed or puzzle, who it
     shoots at and the staging that fires their ability"). Structural presence
     only — that
     the staging actually *fires* the ability is a judgement facet, not checked
@@ -626,7 +626,7 @@ def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Fin
         return []
     return [
         Finding(
-            check_id="combat-generator/targeted-spotlight-names-target-and-staging",
+            check_id="build-session/targeted-spotlight-names-target-and-staging",
             expected=f"an {texture} spotlight names a target and a staging clause",
             actual="missing " + " and ".join(missing),
             output_location=location,
@@ -635,12 +635,12 @@ def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Fin
 
 
 # --------------------------------------------------------------------------- #
-# dungeon-generator's checks.
+# The keyed-site procedure's checks.
 # --------------------------------------------------------------------------- #
 #
 # THE INHERITANCE SPLIT (spec user stories 9/20). Dungeon builds each fight by
-# *invoking* combat-generator, which already self-checked that fight's
-# encounter-meta block against combat-generator's own checks. So dungeon does NOT
+# following the fight procedure, which already self-checked that fight's
+# encounter-meta block against its own checks. So the site self-check does NOT
 # re-run them: the per-block
 # facets (six required lines, XP arithmetic, palette texture, bare-name) arrive
 # already self-checked. Dungeon checks only what the *site* owns — the facets no
@@ -661,7 +661,7 @@ def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Fin
 # --- The render-ready edge list: parse it into a graph, then assert. --------- #
 #
 # The graph-floor checks and the edge-grammar checks read the `## Edges
-# (render-ready)` table, whose contract states (`dungeon-generator/map-render.md`
+# (render-ready)` table, whose contract states (`build-session/map-render.md`
 # — "Each row: edge ID, endpoints, and a Type column"): each row is an
 # edge ID, an Endpoints cell, and a Type cell. `—` (em-dash) joins two interior
 # rooms; `→` marks an edge crossing the site boundary (an entrance). In the Type
@@ -819,10 +819,10 @@ def _entrance_rooms(edges: list[_Edge], include_secret: bool = True) -> list[str
     return result
 
 
-@register_check("dungeon-generator/two-entrances", "dungeon-generator")
+@register_check("build-session/two-entrances", "build-session")
 def check_two_entrances(artifact: str) -> List[Finding]:
     """The site has at least two entrances — boundary (`→`) edges
-    (`dungeon-generator/xandering.md` — "**≥ 2 entrances.**"). The approach is
+    (`build-session/xandering.md` — "**≥ 2 entrances.**"). The approach is
     the first strategic choice; one way in
     is a railroad."""
     location = "`## Edges (render-ready)` — boundary (`→`) edges"
@@ -837,7 +837,7 @@ def check_two_entrances(artifact: str) -> List[Finding]:
         # graph/grammar checks can then grade it).
         return [
             Finding(
-                check_id="dungeon-generator/two-entrances",
+                check_id="build-session/two-entrances",
                 expected="≥ 2 entrances in a `## Edges (render-ready)` table",
                 actual="no parseable `## Edges (render-ready)` table found "
                 "(Edge | Endpoints | Type rows, `→` marking each entrance)",
@@ -849,7 +849,7 @@ def check_two_entrances(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/two-entrances",
+            check_id="build-session/two-entrances",
             expected="≥ 2 entrances (boundary `→` edges)",
             actual=f"{len(entrances)} entrance(s): "
             + (", ".join(e.edge_id for e in entrances) or "none"),
@@ -858,10 +858,10 @@ def check_two_entrances(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("dungeon-generator/at-least-one-loop", "dungeon-generator")
+@register_check("build-session/at-least-one-loop", "build-session")
 def check_at_least_one_loop(artifact: str) -> List[Finding]:
     """The interior topology carries at least one loop — it must not reduce to
-    a line or a tree (`dungeon-generator/xandering.md` — "If the topology
+    a line or a tree (`build-session/xandering.md` — "If the topology
     reduces to a line or a tree, it fails"). Detected by union-find over the
     interior (`—`) edges: an edge joining two already-connected rooms closes a
     cycle. Entrances (the loop through the surface the two-entrances check grades)
@@ -891,7 +891,7 @@ def check_at_least_one_loop(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/at-least-one-loop",
+            check_id="build-session/at-least-one-loop",
             expected="≥ 1 loop — the interior topology must not reduce to a tree",
             actual="no loop: every interior edge joins two disconnected rooms "
             "(the site is a line or a tree)",
@@ -912,10 +912,10 @@ def _adjacency(edges: list[_Edge], drop_secret: bool) -> Dict[str, set]:
     return adj
 
 
-@register_check("dungeon-generator/no-secret-gated-spine", "dungeon-generator")
+@register_check("build-session/no-secret-gated-spine", "build-session")
 def check_no_secret_gated_spine(artifact: str) -> List[Finding]:
     """No secret-gated spine — with every `secret` edge removed, the objective
-    is still reachable from an entrance (`dungeon-generator/xandering.md` —
+    is still reachable from an entrance (`build-session/xandering.md` —
     "**No secret-gated spine.**"). Secrets gate
     bonuses, never essential progress (the DMG hidden-things rule)."""
     location = "`## Edges (render-ready)` — connectivity with `secret` edges removed"
@@ -943,7 +943,7 @@ def check_no_secret_gated_spine(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/no-secret-gated-spine",
+            check_id="build-session/no-secret-gated-spine",
             expected=f"objective {objective} reachable with every `secret` edge removed",
             actual=f"objective {objective} is unreachable once secret edges are "
             "dropped — a hidden thing gates the spine",
@@ -1002,10 +1002,10 @@ def _max_flow_two(edges: list[_Edge], sources: list[str], sink: str) -> int:
     return flow
 
 
-@register_check("dungeon-generator/objective-two-routes", "dungeon-generator")
+@register_check("build-session/objective-two-routes", "build-session")
 def check_objective_two_routes(artifact: str) -> List[Finding]:
     """The objective is reachable by ≥ 2 edge-disjoint routes
-    (`dungeon-generator/xandering.md` — "The objective sits deep, reachable by
+    (`build-session/xandering.md` — "The objective sits deep, reachable by
     ≥ 2 routes") — no single corridor collapse severs every approach.
     Two approaches that funnel through one shared bottleneck edge to the vault
     fail this: they are one route with a fork, not two."""
@@ -1024,7 +1024,7 @@ def check_objective_two_routes(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/objective-two-routes",
+            check_id="build-session/objective-two-routes",
             expected=f"≥ 2 edge-disjoint routes to objective {objective}",
             actual=f"only {routes} independent route(s) reach {objective} — the "
             "approaches share a single bottleneck edge",
@@ -1042,7 +1042,7 @@ _GUARDED_APPROACH_FIELD_RE = re.compile(
 def _guarded_rooms(artifact: str) -> list[str]:
     """The room IDs the header's `**Guarded approach:**` field names — the page's
     own claim that no approach to the objective is free
-    (`dungeon-generator/SKILL.md` — "no approach to the objective is free").
+    (`build-session/dungeon.md` — "no approach to the objective is free").
     Returns [] when the field is absent, and equally when it is present but names
     no room ID at all ("none", "—"): the claim is what the check grades, and a
     page that makes none is not making a broken one. Prose after an em-dash is
@@ -1060,11 +1060,11 @@ def _guarded_rooms(artifact: str) -> list[str]:
     return list(dict.fromkeys(re.findall(r"\b[A-Z][A-Za-z]*\d+\b", value)))
 
 
-@register_check("dungeon-generator/guarded-approach-holds", "dungeon-generator")
+@register_check("build-session/guarded-approach-holds", "build-session")
 def check_guarded_approach_holds(artifact: str) -> List[Finding]:
     """A page that claims guards interpose must not carry a route that breaks the
     claim: where the header names a guarded approach, every route from an entrance
-    to the objective passes one of those rooms (`dungeon-generator/SKILL.md` —
+    to the objective passes one of those rooms (`build-session/dungeon.md` —
     "every route from any entrance to the objective passes one of those rooms").
     A page states a security posture in prose and then lists a route walking
     straight past it — four of five ablation arms shipped exactly that.
@@ -1124,7 +1124,7 @@ def check_guarded_approach_holds(artifact: str) -> List[Finding]:
         path.append(parent[path[-1]])
     return [
         Finding(
-            check_id="dungeon-generator/guarded-approach-holds",
+            check_id="build-session/guarded-approach-holds",
             expected=f"every route to objective {objective} passes a guarded room "
             "(" + " · ".join(guarded) + ")",
             actual=f"a route reaches {objective} past none of them: "
@@ -1141,12 +1141,12 @@ def _valid_edge_token(tok: str) -> bool:
     return bool(vm and vm.group("sub") in _VERTICAL_SUBS)
 
 
-@register_check("dungeon-generator/edge-types-in-vocabulary", "dungeon-generator")
+@register_check("build-session/edge-types-in-vocabulary", "build-session")
 def check_edge_types_in_vocabulary(artifact: str) -> List[Finding]:
     """Every typed edge token is drawn from the closed vocabulary — bases
     (open/door/locked/grate/vertical⟨stairs·shaft-chute·ladder·slope⟩) plus
     modifiers (secret·one-way·trap·hazard·up/down)
-    (`dungeon-generator/SKILL.md` — "every connection typed with a **base**").
+    (`build-session/dungeon.md` — "every connection typed with a **base**").
     Enum
     membership only: this check grades the well-formed tokens, and leaves the
     *structure* of the Type cell (is anything before the dash prose rather than
@@ -1165,7 +1165,7 @@ def check_edge_types_in_vocabulary(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/edge-types-in-vocabulary",
+            check_id="build-session/edge-types-in-vocabulary",
             expected="every edge type token drawn from the closed vocabulary",
             actual="off-vocabulary token(s): " + ", ".join(offenders),
             output_location=location,
@@ -1173,11 +1173,11 @@ def check_edge_types_in_vocabulary(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("dungeon-generator/type-column-token-strictness", "dungeon-generator")
+@register_check("build-session/type-column-token-strictness", "build-session")
 def check_type_column_token_strictness(artifact: str) -> List[Finding]:
     """Token strictness — everything before the first em-dash in the Type
     column is `·`-separated typed tokens; prose comes only *after* the dash
-    (`dungeon-generator/map-render.md` — "everything before the first em-dash
+    (`build-session/map-render.md` — "everything before the first em-dash
     in the Type column MUST be typed tokens"). An attribute that lives in prose
     before the dash is
     invisible to the slate — exactly how the E5 secret chute got dropped. This
@@ -1195,7 +1195,7 @@ def check_type_column_token_strictness(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/type-column-token-strictness",
+            check_id="build-session/type-column-token-strictness",
             expected="before the first em-dash: only `·`-separated typed tokens",
             actual="prose before the em-dash (an attribute the slate can't see): "
             + ", ".join(offenders),
@@ -1206,7 +1206,7 @@ def check_type_column_token_strictness(artifact: str) -> List[Finding]:
 
 # --- Signature technique, mechanic, and its box. ----------------------------- #
 
-# The twelve techniques (`dungeon-generator/xandering.md` — "twelve techniques"),
+# The twelve techniques (`build-session/xandering.md` — "twelve techniques"),
 # each with a distinctive matcher.
 _TECHNIQUES = [
     # Each matcher accepts the current name and the pre-rename phrasing, so
@@ -1230,10 +1230,10 @@ _SIGNATURE_FIELD_RE = re.compile(
 )
 
 
-@register_check("dungeon-generator/one-signature-technique", "dungeon-generator")
+@register_check("build-session/one-signature-technique", "build-session")
 def check_one_signature_technique(artifact: str) -> List[Finding]:
     """Exactly one signature technique, drawn from the twelve
-    (`dungeon-generator/xandering.md` — "The signature technique — pick exactly
+    (`build-session/xandering.md` — "The signature technique — pick exactly
     one"). One technique explored deeply beats twelve
     crammed in. Reads the header's `**Signature technique:**` field; a missing
     field is a presence defect this check stays silent on."""
@@ -1252,7 +1252,7 @@ def check_one_signature_technique(artifact: str) -> List[Finding]:
     if not named:
         return [
             Finding(
-                check_id="dungeon-generator/one-signature-technique",
+                check_id="build-session/one-signature-technique",
                 expected="exactly one signature technique from the twelve",
                 actual=f"names none of the twelve: {value!r}",
                 output_location=location,
@@ -1260,7 +1260,7 @@ def check_one_signature_technique(artifact: str) -> List[Finding]:
         ]
     return [
         Finding(
-            check_id="dungeon-generator/one-signature-technique",
+            check_id="build-session/one-signature-technique",
             expected="exactly one signature technique from the twelve",
             actual=f"names {len(named)}: " + ", ".join(named),
             output_location=location,
@@ -1283,10 +1283,10 @@ def _mechanic_is_vanilla(artifact: str) -> bool:
     return bool(m and "vanilla" in m.group("value").lower())
 
 
-@register_check("dungeon-generator/one-dungeon-mechanic", "dungeon-generator")
+@register_check("build-session/one-dungeon-mechanic", "build-session")
 def check_one_dungeon_mechanic(artifact: str) -> List[Finding]:
     """Exactly one dungeon-wide mechanic, or an explicit "vanilla" waiver —
-    never two (`dungeon-generator/dungeon-mechanics.md` — "but never gets two:
+    never two (`build-session/dungeon-mechanics.md` — "but never gets two:
     competing gimmicks blur both"). Counts the mechanic rules-boxes by
     their `**Trigger/Clock**` label: two boxes is two competing gimmicks; zero
     boxes is a defect unless the header waived the mechanic as vanilla."""
@@ -1296,7 +1296,7 @@ def check_one_dungeon_mechanic(artifact: str) -> List[Finding]:
     if n_boxes >= 2:
         return [
             Finding(
-                check_id="dungeon-generator/one-dungeon-mechanic",
+                check_id="build-session/one-dungeon-mechanic",
                 expected="exactly one dungeon-wide mechanic (or a vanilla waiver)",
                 actual=f"{n_boxes} mechanic boxes — competing gimmicks blur both",
                 output_location=location,
@@ -1305,7 +1305,7 @@ def check_one_dungeon_mechanic(artifact: str) -> List[Finding]:
     if n_boxes == 0 and not vanilla:
         return [
             Finding(
-                check_id="dungeon-generator/one-dungeon-mechanic",
+                check_id="build-session/one-dungeon-mechanic",
                 expected="one dungeon-wide mechanic, or an explicit 'vanilla' waiver",
                 actual="no mechanic box and no vanilla waiver",
                 output_location=location,
@@ -1314,10 +1314,10 @@ def check_one_dungeon_mechanic(artifact: str) -> List[Finding]:
     return []
 
 
-@register_check("dungeon-generator/mechanic-four-part-box", "dungeon-generator")
+@register_check("build-session/mechanic-four-part-box", "build-session")
 def check_mechanic_four_part_box(artifact: str) -> List[Finding]:
     """The mechanic ships as a four-part box — Trigger/Clock · Effect · Tells
-    · Exploit (`dungeon-generator/dungeon-mechanics.md` — "the delivered
+    · Exploit (`build-session/dungeon-mechanics.md` — "the delivered
     mechanic ships as this box"). The Exploit clause is what makes the
     mechanic a toy rather than a tax. A vanilla site ships no box (that belongs to
     the one-mechanic check), so this one stays silent when there is no box."""
@@ -1335,7 +1335,7 @@ def check_mechanic_four_part_box(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/mechanic-four-part-box",
+            check_id="build-session/mechanic-four-part-box",
             expected="a four-part box: Trigger/Clock · Effect · Tells · Exploit",
             actual="missing " + ", ".join(missing),
             output_location=location,
@@ -1343,14 +1343,14 @@ def check_mechanic_four_part_box(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("dungeon-generator/slate-picks-in-header", "dungeon-generator")
+@register_check("build-session/slate-picks-in-header", "build-session")
 def check_slate_picks_in_header(artifact: str) -> List[Finding]:
     """Both slate picks are named in the package header — a Signature-technique
-    field and a Dungeon-mechanic field (`dungeon-generator/SKILL.md` — "naming
+    field and a Dungeon-mechanic field (`build-session/dungeon.md` — "naming
     the one of each"). This is the PRESENCE half the two checks above delegate:
     each reads its own field and stays silent when the field is absent, so
     without this one a package that simply drops a field passes both. The picks
-    land in the header whoever settled them (`dungeon-generator/SKILL.md` —
+    land in the header whoever settled them (`build-session/dungeon.md` —
     "name both picks in the header as any run does"), so a missing field is the
     same defect in an unattended run as in an attended one."""
     location = "package header — the two slate-pick fields"
@@ -1363,7 +1363,7 @@ def check_slate_picks_in_header(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/slate-picks-in-header",
+            check_id="build-session/slate-picks-in-header",
             expected="both slate picks named in the header: "
             "`**Signature technique:**` and `**Dungeon mechanic:**`",
             actual="no header field for " + ", ".join(missing),
@@ -1376,9 +1376,9 @@ def check_slate_picks_in_header(artifact: str) -> List[Finding]:
 #
 # These read across ALL encounter-meta blocks — the caller-owned properties no
 # single block can see. Reading a field off a block (its `Budget:` label, its
-# `Spotlight:` target) is not re-running combat-generator's checks on it: the
+# `Spotlight:` target) is not re-running the fight procedure's checks on it: the
 # block arrived
-# self-checked from combat-generator; dungeon reads what it needs and re-grades
+# self-checked by the fight procedure; the site reads what it needs and re-grades
 # nothing.
 
 
@@ -1406,10 +1406,10 @@ def _context_scale_overridden(context: Context) -> bool:
     return bool(context and context.get("scale_overridden"))
 
 
-@register_check("dungeon-generator/default-scale", "dungeon-generator", takes_context=True)
+@register_check("build-session/default-scale", "build-session", takes_context=True)
 def check_default_scale(artifact: str, context: Context) -> List[Finding]:
     """The default scale holds — 6–12 keyed areas, 1–2 levels, 2–4 combats
-    (`dungeon-generator/SKILL.md` — "roughly 6–12 keyed areas on one or two
+    (`build-session/dungeon.md` — "roughly 6–12 keyed areas on one or two
     levels with 2–4 combats") — but ONLY when the DM did not override it. The
     override
     flag rides in ``context['scale_overridden']``; with no context the check
@@ -1429,7 +1429,7 @@ def check_default_scale(artifact: str, context: Context) -> List[Finding]:
     if edges and not (6 <= n_rooms <= 12):
         findings.append(
             Finding(
-                check_id="dungeon-generator/default-scale",
+                check_id="build-session/default-scale",
                 expected="6–12 keyed areas (default scale)",
                 actual=f"{n_rooms} keyed areas",
                 output_location=location,
@@ -1439,7 +1439,7 @@ def check_default_scale(artifact: str, context: Context) -> List[Finding]:
     if not (2 <= n_combats <= 4):
         findings.append(
             Finding(
-                check_id="dungeon-generator/default-scale",
+                check_id="build-session/default-scale",
                 expected="2–4 combats (default scale)",
                 actual=f"{n_combats} combats",
                 output_location=location,
@@ -1449,7 +1449,7 @@ def check_default_scale(artifact: str, context: Context) -> List[Finding]:
     if not (1 <= n_levels <= 2):
         findings.append(
             Finding(
-                check_id="dungeon-generator/default-scale",
+                check_id="build-session/default-scale",
                 expected="1–2 levels (default scale)",
                 actual=f"{n_levels} levels",
                 output_location=location,
@@ -1469,16 +1469,16 @@ def _fight_difficulty(block: str) -> str | None:
     return m.group("label").capitalize() if m else None
 
 
-@register_check("dungeon-generator/fight-mix", "dungeon-generator")
+@register_check("build-session/fight-mix", "build-session")
 def check_fight_mix(artifact: str) -> List[Finding]:
     """The fight mix carries exactly one High set piece, the rest
-    Low/Moderate (`dungeon-generator/SKILL.md` — "one High set piece guarding
+    Low/Moderate (`build-session/dungeon.md` — "one High set piece guarding
     the objective or its exit, the rest Low/Moderate"). A cross-fight,
     caller-owned facet: it reads
     each fight's `Budget:` difficulty *label* across the whole site — it does not
-    re-verify that fight's budget arithmetic (that is combat-generator's budget
+    re-verify that fight's budget arithmetic (that is the fight procedure's budget
     arithmetic, inherited from its own self-check). Whether each label is a valid
-    band is likewise inherited, from combat-generator's budget-table check; this
+    band is likewise inherited, from the fight procedure's budget-table check; this
     check owns only the count of set pieces."""
     location = "the site's fights — `Budget:` difficulty labels"
     blocks = _all_encounter_meta_blocks(artifact)
@@ -1490,7 +1490,7 @@ def check_fight_mix(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="dungeon-generator/fight-mix",
+            check_id="build-session/fight-mix",
             expected="exactly one High set piece, the rest Low/Moderate",
             actual=f"{len(highs)} High fights among {len(labels)}: "
             + ", ".join(labels),
@@ -1505,7 +1505,7 @@ _SPOTLIGHT_SCENE_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 # A requested curveball counts as one aimed slot
-# (`dungeon-generator/SKILL.md` — "aimed slots").
+# (`build-session/dungeon.md` — "aimed slots").
 _AIMED_SLOT_TEXTURES = ("aimed", "curveball")
 
 
@@ -1534,16 +1534,16 @@ def _flagging_pcs(roster: list) -> list[str]:
     return [entry["pc"] for entry in roster if entry.get("flagged")]
 
 
-@register_check("dungeon-generator/every-flagged-pc-staged", "dungeon-generator", takes_context=True)
+@register_check("build-session/every-flagged-pc-staged", "build-session", takes_context=True)
 def check_every_flagged_pc_staged(artifact: str, context: Context) -> List[Finding]:
     """Every PC's flagged ability is staged somewhere in the site — a
-    set-cover of the flagging roster (`dungeon-generator/SKILL.md` — "every
+    set-cover of the flagging roster (`build-session/dungeon.md` — "every
     flagged PC staged somewhere in the site"). Cross-fight and
     roster-dependent: a PC is staged if any Spotlight or Spotlight (scene) line
     names them. Needs the roster (from ``context``); raises if it is not
     supplied."""
     location = "the site's Spotlight lines vs. the flagging roster"
-    roster = _require_roster(context, "dungeon-generator/every-flagged-pc-staged")
+    roster = _require_roster(context, "build-session/every-flagged-pc-staged")
     flagging = _flagging_pcs(roster)
     if not flagging:
         return []
@@ -1556,7 +1556,7 @@ def check_every_flagged_pc_staged(artifact: str, context: Context) -> List[Findi
         return []
     return [
         Finding(
-            check_id="dungeon-generator/every-flagged-pc-staged",
+            check_id="build-session/every-flagged-pc-staged",
             expected="every flagged PC's ability staged somewhere in the site",
             actual="never staged: " + ", ".join(uncovered),
             output_location=location,
@@ -1564,11 +1564,11 @@ def check_every_flagged_pc_staged(artifact: str, context: Context) -> List[Findi
     ]
 
 
-@register_check("dungeon-generator/aimed-slots-balanced", "dungeon-generator", takes_context=True)
+@register_check("build-session/aimed-slots-balanced", "build-session", takes_context=True)
 def check_aimed_slots_balanced(artifact: str, context: Context) -> List[Finding]:
     """The aimed slots are balanced across the flagging roster — nobody takes
     a second while another who flagged has zero, and per-PC counts stay within one
-    (`dungeon-generator/SKILL.md` — "the aimed slots balanced across the
+    (`build-session/dungeon.md` — "the aimed slots balanced across the
     flagging roster"). An aimed slot is a fight whose Spotlight texture is
     `aimed` or `curveball` (a requested curveball counts as one
     aimed slot); `puzzle` stages a PC for the flagged-ability set-cover but is not
@@ -1576,7 +1576,7 @@ def check_aimed_slots_balanced(artifact: str, context: Context) -> List[Finding]
     the route, so no room 'follows' another. Needs the roster; raises without
     it."""
     location = "the site's aimed slots per flagging PC"
-    roster = _require_roster(context, "dungeon-generator/aimed-slots-balanced")
+    roster = _require_roster(context, "build-session/aimed-slots-balanced")
     flagging = _flagging_pcs(roster)
     if not flagging:
         return []
@@ -1595,7 +1595,7 @@ def check_aimed_slots_balanced(artifact: str, context: Context) -> List[Finding]
     detail = ", ".join(f"{pc}:{n}" for pc, n in counts.items())
     return [
         Finding(
-            check_id="dungeon-generator/aimed-slots-balanced",
+            check_id="build-session/aimed-slots-balanced",
             expected="aimed slots balanced across the flagging roster (max − min ≤ 1)",
             actual=f"unbalanced — {detail}",
             output_location=location,
@@ -1609,11 +1609,11 @@ def check_aimed_slots_balanced(artifact: str, context: Context) -> List[Finding]
 #
 # THE TWO-DELEGATE INHERITANCE SPLIT (spec user stories 10/20/21). build-session
 # compiles a whole session page that pulls in TWO delegates' self-checked output:
-#   - fights, built by INVOKING combat-generator (self-checked there), and
-#   - keyed sites, built by INVOKING dungeon-generator (self-checked against
-#     dungeon-generator's own rows) —
+#   - fights, built via the fight procedure (self-checked there), and
+#   - keyed sites, built via the keyed-site procedure (self-checked against
+#     its own rows) —
 #     which itself already inherited combat's fights.
-# So build-session does NOT re-run any combat-generator or dungeon-generator row
+# So the page self-check does NOT re-run any fight- or site-owned row
 # on the page. Those pieces
 # arrive self-checked. build-session checks only what the WHOLE PAGE / SESSION
 # owns and no single delegated block can see:
@@ -2045,7 +2045,7 @@ def check_fights_are_encounter_meta(artifact: str) -> List[Finding]:
     `> [!encounter-meta]` block"). PAGE-STRUCTURAL presence only: a fight is
     signaled by an `Enemies:` field; every such field must sit inside an
     encounter-meta callout. This does NOT re-grade the block's six lines or XP
-    arithmetic — those arrive self-checked from combat-generator, and
+    arithmetic — those arrive self-checked by the fight procedure, and
     re-running them is exactly what the two-delegate inheritance forbids."""
     location = "a fight block on the page"
     total = len(re.findall(r"\*\*Enemies:\*\*", artifact))
@@ -3149,7 +3149,7 @@ def check_brief_ground_rules_stated(artifact: str, context: Context) -> List[Fin
 
     **The rule as stated, and nothing about routes.** Whether the page's own edges
     are consistent with a claim that guards interpose is
-    `dungeon-generator/guarded-approach-holds`, a Standards row that needs no
+    `build-session/guarded-approach-holds`, a Standards row that needs no
     brief; the overlap between these two fields dissolved into that row instead of
     being split between them.
 

@@ -7,7 +7,7 @@ not a mood — if it never changes a roll, a resource, or a decision, it's set
 dressing, not a mechanic.
 
 This is distinct from per-fight **complications** (those come from
-combat-generator's `complications.md`, one per fight): the mechanic belongs to
+the fight procedure's `complications.md`, one per fight): the mechanic belongs to
 the *site* and is running whether or not initiative has been rolled.
 
 ## The rules-expression template

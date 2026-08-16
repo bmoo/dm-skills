@@ -1,16 +1,13 @@
----
-name: dungeon-generator
-description: >-
-  Generate a complete, runnable dungeon — a non-linear keyed site with
-  party-balanced combats, one dungeon-wide mechanic, and setting-true rewards —
-  anchored to a campaign-record node and justified by an objective the clue web
-  already promises. Use whenever the DM wants a dungeon, delve, lair, or
-  interior adventure site designed room-by-room for a node, a location, or an
-  idea. Not for a single fight (that's combat-generator) and not for deepening
-  a node's fiction without a keyed site.
----
+# Building a Keyed Site
 
-# Dungeon Generator
+The keyed-site procedure of the `build-session` skill — a complete, runnable
+dungeon: a non-linear keyed site with party-balanced combats, one dungeon-wide
+mechanic, and setting-true rewards, anchored to a campaign-record node and
+justified by an objective the clue web already promises. Step 5 of a session
+build loads it whenever the party will explore a location room-by-room; it is
+not for a single fight (that's [`combat.md`](combat.md)) and not for deepening
+a node's fiction without a keyed site (that's
+[`node-deepening.md`](node-deepening.md)).
 
 "Dungeon" in the DMG's loose sense: any adventure location with interior
 spaces to explore — a storm-drain junction, a closed hotel floor, or a
@@ -34,62 +31,57 @@ Four reference files sit beside this one; load each when its step says to:
 - [`map-render.md`](map-render.md) — the tactical-map render step (Step 9):
   edge list → gpt-image-2 render → verification slate → filed `[!map]`.
 
-Fights are sized by **invoking the combat-generator skill through its delegate
-interface** — hand it each fight and embed the sized encounter block it hands
-back. Its `xp-budget.md` and `complications.md` are its internals; it owns the
-budget math and the complication menu behind that interface. What Step 5 does
-load is the **spotlight** skill's [`doctrine.md`](../spotlight/doctrine.md) and
-[`class-patterns.md`](../spotlight/class-patterns.md), for the textures you
-rotate across the site. Those skills own their files (library sync obligations:
-`docs/campaign-contract.md`).
+Fights are sized by **following the fight procedure beside this file
+([`combat.md`](combat.md))** — hand it each fight and embed the sized
+encounter block it produces. Its `xp-budget.md` and `complications.md` are its
+references; it owns the budget math and the complication menu. What Step 5
+does load is the **spotlight** skill's
+[`doctrine.md`](../spotlight/doctrine.md) and
+[`class-patterns.md`](../spotlight/class-patterns.md) — **if that skill is
+installed** — for the textures you rotate across the site; without it, keep
+every fight `plain` and skip the rotation. That skill owns its files (library
+sync obligations: `docs/campaign-contract.md`).
 
-## Invoked as a delegate — the interface
+## Inputs
 
-**Standalone**, the DM asks for a dungeon and Steps 1–2 pin the anchor,
-objective, and party from the record. **As a delegate**, `build-session` hands
-you a keyed site to build for a session it is prepping; its inputs come from
-the caller and every step from Step 3 on runs the same.
+A session build has already settled these by the time it loads this file —
+Steps 1–2 restate them, so skip to Step 3:
 
-**build-session hands you:**
-
-- the anchor node, and the objective its clue web already promises (Step 1,
-  settled by the caller);
+- the anchor node, and the objective its clue web already promises (Step 1);
 - the party and each PC's Spotlight profile (Step 2);
 - the scale — default a one-session delve (Step 3);
 - the **transient session spotlight plan**, so the rotation *spends* that plan
-  rather than minting a second one. The plan is transient and never read off a
-  page — ask for it if it wasn't handed over.
+  rather than minting a second one. The plan is transient and never read off
+  a page; with no plan in the run, Step 5 self-serves.
 
-**You hand back** the runnable dungeon package (Step 7's shape — keyed rooms
+A site built outside a full session build — a one-off the DM asks for
+mid-prep — pins whatever is still open via Steps 1–2 first.
+
+The product is the runnable dungeon package (Step 7's shape — keyed rooms
 plus the concealed render-ready edge section, the dungeon mechanic, the
 per-route resource arc, rewards, planted leads) **with its own fights already
-sized as `> [!encounter-meta]` blocks**, each built by invoking
-combat-generator per its interface. The caller embeds the package as-is and
-does not re-size its fights or re-check its edges.
+sized as `> [!encounter-meta]` blocks**, each built via
+[`combat.md`](combat.md). The page build embeds the package as-is and does
+not re-size its fights or re-check its edges.
 
-The render-ready edge table is handed back **already concealed** — the whole
+The render-ready edge table ships **already concealed** — the whole
 `## Edges (render-ready)` section, heading included, wrapped in an HTML
 comment — and is **never DM-visible**. It is machine state: the map renders
 from it and the topology checks parse it straight out of the raw markdown.
 Edges are a detail published adventures do not print — a human reads a site's
 connectivity off the map, and off the room prose where a connection matters.
-Concealing is this skill's job, done before the hand-off: the caller embeds
-that comment with the rest of the package and strips nothing.
+Conceal it the moment it is drafted: the page build embeds that comment with
+the rest of the package and strips nothing.
 
 ## Rules sourcing — non-negotiable
 
-- **MUST** source all rules content — monster stat blocks, XP values, item
-  text, trap and door mechanics, any rules detail — from the sourcing chain in
-  [`rules-sourcing.md`](rules-sourcing.md), never from training-data memory
-  (the 2024 rules differ from 2014). Look up every creature and item you place.
-- The chain prefers whatever D&D content tools this environment has installed,
-  then falls back to the bundled SRD dataset — take the first rung that answers.
-- **MUST** browse the chosen source's catalog (its listings, filtered by
-  type/CR/etc.) *before* shortlisting in Step 5 — never shortlist from memory,
-  which silently defaults to famous core-book entries and ignores what the
-  table's sources actually offer.
-- If nothing in the chain answers, **say so and name the gap** — hand the DM
-  what could not be sourced instead of filling it from memory.
+The sourcing doctrine is stated once, in [`combat.md`](combat.md)'s *Rules
+sourcing — non-negotiable* block, and binds every content type this procedure
+places — monster stat blocks, XP values, item text, trap and door mechanics.
+The same three obligations, restated in one line each: never source rules
+content from training-data memory; browse the chosen source's catalog
+*before* Step 5 shortlists; and when nothing in the chain answers, name the
+gap instead of filling it from memory.
 
 ## Step 1 — Pin the anchor and the objective
 
@@ -111,7 +103,7 @@ or propose candidates — the objective is settled before any design.
 
 ## Step 2 — Pin the party
 
-Once, up front, the same way combat-generator does: count heads and note
+Once, up front, the same way the fight procedure does: count heads and note
 classes wherever this repo tracks player characters; take the level the DM
 gives or derive it from the repo's leveling rules and campaign progress.
 State the level and size you're building for, and flag any composition gaps.
@@ -147,11 +139,11 @@ this anchor's specific fiction, with reinforcing pairings flagged. The DM
 picks one of each — or says vanilla, which waives the mechanic (never the
 floor).
 
-**Don't proceed past the slate with either pick still open.** With no DM in the
-run to make them — a delegate run, an unattended one — **self-serve**, the same
-fallback Step 5 takes with no session plan: draw the slate anyway, take the
-reinforcing pairing you flagged, and name both picks in the header as any run
-does.
+**Don't proceed past the slate with either pick still open.** Inside a
+session build, don't stop the Eight Steps traversal for it — **self-serve**,
+the same fallback Step 5 takes with no session plan: draw the slate anyway,
+take the reinforcing pairing you flagged, and name both picks in the header
+as any run does.
 
 Finalize the room/edge list around the picks, then **verify the floor**
 against the edge list (the checklist is in `xandering.md`): at least two
@@ -164,30 +156,30 @@ floor item is checked off the edge list.
 
 Open [`dungeon-design.md`](dungeon-design.md) for ecology and room
 design, and the spotlight skill's [`doctrine.md`](../spotlight/doctrine.md) and
-[`class-patterns.md`](../spotlight/class-patterns.md) for the textures you
-rotate across the site. Per-fight sizing belongs to **combat-generator**
-through its delegate interface (its *Invoked as a delegate* section), which
-owns the XP budget and the complication menu behind that boundary.
+[`class-patterns.md`](../spotlight/class-patterns.md) (if installed) for the
+textures you rotate across the site. Per-fight sizing belongs to the fight
+procedure ([`combat.md`](combat.md)), which owns the XP budget and the
+complication menu.
 
 - **Ecology first.** Who lives where and why it holds together — water, food,
   air, security, faction lines. The site must have an internal logic players
   can reason from.
 - **Fights.** You own the **mix**: one High set piece guarding the objective
   or its exit, the rest Low/Moderate, at least one avoidable or negotiable.
-  Hand each fight to combat-generator through its delegate interface — the
+  Build each fight via [`combat.md`](combat.md) — the
   pinned room and its enemies as the fight situation, the Step 2 party and
   rosters, the difficulty band you chose for that fight, and the fight's
-  allocated spotlight beat from the rotation below. It hands back the sized
+  allocated spotlight beat from the rotation below. It produces the sized
   encounter block — budget arithmetic shown, the action-economy guardrails
   honored, and the complication(s) from its menu (two, from different
   sections, for the set piece; one for the rest) — and its
-  `> [!encounter-meta]` block. Embed what it returns as-is.
+  `> [!encounter-meta]` block. Embed what it produces as-is.
 - **Textures, rotated.** A dungeon is a session-scale spotlight budget in one
   site: give each fight a texture from the doctrine's palette, keep plain and
   steamroll rooms in the mix, and rotate so every PC's flagged ability gets
   staged somewhere. A requested curveball room counts as one aimed slot. The
   **rotation across fights is yours**; the texture you allocate to a fight
-  rides down in that fight's combat-generator hand-off, which renders it into
+  rides down in that fight's [`combat.md`](combat.md) hand-off, which renders it into
   the block's `Spotlight:` line.
   - **Balance the aimed slots, don't sequence them.** No PC takes a second
     aimed slot while another PC who flagged for one still has zero, and past
@@ -195,18 +187,18 @@ owns the XP budget and the complication menu behind that boundary.
     not the running order: the party picks the route, so no room "follows"
     another. Balance is a property of the finished key list and holds down
     every path through the site.
-  - **Session plan first.** Inside a session prep run the session has already
+  - **Session plan first.** Inside a session build the session has already
     allocated a spotlight budget — the rotation *spends* that plan rather
     than minting a second one. The plan is **transient**: it lives in the
-    prep run that invoked you, never as a table on the session page, so ask
-    for it if it wasn't handed over. A PC the plan names as deliberately
-    resting gets no aimed slot here, and a beat the plan already promises
-    elsewhere in the session isn't re-staged in a room. Where the site can't
-    honor a planned beat, say so — the plan is the session's, and
-    build-session owns reconciling it.
-  - **No plan → self-serve.** A standalone dungeon allocates for itself,
-    exactly as above, running the doctrine's variety check against the
-    record's recent encounter-meta `Spotlight:` lines.
+    prep run, never as a table on the session page. A PC the plan names as
+    deliberately resting gets no aimed slot here, and a beat the plan
+    already promises elsewhere in the session isn't re-staged in a room.
+    Where the site can't honor a planned beat, say so — the plan is the
+    session's, and Step 5's reconciliation pass (`SKILL.md`) owns squaring
+    it against the finished page.
+  - **No plan → self-serve.** A site built with no session plan in the run
+    allocates for itself, exactly as above, running the doctrine's variety
+    check against the record's recent encounter-meta `Spotlight:` lines.
 - **Resource arc, by route.** No fixed fight order exists, so chart attrition
   per plausible route: what the party has left when they reach the objective
   along each path, and which route trades fights for hazards or the mechanic.
@@ -278,13 +270,13 @@ hold across the whole key list. Checking is not filing: the check runs over
 the package you hold in context, and nothing is written until the DM's yes in
 Step 8.
 
-**The inheritance split.** Every fight arrived from combat-generator already
-self-checked against its own mechanical promises (the six required lines, the
-XP arithmetic, the palette texture, the bare-name rule). This self-check
-verifies only what the *site* owns — the facets no single fight block can
-see — and where it reads a field off a block (a `Budget:` difficulty label, a
-`Spotlight:` target), it reads what combat handed back and re-grades none of
-that block's arithmetic.
+**The inheritance split.** Every fight arrived from the fight procedure
+already self-checked against its own mechanical promises (the six required
+lines, the XP arithmetic, the palette texture, the bare-name rule). This
+self-check verifies only what the *site* owns — the facets no single fight
+block can see — and where it reads a field off a block (a `Budget:`
+difficulty label, a `Spotlight:` target), it reads what the fight build
+produced and re-grades none of that block's arithmetic.
 
 **The shapes the checks read.** The drafted package carries the site-owned
 facets in fixed shapes: a single **`## Edges (render-ready)`** table
@@ -303,23 +295,23 @@ drafted: every check reads raw markdown, so concealment is invisible to them
 and there is no unconcealed window between the self-check and the hand-off.
 
 - **Run the checks.** Hand the drafted package to
-  `run_checks(output, "dungeon-generator", ["dungeon-generator/two-entrances",
-  "dungeon-generator/at-least-one-loop",
-  "dungeon-generator/no-secret-gated-spine",
-  "dungeon-generator/objective-two-routes",
-  "dungeon-generator/guarded-approach-holds",
-  "dungeon-generator/edge-types-in-vocabulary",
-  "dungeon-generator/type-column-token-strictness",
-  "dungeon-generator/slate-picks-in-header",
-  "dungeon-generator/one-signature-technique",
-  "dungeon-generator/one-dungeon-mechanic",
-  "dungeon-generator/mechanic-four-part-box", "dungeon-generator/default-scale",
-  "dungeon-generator/fight-mix", "dungeon-generator/every-flagged-pc-staged",
-  "dungeon-generator/aimed-slots-balanced"], context={"roster": <the Step 2
+  `run_checks(output, "build-session", ["build-session/two-entrances",
+  "build-session/at-least-one-loop",
+  "build-session/no-secret-gated-spine",
+  "build-session/objective-two-routes",
+  "build-session/guarded-approach-holds",
+  "build-session/edge-types-in-vocabulary",
+  "build-session/type-column-token-strictness",
+  "build-session/slate-picks-in-header",
+  "build-session/one-signature-technique",
+  "build-session/one-dungeon-mechanic",
+  "build-session/mechanic-four-part-box", "build-session/default-scale",
+  "build-session/fight-mix", "build-session/every-flagged-pc-staged",
+  "build-session/aimed-slots-balanced"], context={"roster": <the Step 2
   flagged-ability roster>, "scale_overridden": <True if the DM asked for a
   non-default scale in Step 3>})` — the runnable checks live beside this skill
   at [`scripts/mechanical_checker`](scripts/mechanical_checker). Each is one
-  site-owned promise, under the `dungeon-generator/` qualifier: **the graph
+  site-owned promise, under the `build-session/` qualifier: **the graph
   floor** off the edge list — **two-entrances** ≥ 2 entrances,
   **at-least-one-loop** ≥ 1 interior loop, **no-secret-gated-spine** the
   objective still reachable with every `secret` edge removed,
@@ -381,21 +373,21 @@ is first defined deeper in the same delve is a forward reference and fails;
 a lead whose actionable payload rides on content the party already holds
 passes even when adjacent content stays opaque.
 
-**The inheritance split.** Every fight arrived from combat-generator already
-checked (its **stat-block-refs-in-prose** and
-**swarm-carries-fragile-creatures** criteria, graded by combat's fresh check
-when it built the block). This check grades only the two criteria the *site*
-owns — **objective-routes-cost-differently** and **lead-interpretability** —
-so it is structurally unable to re-grade a fight.
+**The inheritance split.** Every fight arrived from the fight procedure
+already checked (its **stat-block-refs-in-prose** and
+**swarm-carries-fragile-creatures** criteria, graded by the fight's fresh
+check when it built the block). This check grades only the two criteria the
+*site* owns — **objective-routes-cost-differently** and
+**lead-interpretability** — so it is structurally unable to re-grade a fight.
 
 - **Launch it fresh — output, criteria, roster, nothing else.** Start a
   genuinely fresh-context, **read-only** checker and hand it **only three
   things**: (1) the drafted dungeon package exactly as it stands, (2) the
   two criteria as this skill's own text states them — the route-cost
   promise in [`xandering.md`](xandering.md), the lead promise and its
-  boundaries above — named as dungeon-generator's rows
-  `[dungeon-generator/objective-routes-cost-differently,
-  dungeon-generator/lead-interpretability]`, and (3) the party roster.
+  boundaries above — named as their inventory rows
+  `[build-session/objective-routes-cost-differently,
+  build-session/lead-interpretability]`, and (3) the party roster.
   Withhold your own reasoning — chain of thought, heal telemetry, any note
   arguing the site is good: a checker that sees only what a reader sees
   grades what a reader gets. It returns a plain `approve | disapprove`;
@@ -437,9 +429,9 @@ the DM says to keep it. On the yes, run this checklist:
   node page is the consuming repo's affair — its absorption or catch-up
   flow — and is **not required**; a repo with no such flow gets the
   prohibition and stops there.
-- [ ] Each fight files as an encounter-meta block per combat-generator's
-  filing format — its `Spotlight:` line feeds the variety check's fallback
-  ledger, so no fight files without one.
+- [ ] Each fight files as an encounter-meta block per the fight procedure's
+  *Filing format* section ([`combat.md`](combat.md)) — its `Spotlight:` line
+  feeds the variety check's fallback ledger, so no fight files without one.
 - [ ] A **non-combat** beat this site stages for a PC — an exploration or
   social spotlight in a keyed area — files its own `Spotlight (scene):`
   line at that key, as a one-line behind-the-screen note in a
@@ -453,7 +445,7 @@ the DM says to keep it. On the yes, run this checklist:
   `Spotlight:` field — a scene line must never read as a fight in the
   variety ledger — and every line names its target PC. The shape is
   specified once, and not here: *Spotlight lines* in `build-session`'s
-  [`session-page-format.md`](../build-session/session-page-format.md#conventions).
+  [`session-page-format.md`](session-page-format.md#conventions).
   This is a **citation, not a file to open at run time** — you already know
   the shape; the pointer is where a shape change lands (library sync
   obligations: `docs/campaign-contract.md`). The session's plan is
