@@ -1,6 +1,5 @@
 """Tests for ``wiki_scaffold_lint`` — see that module for why these two
-facts are the ones worth pinning, and *Static lints* in
-``docs/eval-assertion-inventory.md`` for the rows they derive from.
+facts are the ones worth pinning and the stable check ids that name them.
 
 The two ``test_*_over_the_real_tree`` cases are the guard proper. The rest are
 guard-the-guard: they feed the parser deliberately broken input to prove a gap

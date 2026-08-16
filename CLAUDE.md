@@ -19,30 +19,27 @@ those through artifacts just because they're visual.
 - Keep artifacts self-contained (CSP blocks external CDNs) and theme-aware
   (light/dark) so they read well on the iPad in either theme.
 
-## The verifier is derived — keep it in sync when you edit a skill
+## Keep the verifier and skill promises aligned
 
-`docs/eval-assertion-inventory.md` is the **master** list of every checkable
-promise the skills make. The runtime verifier derived from it is
-`build-session/scripts/mechanical_checker/checker.py` + its fixtures — the chain is
-**inventory → `checker.py` only**. (Subjective bars are no longer derived
-artifacts: since the verification-chain cut they live as completion criteria
-in each skill's own text, graded by a one-round fresh check, so editing one
-is a skill-text edit plus its inventory row.)
+`build-session/scripts/mechanical_checker/checker.py` and its fixtures are the
+mechanical specification for build-session's runtime verifier. Subjective bars
+live as completion criteria in each skill's own text and are graded by a
+one-round fresh check.
 
 So when a skill edit **adds, changes, or removes a checkable promise**
 (an arithmetic/count/format rule, a graph property, or a subjective quality
 bar like "interpretable" / "no undefined coinage"), update the chain in order:
 
-1. **the inventory row first** (master), then
-2. `checker.py` + a fixture, where the promise is mechanical.
+1. update the skill text, then
+2. update `checker.py` + a fixture when the promise is mechanical.
 
 The checker now lives inside the skill that runs it. Run
 `pytest checks/ skills/build-session/scripts/` to exercise the fixture you just
 added along with checks over shipped content.
 
-Never hand-edit the checker out of sync with the inventory. A *new* promise
-added to a skill is invisible until its inventory row and, where applicable,
-checker support are added, so this rule is the guard against that drift.
+Add a check by registering its stable `<skill>/<rule>` slug in `checker.py` and
+adding a passing and failing fixture. A new mechanical promise is invisible
+until the checker and its fixtures cover it.
 
 ### When a commit reverses something the library asserts
 

@@ -322,7 +322,7 @@ floor checks to read the objective, the edge list tags the objective room
 the ≥ 2 routes to the objective each cost something **different** (the
 route-cost promise in [`xandering.md`](xandering.md)), and is every planted
 lead **interpretable with only what the players already know** (the lead
-promise and its boundaries below) — named as their inventory rows
+promise and its boundaries below) — named by their stable row ids
 `[build-session/objective-routes-cost-differently,
 build-session/lead-interpretability]`, with the party roster as the
 checker's third input.

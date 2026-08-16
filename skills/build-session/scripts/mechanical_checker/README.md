@@ -5,6 +5,27 @@ generator runs on its *own* output to catch mechanical promise-breaks —
 arithmetic, counts, format, graph properties — before it offers the output to
 file. A generator cannot cheat a compiler, so no external grader is needed.
 
+## What it checks
+
+This checker verifies the mechanical parts of build-session output. Its
+registered checks cover:
+
+- encounter-meta structure, XP and budget arithmetic, stat-block references,
+  spotlight fields, and encounter constraints;
+- keyed-site topology, typed edges, routes, entrances, guarded approaches,
+  dungeon scale, mechanics, and roster staging;
+- session-page skeleton and Key NPC table structure, links, annotations,
+  canon and brief-derived fields; and
+- context-sensitive facts that require a supplied roster, session brief, canon
+  extract, or scale override rather than filesystem access.
+
+Each rule has a stable `<skill>/<rule>` check id, such as
+`build-session/enemies-line-arithmetic`. The decorated function in
+[`checker.py`](checker.py) is the rule's executable specification; a failure is
+reported with that id in `Finding.check_id`. The checker deliberately does not
+make judgement calls: subjective completion criteria are evaluated by the
+separate fresh check described in build-session's verification procedure.
+
 ## Public interface — the sole test seam
 
 ```python
@@ -19,9 +40,9 @@ findings = run_checks(artifact, producing_skill, checks)
     never reads a file, never calls a model. String in, findings out.
   - `producing_skill` — `"build-session"`, the one skill whose flows run
     these checks since the generator merge. Only checks owned by this skill
-    may be requested, so a caller applies **only its own skill's rubric
-    subset** (spec user story 17).
-  - `checks` — the rubric subset: the list of check ids to apply.
+    may be requested, so a caller applies **only its own skill's check
+    subset**.
+  - `checks` — the list of check ids to apply.
   - `context` *(optional)* — external data a roster-dependent check needs and the
     artifact text cannot carry. See **Context** below. Defaults to `None`, so
     every pre-existing 3-arg call is unchanged.
@@ -48,7 +69,7 @@ record: a PC named nowhere on the page was planned as resting"
 (`build-session/session-page-format.md` — "**Absence is the record:**"). Whether
 a given absence is a deliberate rest
 or a dropped beat is the judgement tier's call, and the
-`build-session/spotlight-coverage` rubric row makes it; the pre-pass only
+`build-session/spotlight-coverage` judgement criterion makes it; the pre-pass only
 supplies the arithmetic. A PC named **anywhere** in an annotation's
 value counts as covered, including as a secondary inside another PC's beat.
 
@@ -90,15 +111,15 @@ is the same parse exposed as a dict, for a caller that wants the values.
 
 Two rules that look like implementation detail and are neither:
 
-- **A blank field produces no row.** Every `brief-*` check returns `[]` when its
-  field is absent from the brief, so default-to-disapprove is scoped to a row and
+- **A blank field produces no finding.** Every `brief-*` check returns `[]` when its
+  field is absent from the brief, so default-to-disapprove is scoped to a rule and
   **silence is never a constraint** — the axis grades only what the brief locks.
 - **A missing brief raises.** A blank *field* is the DM saying nothing; a missing
   *brief* is a caller error, and a check asked to grade a contract it never
   received cannot reach a verdict. Same refusal
   **spotlight-annotations-name-pc** makes without a roster.
   **brief-introduced-canon** raises again without `canon_record`, because a diff
-  against the campaign canon record is that row's whole definition and the
+  against the campaign canon record is that rule's whole definition and the
   checker has no filesystem reach into the record.
 
 `canon_record` is a **durable record extract handed in as its own named input**,
@@ -231,10 +252,8 @@ campaign filed, which belongs to the campaign's reporting workflow.
 
 ## Adding a check (the extension point)
 
-Later extensions add the remaining rows for the fight and keyed-site procedures,
-and build-session. They grow this
-library by **registering more checks** — a one-function, one-registration
-operation:
+Add a rule by extending this library with **one registration and one fixture
+pair**:
 
 ```python
 @register_check("build-session/enemies-line-arithmetic", "build-session")
@@ -243,11 +262,13 @@ def check_enemies_line_arithmetic(artifact: str) -> list[Finding]:
     ...
 ```
 
-Write a pure `str -> list[Finding]` function, decorate it with its check id and
-producing skill, and `run_checks` selects it whenever a caller requests that id.
-Add a labeled fixture pair under `fixtures/` (one that passes → zero findings, one
-that breaks → the expected finding) and a `test_*.py` case, mirroring the
-encounter-meta required-lines reference check.
+Write a pure `str -> list[Finding]` function, decorate it with a stable check id
+and producing skill, and `run_checks` selects it whenever a caller requests that
+id. Add a labeled fixture pair under `fixtures/` (one that passes → zero
+findings, one that breaks → the expected finding) and a `test_*.py` case,
+mirroring the encounter-meta required-lines reference check. If the rule needs
+external input, set `takes_context=True`, document the required context here,
+and test the missing-context failure.
 
 ## How this ships
 

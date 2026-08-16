@@ -9,8 +9,7 @@ either the agent performs or the DM answers, but "the template is internally
 consistent with its own schema" is true or false the moment the template is
 committed.
 
-Two assertions, derived from the inventory rows of the same names — see
-*Static lints* in ``docs/eval-assertion-inventory.md``
+Two assertions with stable check ids
 (``lint/wiki-scaffold-starts-green``, ``lint/wiki-scaffold-preflight-covers-template``):
 
 ``starts_green``
@@ -116,7 +115,7 @@ def preflight_paths(skill_text: str | None = None) -> set[str]:
     if start == -1:
         raise AssertionError(
             f"{SETUP_SKILL.relative_to(REPO_ROOT)} no longer says {_PREFLIGHT_OPEN!r} — "
-            "the preflight was reworded; re-pick the anchor here and in the inventory row"
+            "the preflight was reworded; re-pick the anchor in this check"
         )
     end = text.find(_PREFLIGHT_CLOSE, start)
     if end == -1:
