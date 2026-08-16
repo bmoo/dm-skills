@@ -333,6 +333,22 @@ RETIRED = [
         "c6757b8",
         "It arrived: phase 1 runs the content-tool survey instead of deferring to a future build.",
     ),
+    # --- ee88018: the never-executed trace and diff inventory rows were
+    # deleted rather than given the harness they waited on. The inventory's
+    # harness section had claimed the trace tier as the library's coverage of
+    # its hard prohibitions and as feasibility-confirmed; with the rows gone,
+    # both claims are reversed — the promises live only in the skill text's
+    # own MUSTs now, and no trace assertion covers anything.
+    RetiredPhrase(
+        'and "**MUST**" in the library is one of these',
+        "ee88018",
+        "No trace rows exist any more; a never/MUST is skill-text doctrine, not a trace assertion.",
+    ),
+    RetiredPhrase(
+        "the headless which-skill-fired research spike",
+        "ee88018",
+        "The spike's feasibility claim died with the trace class; nothing cites it as grounds any more.",
+    ),
 ]
 
 
