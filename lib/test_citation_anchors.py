@@ -141,6 +141,43 @@ def test_citation_broken_by_a_comment_prefix_is_reported(tree):
     assert len(hits) == 1 and "SKILL.md" in hits[0]
 
 
+def test_citation_with_prose_before_the_dash_is_reported(tree):
+    """The escape that motivated the near-miss guard (issue #21): prose between
+    the backticked path and the em dash means CITATION_RE never parses it, and
+    the dash no longer follows the path directly, so CITATION_START_RE misses it
+    too. The anchor phrase is silently unguarded."""
+    _sweep(tree, 'sections at the `SKILL.md` H2s — "Note is optional".')
+    assert missing_anchors(repo_root=tree) == []  # invisible to the anchor check
+    hits = malformed_citations(repo_root=tree)
+    assert len(hits) == 1 and "SKILL.md" in hits[0]
+
+
+def test_prose_before_the_dash_wrapped_across_lines_is_reported(tree):
+    """The citing docs are hard-wrapped, so the prose gap can straddle a newline."""
+    _sweep(tree, 'sections at the `SKILL.md`\nH2 headings — "Note is optional".')
+    hits = malformed_citations(repo_root=tree)
+    assert len(hits) == 1 and "SKILL.md" in hits[0]
+
+
+def test_path_mentioned_in_plain_prose_is_not_flagged(tree):
+    """A path mention with no dash-quote citation signature nearby is ordinary
+    prose, not a mis-phrased citation."""
+    _sweep(tree, "Edit `SKILL.md` when the promise changes, and rerun the check.")
+    assert malformed_citations(repo_root=tree) == []
+
+
+def test_path_far_from_a_dash_quote_pair_is_not_flagged(tree):
+    """The dash-quote signature only implicates a path within a short window —
+    a citation of some *other* file later in the sentence must not drag every
+    earlier path mention into the report."""
+    _sweep(
+        tree,
+        "The `SKILL.md` guard is described at length elsewhere in this doc, and"
+        ' one real citation follows (`SKILL.md` — "Note is optional").',
+    )
+    assert malformed_citations(repo_root=tree) == []
+
+
 def test_slash_path_resolves_under_skills(tree):
     citation = Citation("doc.md", 1, "row", "combat-generator/SKILL.md", "x", None)
     assert resolve(citation, tree) == tree / "skills" / "combat-generator" / "SKILL.md"
