@@ -410,6 +410,47 @@ RETIRED = [
         "7467a0d",
         "Same reversal, stated as the rule that section enforced.",
     ),
+    # --- 7dfa7e8: the spotlight merge — the standalone `spotlight` skill
+    # became build-session's internal spotlight procedure. Its delegate
+    # interface went with it, so every claim that named a skill boundary
+    # there — the contract's two edge rows, the README's degradation note,
+    # the guarded cross-skill load in the fight procedure — reversed at once.
+    RetiredPhrase(
+        "hands the session to spotlight's *Invoked as a delegate* interface",
+        "7dfa7e8",
+        "There is no delegate interface and no boundary to hand across; the "
+        "session's spotlight step is build-session's own `spotlight.md`.",
+    ),
+    RetiredPhrase(
+        "hand it the session **through that skill's delegate interface**",
+        "7dfa7e8",
+        "Same reversal from the contract's trade list — the spotlight plan is "
+        "not a trade with a sibling skill any more.",
+    ),
+    RetiredPhrase(
+        "skips the session spotlight plan and leaves its fights untextured",
+        "7dfa7e8",
+        "No such degradation exists: a build-session install always has the "
+        "spotlight procedure, so there is nothing to skip.",
+    ),
+    RetiredPhrase(
+        "Spotlight doctrine lives in the sibling",
+        "7dfa7e8",
+        "It lives beside the fight procedure, in build-session's own "
+        "`spotlight-doctrine.md`.",
+    ),
+    RetiredPhrase(
+        "does load is the **spotlight** skill's",
+        "7dfa7e8",
+        "The fight and keyed-site procedures load a file of their own skill; "
+        "the guarded cross-skill load they announced is gone.",
+    ),
+    RetiredPhrase(
+        "The Spotlight-profile half of a sync applies the flagging heuristic in `spotlight/doctrine.md`",
+        "7dfa7e8",
+        "The `party-sync` → `spotlight` edge no longer exists; the one surviving "
+        "cross-skill load points at build-session behind the same guard.",
+    ),
 ]
 
 
