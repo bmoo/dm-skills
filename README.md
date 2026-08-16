@@ -149,9 +149,9 @@ maintainer machinery, not consumer surface:
   (`skills/build-session/scripts/mechanical_checker/`) is derived from it, never
   hand-authored. It is consumer surface rather than maintainer machinery — it
   ships inside the one skill that runs it. `CLAUDE.md` states the sync rules.
-- **`pytest lib/` is the gate on every content commit** — it holds citation
-  anchors and dependency clusters to the tree. Add
-  `skills/build-session/scripts/` to also run the shipped checker's own units.
+- **`pytest checks/ skills/build-session/scripts/` is the gate on every content
+  commit** — it runs checks over shipped content and the units that ship with
+  build-session.
 - Maintainer tooling in `.claude/skills/` never ships.
 
 ## License and attribution

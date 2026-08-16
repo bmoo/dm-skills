@@ -1,4 +1,4 @@
-"""Maintainer guard: the shipped wiki scaffold still bootstraps cleanly.
+"""Check that the shipped wiki scaffold still bootstraps cleanly.
 
 The `setup` skill's wiki-bootstrap phase copies ``lib/wiki-scaffold/template/``
 verbatim into a consumer's fresh campaign repo, generates the catalog, and
@@ -35,10 +35,8 @@ seed prose. It pins the two facts that go stale when someone edits the template
 without rerunning the bootstrap by hand: the seed content stops conforming, or a
 new top-level file slips past the preflight list.
 
-Lives at the ``lib/`` top level, outside ``lib/wiki-scaffold/``, for the reason
-``test_symlink_integrity`` spells out: that directory materialises into every
-consumer, and this is a check over *this repo's* committed template. It runs
-here (``pytest lib/``) and never ships.
+This check lives outside the template that materialises into every consumer.
+It verifies the committed template but never ships with it.
 """
 
 from __future__ import annotations
@@ -51,7 +49,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE = REPO_ROOT / "lib" / "wiki-scaffold" / "template"
 SETUP_SKILL = REPO_ROOT / "skills" / "setup" / "SKILL.md"
 
@@ -133,15 +131,11 @@ def preflight_paths(skill_text: str | None = None) -> set[str]:
 def shipped_top_level(template: Path = TEMPLATE) -> set[str]:
     """Every top-level entry the committed template lands in the consumer's root.
 
-    Walks with ``iterdir`` rather than ``tree_scan.iter_tree``, which the other
-    tree-walking guards here use. Two reasons, both specific to this question:
-    ``iter_tree`` yields files only, and the scaffold's top level is mostly
-    *directories* (`nodes/`, `story/`, `sessions/`, `players/`, `scripts/`) — so
-    routing through it would drop the paths most worth guarding. And it skips
-    dotfiles, which is the wrong exclusion here: a `.gitignore` added to the
-    template would land in the consumer's root and silently overwrite theirs,
-    which is precisely the clobber the preflight exists to refuse. A dotfile
-    appearing here *should* fail until it is named.
+    The scaffold's top level is mostly *directories* (`nodes/`, `story/`,
+    `sessions/`, `players/`, `scripts/`), and dotfiles matter too: a `.gitignore`
+    added to the template would land in the consumer's root and silently
+    overwrite theirs. Every top-level entry therefore has to be named by the
+    preflight.
     """
     return {child.name for child in template.iterdir()}
 

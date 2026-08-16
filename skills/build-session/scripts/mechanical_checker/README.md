@@ -279,9 +279,9 @@ dir; at the consumer the materialised copy sits beside the generator's other
 scripts and imports the same flat way.
 
 ```
-# The gate — maintainer guards, then the shipped checker beside build-session's
+# The gate — checks over shipped content, then the checker beside build-session's
 # other script tests.
-python -m pytest lib/ skills/build-session/scripts/
+python -m pytest checks/ skills/build-session/scripts/
 
 python -m pytest skills/build-session/scripts/mechanical_checker/  # this dir only
 ```

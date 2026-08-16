@@ -59,10 +59,10 @@ is committed: that a fresh copy comes up clean, and that the phase's preflight
 names every top-level path the copy would land. Both are inventory rows —
 `lint/wiki-scaffold-starts-green` and
 `lint/wiki-scaffold-preflight-covers-template`, under *Static lints* in
-`docs/eval-assertion-inventory.md` — and `lib/wiki_scaffold_lint.py` is derived
+`docs/eval-assertion-inventory.md` — and `checks/wiki/wiki_scaffold_lint.py` is derived
 from them, resolving the question the original implementation left open.
 
-**So editing this template is a `pytest lib/` matter.** A seed page the schema
+**So editing this template is a `pytest checks/` matter.** A seed page the schema
 rejects, or a new top-level file the skill's preflight list never learns about,
 fails the gate here instead of on a consumer's first run. An edit that changes
 what the *skill* promises still follows CLAUDE.md's chain: inventory row first,

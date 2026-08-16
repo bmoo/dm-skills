@@ -36,9 +36,9 @@ bar like "interpretable" / "no undefined coinage"), update the chain in order:
 1. **the inventory row first** (master), then
 2. `checker.py` + a fixture, where the promise is mechanical.
 
-The checker now lives inside the skill that runs it, so its units are outside
-`pytest lib/`: run `pytest lib/ skills/build-session/scripts/` to exercise the
-fixture you just added along with the maintainer guards.
+The checker now lives inside the skill that runs it. Run
+`pytest checks/ skills/build-session/scripts/` to exercise the fixture you just
+added along with checks over shipped content.
 
 Never hand-edit the checker out of sync with the inventory. The anchor
 check below covers one half of the drift mechanically — reword a passage a row
