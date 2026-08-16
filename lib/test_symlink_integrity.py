@@ -33,7 +33,7 @@ LIBRARIES = [
     ("mechanical_checker", "mechanical-checker"),  # deterministic tier
 ]
 
-GENERATORS = ["combat-generator", "dungeon-generator", "build-session"]
+GENERATORS = ["build-session"]
 
 # Every (skill, symlink path relative to the skill dir, canonical dir under
 # lib/) the guard covers. Each new symlinked library adds a row here and

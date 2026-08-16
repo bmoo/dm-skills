@@ -154,15 +154,15 @@ def test_inventory_citations_carry_their_row_slug(tree):
     """A failure has to name the promise, not just the file — the row slug is the
     library's promise-pointer everywhere else."""
     text = (
-        "## combat-generator\n\n"
+        "## seed-clues\n\n"
         "| Slug | Promise (source) |\n|---|---|\n"
-        '| combat-generator/catalog-browse-before-lookup | A promise (`SKILL.md` — "x") |\n'
+        '| seed-clues/catalog-browse-before-lookup | A promise (`SKILL.md` — "x") |\n'
     )
     citations = list(iter_citations(text, citation_anchors.INVENTORY, None))
     assert [citation.context for citation in citations] == [
-        "combat-generator/catalog-browse-before-lookup"
+        "seed-clues/catalog-browse-before-lookup"
     ]
-    assert citations[0].skill == "combat-generator"
+    assert citations[0].skill == "seed-clues"
 
 
 def test_unknown_inventory_section_raises_rather_than_guessing(tree):

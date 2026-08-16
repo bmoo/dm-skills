@@ -2,16 +2,16 @@
 code paths that read the block are checked against it.
 
 The block's field list used to be asserted in three independent places — prose
-in `combat-generator/SKILL.md`, the wire-format parser
+in the fight procedure (now `build-session/combat.md`), the wire-format parser
 (`build-session/scripts/session_parser.py`), and the deterministic checker
 (`lib/mechanical-checker/checker.py`, the
-`combat-generator/encounter-meta-required-lines` row). Three copies, no
+`build-session/encounter-meta-required-lines` row). Three copies, no
 mechanism: a label added to one was a label missing from the other two, and
 nothing said so.
 
  moved the spec to the format doc the block travels on —
 `build-session/session-page-format.md`, *The encounter-meta block* — and
-`combat-generator` now cites it. This module is what makes that a **single
+the fight procedure (`build-session/combat.md`) now cites it. This module is what makes that a **single
 source** rather than a relocation:
 
 ``spec_required_labels`` / ``spec_optional_labels``
@@ -63,8 +63,8 @@ SPEC_ANCHOR = "#the-encounter-meta-block"
 CHECKER = "lib/mechanical-checker/checker.py"
 PARSER = "skills/build-session/scripts/session_parser.py"
 
-# The skill that cites the spec instead of restating it.
-CITING_SKILL = "skills/combat-generator/SKILL.md"
+# The file that cites the spec instead of restating it.
+CITING_SKILL = "skills/build-session/combat.md"
 
 # A template line: `> **Party:** <size and level …>`. The angle-bracket
 # placeholder is what distinguishes a template from a filled example block.

@@ -1,16 +1,9 @@
----
-name: combat-generator
-description: >-
-  Generate a combat encounter sized to the party's action economy with the SRD
-  5.2 XP-budget table, grounded in a campaign-record node and the campaign's own
-  setting, carrying at least one complication and a spotlight texture. Use
-  whenever the DM wants to generate a fight/combat/encounter for a node, a
-  session, or a location — or asks what the party should fight.
----
+# Building a Fight
 
-# Combat Generator
-
-Build a **situation**, not a scripted fight (the *Don't Prep Plots* frame): the
+The fight procedure of the `build-session` skill. Step 5 of a session build
+loads it for each fight the session needs; the keyed-site procedure
+([`dungeon.md`](dungeon.md)) loads it for each fight in a site. Build a
+**situation**, not a scripted fight (the *Don't Prep Plots* frame): the
 right XP budget, enemies that belong in the place, terrain to fight over, and a
 **complication** that turns a hit-point race into a decision.
 
@@ -21,48 +14,45 @@ Two reference files sit beside this one; load them when their step says to:
 - [`complications.md`](complications.md) — the menu of complications.
 
 Spotlight doctrine lives in the sibling [`spotlight` skill](../spotlight/SKILL.md)
-— Steps 2 and 5 load its `doctrine.md` and `class-patterns.md`. Those two files
-are this skill's **internals**: `dungeon-generator` and `build-session` size
-their fights through the delegate interface below and never reach in (library
-sync obligations: `docs/campaign-contract.md`).
+— Steps 2 and 5 load its `doctrine.md` and `class-patterns.md` **if that skill
+is installed**. Without it, skip the ladder and doctrine reads and mark the
+fight's texture `plain` — the fight is still sized; only the aiming is lost.
 
-## Invoked as a delegate — the interface
+## Inputs
 
-**Standalone**, the DM asks for a fight and Steps 1–2 pin the situation and
-party from the record. **As a delegate**, `dungeon-generator` (sizing a keyed
-site's fight) or `build-session` (sizing a session's fight) hands you one fight
-to size; Steps 1–2's inputs come from the caller and every step from Step 3 on
-runs the same.
-
-**The caller hands you:**
+A session build has already settled these by the time it loads this file —
+Steps 1–2 restate them, so skip to Step 3:
 
 - the pinned fight situation — node/location, the enemies-or-faction and their
   objective, the terrain potential (Step 1, already settled; don't re-pin it);
-- the party and each PC's Spotlight profile (Step 2's read, done for the
-  caller's table);
-- the difficulty band — Low / Moderate / High (the caller's, not a default);
+- the party and each PC's Spotlight profile (Step 2's read);
+- the difficulty band — Low / Moderate / High (the run's pick, not a default);
 - the fight's **allocated spotlight beat** — its texture and, if aimed or
-  puzzle, the target PC. The beat comes down the chain from the session
-  spotlight plan, whose shape `spotlight` owns as the return of its delegate
-  interface: inside a session run `build-session` invokes it; a standalone
-  dungeon self-allocates its own session-scale budget. Apply the beat via
-  Step 5's *Session plan first* path rather than aiming independently — and,
-  because it is transient and never read off a page, ask for it if a prep-run
-  caller didn't hand it over.
+  puzzle, the target PC, from the session spotlight plan. The plan is
+  transient prep-run state, never read off a page; apply the beat via
+  Step 5's *Session plan first* path rather than aiming independently, and
+  with no plan in the run Step 5 self-serves.
 
-**You hand back** the runnable encounter block (Step 7's shape) **and its
+A fight built outside a full session build — a one-off the DM asks for
+mid-prep — pins whatever is still open via Steps 1–2 first.
+
+The product is the runnable encounter block (Step 7's shape) **and its
 `> [!encounter-meta]` filing block** (the *Filing format* section), complete
-and internally consistent — the caller embeds that block as-is and does not
-re-derive the budget, re-pick the complication, or reshape the meta block.
-Whether it files onto a page is the caller's call, made once for the whole
-site or session.
+and internally consistent — the page build embeds that block as-is, with no
+re-derived budget and no re-picked complication.
 
 ## Rules sourcing — non-negotiable
 
-- **MUST** source all rules content — monster stat blocks, XP values, any rules
-  detail — from the sourcing chain in [`rules-sourcing.md`](rules-sourcing.md),
-  never from training-data memory (2024 stat blocks and XP differ from 2014).
-  Look up every creature you place; confirm its XP before you spend it.
+This block is the library's one statement of the sourcing doctrine; the
+keyed-site procedure ([`dungeon.md`](dungeon.md)) follows it too, for every
+content type it places.
+
+- **MUST** source all rules content — monster stat blocks, XP values, item
+  text, trap and door mechanics, any rules detail — from the sourcing chain in
+  [`rules-sourcing.md`](rules-sourcing.md),
+  never from training-data memory (the 2024 rules differ from 2014).
+  Look up every creature and item you place; confirm a creature's XP before
+  you spend it.
 - The chain prefers whatever D&D content tools this environment has installed,
   then falls back to the bundled SRD dataset — take the first rung that answers.
 - **MUST** browse the chosen source's catalog (its listings, filtered by
@@ -74,8 +64,8 @@ site or session.
 
 ## Step 1 — Pin the situation
 
-*Invoked as a delegate, the caller hands this in — skip to Step 3.* Standalone,
-settle five things before any math:
+*Inside a session build these arrive settled from the prep run — skip to
+Step 3.* Otherwise, settle five things before any math:
 
 - **Where.** The node or location the fight happens at. If the DM named a
   location with its own page in the campaign record, **read the whole page** —
@@ -103,7 +93,7 @@ line; otherwise pick the obvious reading and name your choice.
 
 ## Step 2 — Pin the party (action economy)
 
-*Invoked as a delegate, the caller hands the party and rosters in.* The
+*Inside a session build the party and rosters arrive from the prep run.* The
 encounter must match **how many characters act and what they can do**,
 alongside level.
 
@@ -146,12 +136,12 @@ Open the spotlight skill's [`doctrine.md`](../spotlight/doctrine.md), and
 [`class-patterns.md`](../spotlight/class-patterns.md) if the fight ends up
 aimed:
 
-- **Session plan first.** Inside a session prep run the session has already
+- **Session plan first.** Inside a session build the session has already
   allocated a spotlight budget — take the fight's texture and target from it.
-  The plan is **transient**: it lives in the prep run that invoked you, never
-  as a table on the session page, so ask for it if it wasn't handed over.
-  Where the fight can't honor a planned beat, say so — the plan is the
-  session's, and build-session owns reconciling it.
+  The plan is **transient**: it lives in the prep run, never as a table on
+  the session page. Where the fight can't honor a planned beat, say so —
+  the plan is the session's, and Step 5's reconciliation pass
+  (`SKILL.md`) owns squaring it against the finished page.
 - **No plan → self-serve.** Run the doctrine's variety check against the
   campaign record's structured combat data (fallback: recent encounter-meta
   `Spotlight:` lines), then pick a texture from the palette. No fight must aim
@@ -209,19 +199,19 @@ Present the encounter in chat as a runnable block:
 Before you offer, **compose the encounter-meta callout** (the *Filing format*
 section below) in context and check it against its own mechanical promises.
 Composing is not filing: the block is drafted to self-check and written to a
-page only on the DM's yes. A delegate run already holds this block (it is the
-hand-back); a standalone run drafts it now from the numbers Steps 3–6 settled.
+page only on the DM's yes. Draft the block now from the numbers Steps 3–6
+settled — it is what the page build embeds.
 
 - **Run the checks.** Hand the drafted block to
-  `run_checks(output, "combat-generator",
-  ["combat-generator/encounter-meta-required-lines",
-  "combat-generator/enemies-line-arithmetic",
-  "combat-generator/budget-line-arithmetic",
-  "combat-generator/per-char-matches-budget-table",
-  "combat-generator/distinct-stat-block-cap",
-  "combat-generator/stat-block-refs-on-enemies-line",
-  "combat-generator/spotlight-texture-in-palette",
-  "combat-generator/targeted-spotlight-names-target-and-staging"])` — the
+  `run_checks(output, "build-session",
+  ["build-session/encounter-meta-required-lines",
+  "build-session/enemies-line-arithmetic",
+  "build-session/budget-line-arithmetic",
+  "build-session/per-char-matches-budget-table",
+  "build-session/distinct-stat-block-cap",
+  "build-session/stat-block-refs-on-enemies-line",
+  "build-session/spotlight-texture-in-palette",
+  "build-session/targeted-spotlight-names-target-and-staging"])` — the
   runnable checks live beside this skill at
   [`scripts/mechanical_checker`](scripts/mechanical_checker). Each check is one
   promise: **encounter-meta-required-lines** the six required lines are
@@ -268,9 +258,9 @@ answered.
   things**: (1) the drafted encounter block exactly as it stands, (2) the two
   criteria as this skill's own text states them — the prose-reference rule
   in *Filing format* below, the fragile-creatures rule in
-  [`xp-budget.md`](xp-budget.md) — named as combat-generator's rows
-  `[combat-generator/stat-block-refs-in-prose,
-  combat-generator/swarm-carries-fragile-creatures]`, and (3) the party
+  [`xp-budget.md`](xp-budget.md) — named as their inventory rows
+  `[build-session/stat-block-refs-in-prose,
+  build-session/swarm-carries-fragile-creatures]`, and (3) the party
   roster. Withhold your own reasoning — chain of thought, heal telemetry,
   any note arguing the fight is good: a checker that sees only what a reader
   sees grades what a reader gets. It returns a plain `approve | disapprove`;
@@ -314,14 +304,15 @@ encounter without one.**
 
 **The block's shape is specified once, and not here.** It lives with the page
 format the block travels on:
-[*The encounter-meta block*](../build-session/session-page-format.md#the-encounter-meta-block)
-in `build-session`'s `session-page-format.md` — the template, its six required
+[*The encounter-meta block*](session-page-format.md#the-encounter-meta-block)
+in `session-page-format.md` beside this file — the template, its six required
 labels (Party, Enemies, Budget, Terrain, Spotlight, Objective, plus the
 optional Note) and the shape both the session parser and the deterministic
-checker are pinned to. Write the block exactly as specified there;
-dungeon-generator files its fights in the same shape. This is a **citation, not
-a file to open at run time** — you already know the shape; the pointer is where
-a shape change lands (library sync obligations: `docs/campaign-contract.md`).
+checker are pinned to. Write the block exactly as specified there; the
+keyed-site procedure files its fights in the same shape. This is a **citation,
+not a file to open at run time** — you already know the shape; the pointer is
+where a shape change lands (library sync obligations:
+`docs/campaign-contract.md`).
 
 What this skill owns is what goes *in* those fields. **Every creature name — on
 the `Enemies:` line and in the surrounding terrain/tactics prose — is written

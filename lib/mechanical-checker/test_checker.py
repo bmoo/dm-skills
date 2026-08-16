@@ -41,16 +41,16 @@ def _load(name: str) -> str:
 
 def test_valid_block_yields_no_findings():
     artifact = _load("encounter_meta_valid.md")
-    findings = run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"])
+    findings = run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"])
     assert findings == []
 
 
 def test_missing_required_line_yields_one_finding():
     artifact = _load("encounter_meta_missing_terrain.md")
-    findings = run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"])
+    findings = run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"])
     assert len(findings) == 1
     finding = findings[0]
-    assert finding.check_id == "combat-generator/encounter-meta-required-lines"
+    assert finding.check_id == "build-session/encounter-meta-required-lines"
     assert "Terrain" in finding.actual
     assert "missing" in finding.actual.lower()
     assert finding.output_location == "> [!encounter-meta] block"
@@ -62,19 +62,19 @@ def test_missing_required_line_yields_one_finding():
 def test_note_is_optional():
     # The broken fixture omits Note as well as Terrain; only Terrain is reported.
     artifact = _load("encounter_meta_missing_terrain.md")
-    findings = run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"])
+    findings = run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"])
     assert "Note" not in findings[0].actual
 
 
 def test_absent_block_is_a_finding():
-    findings = run_checks("# A page with no fight\n\nJust prose.", "combat-generator", ["combat-generator/encounter-meta-required-lines"])
+    findings = run_checks("# A page with no fight\n\nJust prose.", "build-session", ["build-session/encounter-meta-required-lines"])
     assert len(findings) == 1
-    assert findings[0].check_id == "combat-generator/encounter-meta-required-lines"
+    assert findings[0].check_id == "build-session/encounter-meta-required-lines"
     assert "no `> [!encounter-meta]` block" in findings[0].actual
 
 
 def test_finding_is_the_pinned_shape():
-    findings = run_checks(_load("encounter_meta_missing_terrain.md"), "combat-generator", ["combat-generator/encounter-meta-required-lines"])
+    findings = run_checks(_load("encounter_meta_missing_terrain.md"), "build-session", ["build-session/encounter-meta-required-lines"])
     f = findings[0]
     assert isinstance(f, Finding)
     # exactly the four pinned fields, all strings
@@ -89,52 +89,56 @@ def test_finding_is_the_pinned_shape():
 def test_run_checks_is_pure_no_io():
     # Called twice with the same string, identical output; no file handed in.
     artifact = _load("encounter_meta_valid.md")
-    assert run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"]) == run_checks(
-        artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"]
+    assert run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"]) == run_checks(
+        artifact, "build-session", ["build-session/encounter-meta-required-lines"]
     )
 
 
 def test_empty_check_list_runs_nothing():
-    assert run_checks("anything at all", "combat-generator", []) == []
+    assert run_checks("anything at all", "build-session", []) == []
 
 
 def test_unknown_check_id_raises():
     with pytest.raises(ValueError, match="unknown check id"):
-        run_checks("x", "combat-generator", ["combat-generator/no-such-check"])
+        run_checks("x", "build-session", ["build-session/no-such-check"])
 
 
 def test_check_from_wrong_skill_raises():
-    # The required-lines check is owned by combat-generator; a session build
-    # may not request it.
+    # A check registered under another skill's qualifier may not be requested
+    # by build-session — ownership is enforced at the call.
+    @register_check("test-other-skill/test-foreign", "test-other-skill")
+    def _foreign(artifact):
+        return []
+
     with pytest.raises(ValueError, match="owned by"):
-        run_checks("x", "build-session", ["combat-generator/encounter-meta-required-lines"])
+        run_checks("x", "build-session", ["test-other-skill/test-foreign"])
 
 
 def test_findings_returned_in_requested_order():
     # Register two throwaway checks that always fire, assert order follows `checks`.
-    @register_check("combat-generator/test-order-first", "combat-generator")
+    @register_check("build-session/test-order-first", "build-session")
     def _a(artifact):
-        return [Finding("combat-generator/test-order-first", "e", "a", "loc")]
+        return [Finding("build-session/test-order-first", "e", "a", "loc")]
 
-    @register_check("combat-generator/test-order-second", "combat-generator")
+    @register_check("build-session/test-order-second", "build-session")
     def _b(artifact):
-        return [Finding("combat-generator/test-order-second", "e", "a", "loc")]
+        return [Finding("build-session/test-order-second", "e", "a", "loc")]
 
     ids = [f.check_id for f in run_checks(
-        "x", "combat-generator",
-        ["combat-generator/test-order-second", "combat-generator/test-order-first"])]
-    assert ids == ["combat-generator/test-order-second", "combat-generator/test-order-first"]
+        "x", "build-session",
+        ["build-session/test-order-second", "build-session/test-order-first"])]
+    assert ids == ["build-session/test-order-second", "build-session/test-order-first"]
 
 
 def test_register_check_rejects_duplicate_check_id():
     # Two checks under one id is the silent-collision failure class the registry
     # exists to kill: the second registration raises at import time.
-    @register_check("combat-generator/test-duplicate-id", "combat-generator")
+    @register_check("build-session/test-duplicate-id", "build-session")
     def _first(artifact):
         return []
 
     with pytest.raises(ValueError, match="already registered"):
-        @register_check("combat-generator/test-duplicate-id", "combat-generator")
+        @register_check("build-session/test-duplicate-id", "build-session")
         def _second(artifact):
             return []
 
@@ -143,7 +147,7 @@ def test_register_check_rejects_qualifier_skill_mismatch():
     # The slug's qualifier IS the producing skill; a check filed under another
     # skill's qualifier is an import-time error, not a latent mis-routing.
     with pytest.raises(ValueError, match="qualified by 'build-session'"):
-        @register_check("combat-generator/test-misfiled", "build-session")
+        @register_check("test-other-skill/test-misfiled", "build-session")
         def _misfiled(artifact):
             return []
 
@@ -151,7 +155,7 @@ def test_register_check_rejects_qualifier_skill_mismatch():
 def test_register_check_rejects_an_unqualified_check_id():
     # An id carrying no `<skill>/` qualifier at all fails the same guard.
     with pytest.raises(ValueError, match="must be a '<producing skill>/<stem>' slug"):
-        @register_check("test-unqualified", "combat-generator")
+        @register_check("test-unqualified", "build-session")
         def _unqualified(artifact):
             return []
 
@@ -162,25 +166,25 @@ def test_register_check_rejects_an_unqualified_check_id():
 # --------------------------------------------------------------------------- #
 
 GOOD = "combat_meta_good.md"
-COMBAT_SUBSET = ["combat-generator/encounter-meta-required-lines", "combat-generator/enemies-line-arithmetic", "combat-generator/budget-line-arithmetic", "combat-generator/per-char-matches-budget-table", "combat-generator/distinct-stat-block-cap", "combat-generator/stat-block-refs-on-enemies-line", "combat-generator/spotlight-texture-in-palette", "combat-generator/targeted-spotlight-names-target-and-staging"]
+COMBAT_SUBSET = ["build-session/encounter-meta-required-lines", "build-session/enemies-line-arithmetic", "build-session/budget-line-arithmetic", "build-session/per-char-matches-budget-table", "build-session/distinct-stat-block-cap", "build-session/stat-block-refs-on-enemies-line", "build-session/spotlight-texture-in-palette", "build-session/targeted-spotlight-names-target-and-staging"]
 
 
 def test_good_fixture_passes_the_whole_combat_subset():
     # The clean block breaks no combat mechanical promise — the DoD's happy path.
-    assert run_checks(_load(GOOD), "combat-generator", COMBAT_SUBSET) == []
+    assert run_checks(_load(GOOD), "build-session", COMBAT_SUBSET) == []
 
 
 # Enemies-line arithmetic.
 
 def test_good_fixture_sums():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/enemies-line-arithmetic"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/enemies-line-arithmetic"]) == []
 
 
 def test_wrong_total_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_total.md"), "combat-generator", ["combat-generator/enemies-line-arithmetic"])
+    findings = run_checks(_load("combat_meta_bad_total.md"), "build-session", ["build-session/enemies-line-arithmetic"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/enemies-line-arithmetic"
+    assert f.check_id == "build-session/enemies-line-arithmetic"
     assert "600" in f.expected   # 6×25 + 1×450
     assert "500" in f.actual     # the wrong stated total
     assert "Enemies" in f.output_location
@@ -189,14 +193,14 @@ def test_wrong_total_is_one_finding():
 # Budget-line arithmetic (two independent sub-assertions).
 
 def test_good_fixture_holds():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/budget-line-arithmetic"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/budget-line-arithmetic"]) == []
 
 
 def test_spent_over_budget_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_spent.md"), "combat-generator", ["combat-generator/budget-line-arithmetic"])
+    findings = run_checks(_load("combat_meta_bad_spent.md"), "build-session", ["build-session/budget-line-arithmetic"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/budget-line-arithmetic"
+    assert f.check_id == "build-session/budget-line-arithmetic"
     assert "spent" in f.expected.lower()
     assert "800" in f.actual
     assert "Budget" in f.output_location
@@ -205,14 +209,14 @@ def test_spent_over_budget_is_one_finding():
 # Per-char matches the budget table.
 
 def test_good_fixture_matches_table():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/per-char-matches-budget-table"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/per-char-matches-budget-table"]) == []
 
 
 def test_wrong_per_char_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_perchar.md"), "combat-generator", ["combat-generator/per-char-matches-budget-table"])
+    findings = run_checks(_load("combat_meta_bad_perchar.md"), "build-session", ["build-session/per-char-matches-budget-table"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/per-char-matches-budget-table"
+    assert f.check_id == "build-session/per-char-matches-budget-table"
     assert "150" in f.expected      # Moderate, level 2 → 150
     assert "100" in f.actual        # the stated wrong per-char
     assert "Budget" in f.output_location
@@ -221,23 +225,23 @@ def test_wrong_per_char_is_one_finding():
 def test_stray_band_is_flagged():
     # The reference fixture labels the band "Hard" (75 = Moderate's value):
     # a band with no DMG column is itself the defect this check owns.
-    findings = run_checks(_load("encounter_meta_valid.md"), "combat-generator", ["combat-generator/per-char-matches-budget-table"])
+    findings = run_checks(_load("encounter_meta_valid.md"), "build-session", ["build-session/per-char-matches-budget-table"])
     assert len(findings) == 1
-    assert findings[0].check_id == "combat-generator/per-char-matches-budget-table"
+    assert findings[0].check_id == "build-session/per-char-matches-budget-table"
     assert "Hard" in findings[0].actual
 
 
 # No more than three distinct stat blocks.
 
 def test_good_fixture_within_cap():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/distinct-stat-block-cap"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/distinct-stat-block-cap"]) == []
 
 
 def test_four_stat_blocks_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_fourtypes.md"), "combat-generator", ["combat-generator/distinct-stat-block-cap"])
+    findings = run_checks(_load("combat_meta_bad_fourtypes.md"), "build-session", ["build-session/distinct-stat-block-cap"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/distinct-stat-block-cap"
+    assert f.check_id == "build-session/distinct-stat-block-cap"
     assert "4 distinct" in f.actual
     assert "Enemies" in f.output_location
 
@@ -245,14 +249,14 @@ def test_four_stat_blocks_is_one_finding():
 # Every creature carries a stat-block reference.
 
 def test_good_fixture_all_tagged():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/stat-block-refs-on-enemies-line"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/stat-block-refs-on-enemies-line"]) == []
 
 
 def test_bare_name_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_barename.md"), "combat-generator", ["combat-generator/stat-block-refs-on-enemies-line"])
+    findings = run_checks(_load("combat_meta_bad_barename.md"), "build-session", ["build-session/stat-block-refs-on-enemies-line"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/stat-block-refs-on-enemies-line"
+    assert f.check_id == "build-session/stat-block-refs-on-enemies-line"
     assert "Bandit Captain" in f.actual
     assert "bare" in f.actual.lower()
     assert "Enemies" in f.output_location
@@ -261,14 +265,14 @@ def test_bare_name_is_one_finding():
 # Spotlight texture from the palette.
 
 def test_good_fixture_in_palette():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/spotlight-texture-in-palette"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/spotlight-texture-in-palette"]) == []
 
 
 def test_off_palette_texture_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_texture.md"), "combat-generator", ["combat-generator/spotlight-texture-in-palette"])
+    findings = run_checks(_load("combat_meta_bad_texture.md"), "build-session", ["build-session/spotlight-texture-in-palette"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/spotlight-texture-in-palette"
+    assert f.check_id == "build-session/spotlight-texture-in-palette"
     assert "ambush" in f.actual
     assert "Spotlight" in f.output_location
 
@@ -276,14 +280,14 @@ def test_off_palette_texture_is_one_finding():
 # An aimed/puzzle spotlight names a target and a staging clause.
 
 def test_good_fixture_has_target_and_staging():
-    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/targeted-spotlight-names-target-and-staging"]) == []
+    assert run_checks(_load(GOOD), "build-session", ["build-session/targeted-spotlight-names-target-and-staging"]) == []
 
 
 def test_missing_staging_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_nostaging.md"), "combat-generator", ["combat-generator/targeted-spotlight-names-target-and-staging"])
+    findings = run_checks(_load("combat_meta_bad_nostaging.md"), "build-session", ["build-session/targeted-spotlight-names-target-and-staging"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "combat-generator/targeted-spotlight-names-target-and-staging"
+    assert f.check_id == "build-session/targeted-spotlight-names-target-and-staging"
     assert "staging" in f.actual.lower()
     assert "Spotlight" in f.output_location
 
@@ -295,7 +299,7 @@ def test_untargeted_texture_imposes_no_target_requirement():
         "aimed at Vex — the captain shoves an ally off the gangway to bait Vex's Sentinel reach",
         "steamroll — the guards wade in and the party rolls over them",
     )
-    assert run_checks(plain, "combat-generator", ["combat-generator/targeted-spotlight-names-target-and-staging"]) == []
+    assert run_checks(plain, "build-session", ["build-session/targeted-spotlight-names-target-and-staging"]) == []
 
 
 # --------------------------------------------------------------------------- #
@@ -306,24 +310,24 @@ def test_untargeted_texture_imposes_no_target_requirement():
 
 def test_run_checks_still_accepts_three_args():
     # Every  call is 3-arg; the new signature must not break them.
-    assert run_checks(_load(GOOD), "combat-generator", COMBAT_SUBSET) == []
+    assert run_checks(_load(GOOD), "build-session", COMBAT_SUBSET) == []
 
 
 def test_context_free_check_ignores_context():
     # A context-free check runs identically whether or not context is handed in.
-    with_ctx = run_checks(_load(GOOD), "combat-generator", ["combat-generator/encounter-meta-required-lines"], context={"roster": []})
-    without = run_checks(_load(GOOD), "combat-generator", ["combat-generator/encounter-meta-required-lines"])
+    with_ctx = run_checks(_load(GOOD), "build-session", ["build-session/encounter-meta-required-lines"], context={"roster": []})
+    without = run_checks(_load(GOOD), "build-session", ["build-session/encounter-meta-required-lines"])
     assert with_ctx == without == []
 
 
 def test_context_taking_check_receives_context():
     # A check registered takes_context=True is handed the context dict; register a
     # throwaway that echoes a context value into a finding to prove it flows.
-    @register_check("combat-generator/test-context", "combat-generator", takes_context=True)
+    @register_check("build-session/test-context", "build-session", takes_context=True)
     def _echo(artifact, context):
-        return [Finding("combat-generator/test-context", "ctx", str((context or {}).get("k")), "loc")]
+        return [Finding("build-session/test-context", "ctx", str((context or {}).get("k")), "loc")]
 
-    findings = run_checks("x", "combat-generator", ["combat-generator/test-context"], context={"k": "v"})
+    findings = run_checks("x", "build-session", ["build-session/test-context"], context={"k": "v"})
     assert findings[0].actual == "v"
 
 
@@ -332,11 +336,11 @@ def test_context_taking_check_receives_context():
 # that breaks no site-owned promise; each broken fixture isolates one defect.
 # THE INHERITANCE SPLIT: dungeon does NOT register or run combat's checks — those
 # arrive
-# self-checked from combat-generator. These are the site-owned facets only.
+# self-checked by the fight procedure. These are the site-owned facets only.
 # --------------------------------------------------------------------------- #
 
 DUNGEON_GOOD = "dungeon_good.md"
-DUNGEON_SUBSET = ["dungeon-generator/two-entrances", "dungeon-generator/at-least-one-loop", "dungeon-generator/no-secret-gated-spine", "dungeon-generator/objective-two-routes", "dungeon-generator/guarded-approach-holds", "dungeon-generator/edge-types-in-vocabulary", "dungeon-generator/type-column-token-strictness", "dungeon-generator/slate-picks-in-header", "dungeon-generator/one-signature-technique", "dungeon-generator/one-dungeon-mechanic", "dungeon-generator/mechanic-four-part-box", "dungeon-generator/default-scale", "dungeon-generator/fight-mix", "dungeon-generator/every-flagged-pc-staged", "dungeon-generator/aimed-slots-balanced"]
+DUNGEON_SUBSET = ["build-session/two-entrances", "build-session/at-least-one-loop", "build-session/no-secret-gated-spine", "build-session/objective-two-routes", "build-session/guarded-approach-holds", "build-session/edge-types-in-vocabulary", "build-session/type-column-token-strictness", "build-session/slate-picks-in-header", "build-session/one-signature-technique", "build-session/one-dungeon-mechanic", "build-session/mechanic-four-part-box", "build-session/default-scale", "build-session/fight-mix", "build-session/every-flagged-pc-staged", "build-session/aimed-slots-balanced"]
 ROSTER = [
     {"pc": "Vex", "flagged": ["Sentinel reach"]},
     {"pc": "Bram", "flagged": ["Grapple"]},
@@ -347,27 +351,20 @@ DUNGEON_CTX = {"roster": ROSTER, "scale_overridden": False}
 
 def test_good_dungeon_passes_the_whole_site_owned_subset():
     # The clean site breaks no site-owned promise — the DoD's happy path.
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", DUNGEON_SUBSET, context=DUNGEON_CTX) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", DUNGEON_SUBSET, context=DUNGEON_CTX) == []
 
-
-def test_dungeon_does_not_own_combat_checks():
-    # The inheritance split at the registry: combat's checks are combat's, never
-    # dungeon's.
-    # Requesting one under dungeon-generator raises, exactly as a mis-scoped id.
-    with pytest.raises(ValueError, match="owned by"):
-        run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["combat-generator/encounter-meta-required-lines"], context=DUNGEON_CTX)
 
 
 # ≥ 2 entrances.
 
 def test_good_has_two_entrances():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/two-entrances"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/two-entrances"]) == []
 
 
 def test_one_entrance_is_one_finding():
-    findings = run_checks(_load("dungeon_one_entrance.md"), "dungeon-generator", ["dungeon-generator/two-entrances"])
+    findings = run_checks(_load("dungeon_one_entrance.md"), "build-session", ["build-session/two-entrances"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/two-entrances"
+    assert findings[0].check_id == "build-session/two-entrances"
     assert "1 entrance" in findings[0].actual
 
 
@@ -375,50 +372,50 @@ def test_owns_edge_list_presence():
     # A missing/mis-formatted edge table must be a LOUD finding, not a silent pass
     # that lets the other graph/grammar checks return [] on unparseable output.
     # This check owns presence.
-    findings = run_checks("# A dungeon with prose but no edge table\n", "dungeon-generator", ["dungeon-generator/two-entrances"])
+    findings = run_checks("# A dungeon with prose but no edge table\n", "build-session", ["build-session/two-entrances"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/two-entrances"
+    assert findings[0].check_id == "build-session/two-entrances"
     assert "no parseable" in findings[0].actual
 
 
 # ≥ 1 interior loop.
 
 def test_good_has_a_loop():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/at-least-one-loop"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/at-least-one-loop"]) == []
 
 
 def test_tree_topology_is_one_finding():
-    findings = run_checks(_load("dungeon_no_loop.md"), "dungeon-generator", ["dungeon-generator/at-least-one-loop"])
+    findings = run_checks(_load("dungeon_no_loop.md"), "build-session", ["build-session/at-least-one-loop"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/at-least-one-loop"
+    assert findings[0].check_id == "build-session/at-least-one-loop"
     assert "loop" in findings[0].actual.lower()
 
 
 # No secret-gated spine.
 
 def test_good_survives_secret_removal():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/no-secret-gated-spine"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/no-secret-gated-spine"]) == []
 
 
 def test_secret_gated_spine_is_one_finding():
-    findings = run_checks(_load("dungeon_secret_gated_spine.md"), "dungeon-generator", ["dungeon-generator/no-secret-gated-spine"])
+    findings = run_checks(_load("dungeon_secret_gated_spine.md"), "build-session", ["build-session/no-secret-gated-spine"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/no-secret-gated-spine"
+    assert findings[0].check_id == "build-session/no-secret-gated-spine"
     assert "unreachable" in findings[0].actual
 
 
 # Objective reachable by ≥ 2 edge-disjoint routes.
 
 def test_good_has_two_routes():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/objective-two-routes"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/objective-two-routes"]) == []
 
 
 def test_shared_bottleneck_is_one_finding():
     # Two approaches that funnel through one shared edge to the vault are one
     # route with a fork, not two — the discriminating case.
-    findings = run_checks(_load("dungeon_shared_bottleneck.md"), "dungeon-generator", ["dungeon-generator/objective-two-routes"])
+    findings = run_checks(_load("dungeon_shared_bottleneck.md"), "build-session", ["build-session/objective-two-routes"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/objective-two-routes"
+    assert findings[0].check_id == "build-session/objective-two-routes"
     assert "1 independent route" in findings[0].actual
 
 
@@ -429,14 +426,14 @@ def test_shared_bottleneck_is_one_finding():
 # only be the missing claim and never the topology; `holds` differs from `bypass`
 # in one endpoint of one edge.
 
-GUARDED = "dungeon-generator/guarded-approach-holds"
+GUARDED = "build-session/guarded-approach-holds"
 DUNGEON_BYPASS = "dungeon_guarded_bypass.md"
 
 
 def test_good_dungeon_claims_no_guarded_approach():
     # The flagship site names no guarded approach, so the check has nothing to
     # grade — it is in the DoD subset and stays silent there.
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", [GUARDED]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", [GUARDED]) == []
 
 
 def test_route_past_the_guards_is_one_finding():
@@ -444,7 +441,7 @@ def test_route_past_the_guards_is_one_finding():
     # posture and its own edge table lists a route walking straight past it. Here
     # the skylight drops into the café corridor and the curator's private door
     # opens on the wing — three posts claimed, none of them met.
-    findings = run_checks(_load(DUNGEON_BYPASS), "dungeon-generator", [GUARDED])
+    findings = run_checks(_load(DUNGEON_BYPASS), "build-session", [GUARDED])
     assert len(findings) == 1
     assert findings[0].check_id == GUARDED
     assert "M8 → M9 → M7" in findings[0].actual
@@ -456,13 +453,13 @@ def test_guard_on_the_objective_room_is_not_interposition():
     # make it unreachable from everywhere and pass the page vacuously, so the
     # objective is never removed — and the attic route still fires.
     assert "M7" in _load(DUNGEON_BYPASS).split("Guarded approach:")[1].splitlines()[0]
-    assert len(run_checks(_load(DUNGEON_BYPASS), "dungeon-generator", [GUARDED])) == 1
+    assert len(run_checks(_load(DUNGEON_BYPASS), "build-session", [GUARDED])) == 1
 
 
 def test_guarded_approach_that_holds_passes():
     # Same site, same claim; the private door now opens into the antechamber
     # instead of the wing, so every route meets a post.
-    assert run_checks(_load("dungeon_guarded_holds.md"), "dungeon-generator", [GUARDED]) == []
+    assert run_checks(_load("dungeon_guarded_holds.md"), "build-session", [GUARDED]) == []
 
 
 def test_claim_reads_parenthesised_room_ids():
@@ -474,7 +471,7 @@ def test_claim_reads_parenthesised_room_ids():
         "**Guarded approach:** two on the desk (M1), four on the landing (M5), "
         "two in the antechamber (M6), two on the wing's own doors (M7)",
     )
-    findings = run_checks(art, "dungeon-generator", [GUARDED])
+    findings = run_checks(art, "build-session", [GUARDED])
     assert len(findings) == 1
     assert "M8 → M9 → M7" in findings[0].actual
 
@@ -484,19 +481,19 @@ def test_no_claim_no_finding_on_the_same_bypassing_graph():
     # still holds guard posts and still has an unguarded way in — which is legal
     # design until the page says otherwise, so silence is the right verdict. The
     # claim is read from the header, never inferred from where the guards stand.
-    assert run_checks(_load("dungeon_guarded_unclaimed.md"), "dungeon-generator", [GUARDED]) == []
+    assert run_checks(_load("dungeon_guarded_unclaimed.md"), "build-session", [GUARDED]) == []
 
 
 # Edge types from the closed vocabulary.
 
 def test_good_all_in_vocabulary():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/edge-types-in-vocabulary"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/edge-types-in-vocabulary"]) == []
 
 
 def test_off_vocabulary_token_is_one_finding():
-    findings = run_checks(_load("dungeon_bad_token.md"), "dungeon-generator", ["dungeon-generator/edge-types-in-vocabulary"])
+    findings = run_checks(_load("dungeon_bad_token.md"), "build-session", ["build-session/edge-types-in-vocabulary"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/edge-types-in-vocabulary"
+    assert findings[0].check_id == "build-session/edge-types-in-vocabulary"
     assert "doorr" in findings[0].actual
 
 
@@ -504,19 +501,19 @@ def test_ignores_prose_before_dash():
     # A prose fragment before the dash is the token-strictness defect, not a bad
     # enum value; the vocabulary check grades only the well-formed tokens, so it
     # stays silent on that fixture.
-    assert run_checks(_load("dungeon_prose_before_dash.md"), "dungeon-generator", ["dungeon-generator/edge-types-in-vocabulary"]) == []
+    assert run_checks(_load("dungeon_prose_before_dash.md"), "build-session", ["build-session/edge-types-in-vocabulary"]) == []
 
 
 # Token strictness before the first em-dash.
 
 def test_good_is_token_strict():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/type-column-token-strictness"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/type-column-token-strictness"]) == []
 
 
 def test_prose_before_dash_is_one_finding():
-    findings = run_checks(_load("dungeon_prose_before_dash.md"), "dungeon-generator", ["dungeon-generator/type-column-token-strictness"])
+    findings = run_checks(_load("dungeon_prose_before_dash.md"), "build-session", ["build-session/type-column-token-strictness"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/type-column-token-strictness"
+    assert findings[0].check_id == "build-session/type-column-token-strictness"
     assert "prose" in findings[0].actual.lower()
 
 
@@ -524,19 +521,19 @@ def test_passes_a_bad_enum_token():
     # A well-formed but off-vocabulary token is the vocabulary defect; its
     # structure is fine, so the token-strictness check stays silent — the two
     # checks own disjoint failures.
-    assert run_checks(_load("dungeon_bad_token.md"), "dungeon-generator", ["dungeon-generator/type-column-token-strictness"]) == []
+    assert run_checks(_load("dungeon_bad_token.md"), "build-session", ["build-session/type-column-token-strictness"]) == []
 
 
 # Exactly one signature technique.
 
 def test_good_names_one_technique():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/one-signature-technique"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/one-signature-technique"]) == []
 
 
 def test_two_techniques_is_one_finding():
-    findings = run_checks(_load("dungeon_two_techniques.md"), "dungeon-generator", ["dungeon-generator/one-signature-technique"])
+    findings = run_checks(_load("dungeon_two_techniques.md"), "build-session", ["build-session/one-signature-technique"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/one-signature-technique"
+    assert findings[0].check_id == "build-session/one-signature-technique"
     assert "2" in findings[0].actual
 
 
@@ -545,37 +542,37 @@ def test_fiction_prose_after_dash_is_not_a_second_technique():
     # usually carries a description after the em-dash. Only the pre-dash clause
     # names the technique; prose mentioning another technique must not miscount.
     line = "**Signature technique:** Loops — the stairwells nest two sub-levels\n"
-    assert run_checks(line, "dungeon-generator", ["dungeon-generator/one-signature-technique"]) == []
+    assert run_checks(line, "build-session", ["build-session/one-signature-technique"]) == []
 
 
 # Exactly one dungeon-wide mechanic (or a vanilla waiver).
 
 def test_good_has_one_mechanic():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/one-dungeon-mechanic"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/one-dungeon-mechanic"]) == []
 
 
 def test_two_mechanics_is_one_finding():
-    findings = run_checks(_load("dungeon_two_mechanics.md"), "dungeon-generator", ["dungeon-generator/one-dungeon-mechanic"])
+    findings = run_checks(_load("dungeon_two_mechanics.md"), "build-session", ["build-session/one-dungeon-mechanic"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/one-dungeon-mechanic"
+    assert findings[0].check_id == "build-session/one-dungeon-mechanic"
     assert "2 mechanic" in findings[0].actual
 
 
 def test_vanilla_waiver_is_allowed():
     # An explicit vanilla waiver with no mechanic box is fine — never a finding.
     vanilla = "**Dungeon mechanic:** vanilla — a plain site, no gimmick\n\n## Keyed areas\n- N1\n"
-    assert run_checks(vanilla, "dungeon-generator", ["dungeon-generator/one-dungeon-mechanic"]) == []
+    assert run_checks(vanilla, "build-session", ["build-session/one-dungeon-mechanic"]) == []
 
 
 # Both slate picks named in the header — the presence half, and the no-DM slate.
 
-SLATE_PICKS = "dungeon-generator/slate-picks-in-header"
+SLATE_PICKS = "build-session/slate-picks-in-header"
 SLATE_NO_DM = "dungeon_slate_no_dm.md"
 SLATE_DROPPED = "dungeon_slate_dropped_field.md"
 
 
 def test_good_names_both_slate_picks():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", [SLATE_PICKS]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", [SLATE_PICKS]) == []
 
 
 def test_no_dm_package_passes_the_whole_site_owned_subset():
@@ -584,13 +581,13 @@ def test_no_dm_package_passes_the_whole_site_owned_subset():
     # lands a package, and that package is graded exactly as an attended one —
     # same two header fields, same checks, no page-level trace of which mode
     # built it.
-    assert run_checks(_load(SLATE_NO_DM), "dungeon-generator", DUNGEON_SUBSET, context=DUNGEON_CTX) == []
+    assert run_checks(_load(SLATE_NO_DM), "build-session", DUNGEON_SUBSET, context=DUNGEON_CTX) == []
 
 
 def test_dropped_signature_field_is_one_finding():
     # The silent escape an unanswered slate had before the fallback existed: the
     # pick never settles, so the field is simply left off.
-    findings = run_checks(_load(SLATE_DROPPED), "dungeon-generator", [SLATE_PICKS])
+    findings = run_checks(_load(SLATE_DROPPED), "build-session", [SLATE_PICKS])
     assert len(findings) == 1
     assert findings[0].check_id == SLATE_PICKS
     assert "Signature technique" in findings[0].actual
@@ -600,7 +597,7 @@ def test_one_technique_check_still_stays_silent_on_a_dropped_field():
     # The count check's strength is untouched by the presence row: it owns how
     # many techniques the field names, never whether the field is there. The two
     # own disjoint failures, as the vocabulary and token-strictness pair do.
-    assert run_checks(_load(SLATE_DROPPED), "dungeon-generator", ["dungeon-generator/one-signature-technique"]) == []
+    assert run_checks(_load(SLATE_DROPPED), "build-session", ["build-session/one-signature-technique"]) == []
 
 
 def test_unresolved_slate_dumped_into_the_field_still_fires():
@@ -611,7 +608,7 @@ def test_unresolved_slate_dumped_into_the_field_still_fires():
         "**Signature technique:** Redundant level links",
         "**Signature technique:** Redundant level links / Route loops / Pocket levels",
     )
-    findings = run_checks(art, "dungeon-generator", ["dungeon-generator/one-signature-technique"])
+    findings = run_checks(art, "build-session", ["build-session/one-signature-technique"])
     assert len(findings) == 1
     assert "3" in findings[0].actual
 
@@ -619,26 +616,26 @@ def test_unresolved_slate_dumped_into_the_field_still_fires():
 # The mechanic ships as a four-part box.
 
 def test_good_box_has_four_parts():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/mechanic-four-part-box"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/mechanic-four-part-box"]) == []
 
 
 def test_box_missing_exploit_is_one_finding():
-    findings = run_checks(_load("dungeon_box_missing_exploit.md"), "dungeon-generator", ["dungeon-generator/mechanic-four-part-box"])
+    findings = run_checks(_load("dungeon_box_missing_exploit.md"), "build-session", ["build-session/mechanic-four-part-box"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/mechanic-four-part-box"
+    assert findings[0].check_id == "build-session/mechanic-four-part-box"
     assert "Exploit" in findings[0].actual
 
 
 # Default scale, only when the DM didn't override.
 
 def test_good_is_default_scale():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/default-scale"], context=DUNGEON_CTX) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/default-scale"], context=DUNGEON_CTX) == []
 
 
 def test_too_many_combats_is_a_finding():
-    findings = run_checks(_load("dungeon_too_many_combats.md"), "dungeon-generator", ["dungeon-generator/default-scale"], context=DUNGEON_CTX)
+    findings = run_checks(_load("dungeon_too_many_combats.md"), "build-session", ["build-session/default-scale"], context=DUNGEON_CTX)
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/default-scale"
+    assert findings[0].check_id == "build-session/default-scale"
     assert "5 combats" in findings[0].actual
 
 
@@ -647,8 +644,8 @@ def test_override_suppresses_the_check():
     # off-range.
     findings = run_checks(
         _load("dungeon_too_many_combats.md"),
-        "dungeon-generator",
-        ["dungeon-generator/default-scale"],
+        "build-session",
+        ["build-session/default-scale"],
         context={"scale_overridden": True},
     )
     assert findings == []
@@ -656,58 +653,58 @@ def test_override_suppresses_the_check():
 
 def test_no_context_assumes_default_and_runs():
     # With no context the check assumes an un-overridden run and grades it.
-    findings = run_checks(_load("dungeon_too_many_combats.md"), "dungeon-generator", ["dungeon-generator/default-scale"])
-    assert len(findings) == 1 and findings[0].check_id == "dungeon-generator/default-scale"
+    findings = run_checks(_load("dungeon_too_many_combats.md"), "build-session", ["build-session/default-scale"])
+    assert len(findings) == 1 and findings[0].check_id == "build-session/default-scale"
 
 
 # Fight mix: one High set piece, the rest Low/Moderate.
 
 def test_good_has_one_set_piece():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/fight-mix"]) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/fight-mix"]) == []
 
 
 def test_two_high_fights_is_one_finding():
-    findings = run_checks(_load("dungeon_two_high.md"), "dungeon-generator", ["dungeon-generator/fight-mix"])
+    findings = run_checks(_load("dungeon_two_high.md"), "build-session", ["build-session/fight-mix"])
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/fight-mix"
+    assert findings[0].check_id == "build-session/fight-mix"
     assert "2 High" in findings[0].actual
 
 
 # Every flagged PC staged somewhere (set cover vs roster).
 
 def test_good_covers_the_roster():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/every-flagged-pc-staged"], context=DUNGEON_CTX) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/every-flagged-pc-staged"], context=DUNGEON_CTX) == []
 
 
 def test_unstaged_pc_is_one_finding():
-    findings = run_checks(_load("dungeon_pc_unstaged.md"), "dungeon-generator", ["dungeon-generator/every-flagged-pc-staged"], context=DUNGEON_CTX)
+    findings = run_checks(_load("dungeon_pc_unstaged.md"), "build-session", ["build-session/every-flagged-pc-staged"], context=DUNGEON_CTX)
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/every-flagged-pc-staged"
+    assert findings[0].check_id == "build-session/every-flagged-pc-staged"
     assert "Sera" in findings[0].actual
 
 
 def test_staging_without_roster_raises():
     # A roster-dependent check handed no roster refuses to fake a verdict.
     with pytest.raises(ValueError, match="roster"):
-        run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/every-flagged-pc-staged"])
+        run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/every-flagged-pc-staged"])
 
 
 # Aimed slots balanced across the flagging roster.
 
 def test_good_is_balanced():
-    assert run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/aimed-slots-balanced"], context=DUNGEON_CTX) == []
+    assert run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/aimed-slots-balanced"], context=DUNGEON_CTX) == []
 
 
 def test_unbalanced_slots_is_one_finding():
-    findings = run_checks(_load("dungeon_unbalanced.md"), "dungeon-generator", ["dungeon-generator/aimed-slots-balanced"], context=DUNGEON_CTX)
+    findings = run_checks(_load("dungeon_unbalanced.md"), "build-session", ["build-session/aimed-slots-balanced"], context=DUNGEON_CTX)
     assert len(findings) == 1
-    assert findings[0].check_id == "dungeon-generator/aimed-slots-balanced"
+    assert findings[0].check_id == "build-session/aimed-slots-balanced"
     assert "Sera:0" in findings[0].actual
 
 
 def test_aimed_slot_balance_without_roster_raises():
     with pytest.raises(ValueError, match="roster"):
-        run_checks(_load(DUNGEON_GOOD), "dungeon-generator", ["dungeon-generator/aimed-slots-balanced"])
+        run_checks(_load(DUNGEON_GOOD), "build-session", ["build-session/aimed-slots-balanced"])
 
 
 # --------------------------------------------------------------------------- #
@@ -716,9 +713,9 @@ def test_aimed_slot_balance_without_roster_raises():
 # defect and is run only against its own check id (so it can be minimal).
 #
 # THE TWO-DELEGATE INHERITANCE SPLIT: build-session registers and runs no
-# combat-generator or dungeon-generator row on the page. Fights arrive
-# self-checked from combat-generator and
-# keyed sites from dungeon-generator; these are the page/session-owned facets only.
+# fight- or site-owned row on the page. Fights arrive self-checked by the
+# fight procedure and keyed sites by the keyed-site procedure; these are the
+# page/session-owned facets only.
 # --------------------------------------------------------------------------- #
 
 SESSION_GOOD = "session_good.md"
@@ -745,15 +742,12 @@ def test_good_session_passes_the_whole_page_owned_subset():
 # it needs belongs to a module that deliberately does not ship.
 
 
-def test_build_session_does_not_own_delegate_checks():
-    # The two-delegate inheritance split at the registry: a `combat-generator/` row
-    # is combat's and a `dungeon-generator/` row is dungeon's, never build-session's.
-    # Requesting one raises, exactly as a mis-scoped id would — build-session cannot
-    # re-verify what its delegates self-checked.
-    with pytest.raises(ValueError, match="owned by"):
-        run_checks(_load(SESSION_GOOD), "build-session", ["combat-generator/encounter-meta-required-lines"], context=SESSION_CTX)
-    with pytest.raises(ValueError, match="owned by"):
-        run_checks(_load(SESSION_GOOD), "build-session", ["dungeon-generator/two-entrances"], context=SESSION_CTX)
+def test_page_flow_may_request_procedure_rows_without_error():
+    # Since the generator merge every row is owned by build-session, so the
+    # registry no longer polices the fight/site/page split — the skill text's
+    # "inherit, don't re-check" discipline does. Requesting a fight-owned row
+    # over a page must therefore run (and grade the shape it finds), not raise.
+    run_checks(_load(SESSION_GOOD), "build-session", ["build-session/encounter-meta-required-lines"], context=SESSION_CTX)
 
 
 # The nine skeleton sections, present and in order.
@@ -932,7 +926,7 @@ def test_loose_fight_is_one_finding():
 def test_is_structural_not_a_regrade():
     # A fight with BROKEN XP arithmetic but a well-formed callout is NOT this
     # check's concern — that arithmetic arrived self-checked from
-    # combat-generator. This check owns only the filing shape, so it stays silent
+    # the fight procedure. This check owns only the filing shape, so it stays silent
     # here (inheritance split).
     bad_math = (
         "> [!encounter-meta]\n"
@@ -1654,7 +1648,7 @@ def test_premise_prose_cannot_pay_down_the_revelation():
 
 
 def test_ground_rules_row_says_nothing_about_routes():
-    # Route consistency against a guard claim is `dungeon-generator/guarded-approach-holds`,
+    # Route consistency against a guard claim is `build-session/guarded-approach-holds`,
     # a Standards row on another skill. Rewiring every route so the wing is
     # reachable without meeting a post changes nothing here: this row grades the
     # rule as stated and its position, and the edge table is not its business.

@@ -37,7 +37,7 @@ def log_path(tmp_path: Path) -> Path:
 
 def test_first_append_creates_the_parent_directory(log_path):
     assert not log_path.parent.exists()
-    assert log_finding("combat-generator", "combat-generator/enemies-line-arithmetic", "mechanical", "healed",
+    assert log_finding("build-session", "build-session/enemies-line-arithmetic", "mechanical", "healed",
                        heal_attempts=1, output_anchor="> [!encounter-meta] block",
                        path=log_path) is True
     assert log_path.exists()
@@ -54,9 +54,9 @@ def test_appends_accumulate_one_json_object_per_line(log_path):
 
 
 def test_appending_never_rewrites_earlier_lines(log_path):
-    log_finding("dungeon-generator", "dungeon-generator/two-entrances", "mechanical", "healed", heal_attempts=2, path=log_path)
+    log_finding("build-session", "build-session/two-entrances", "mechanical", "healed", heal_attempts=2, path=log_path)
     first = log_path.read_text(encoding="utf-8")
-    log_finding("dungeon-generator", "dungeon-generator/objective-two-routes", "mechanical", "healed", heal_attempts=1, path=log_path)
+    log_finding("build-session", "build-session/objective-two-routes", "mechanical", "healed", heal_attempts=1, path=log_path)
     assert log_path.read_text(encoding="utf-8").startswith(first)
 
 
@@ -65,14 +65,14 @@ def test_appending_never_rewrites_earlier_lines(log_path):
 # --------------------------------------------------------------------------- #
 
 def test_finding_record_carries_every_schema_field(log_path):
-    log_finding("combat-generator", "combat-generator/stat-block-refs-on-enemies-line", "mechanical", "unhealable",
+    log_finding("build-session", "build-session/stat-block-refs-on-enemies-line", "mechanical", "unhealable",
                 heal_attempts=3, output_anchor="the Enemies line", path=log_path)
     record, = _lines(log_path)
     assert record == {
         "record": "finding",
         "timestamp": record["timestamp"],
-        "skill": "combat-generator",
-        "inventory_row": "combat-generator/stat-block-refs-on-enemies-line",
+        "skill": "build-session",
+        "inventory_row": "build-session/stat-block-refs-on-enemies-line",
         "tier": "mechanical",
         "disposition": "unhealable",
         "heal_attempts": 3,
@@ -86,9 +86,9 @@ def test_healed_findings_are_logged_not_filtered(log_path):
     """The silent class is the valuable one — weight is a property of the group,
     so nothing is filtered at write time."""
     for _ in range(4):
-        log_finding("combat-generator", "combat-generator/enemies-line-arithmetic", "mechanical", "healed", heal_attempts=1, path=log_path)
+        log_finding("build-session", "build-session/enemies-line-arithmetic", "mechanical", "healed", heal_attempts=1, path=log_path)
     rows = [r["inventory_row"] for r in _lines(log_path) if r["disposition"] == "healed"]
-    assert rows == ["combat-generator/enemies-line-arithmetic"] * 4
+    assert rows == ["build-session/enemies-line-arithmetic"] * 4
 
 
 def test_judgement_finding_carries_its_evidence(log_path):
@@ -122,7 +122,7 @@ def test_judgement_finding_without_evidence_raises(log_path):
 def test_mechanical_finding_needs_no_evidence_fields(log_path):
     """The evidence contract is judgement-only: a deterministic finding states
     expected-vs-actual through the checker, so the fields default empty."""
-    log_finding("combat-generator", "combat-generator/budget-line-arithmetic", "mechanical", "healed",
+    log_finding("build-session", "build-session/budget-line-arithmetic", "mechanical", "healed",
                 heal_attempts=2, path=log_path)
     record, = _lines(log_path)
     assert record["quoted_span"] == ""
@@ -130,7 +130,7 @@ def test_mechanical_finding_needs_no_evidence_fields(log_path):
 
 
 def test_heal_attempts_and_anchor_default_when_unknown(log_path):
-    log_finding("dungeon-generator", "dungeon-generator/every-flagged-pc-staged", "mechanical", "healed", path=log_path)
+    log_finding("build-session", "build-session/every-flagged-pc-staged", "mechanical", "healed", path=log_path)
     record, = _lines(log_path)
     assert record["heal_attempts"] is None
     assert record["output_anchor"] == ""
@@ -243,12 +243,12 @@ def test_the_announcement_carries_the_record_it_lost(tmp_path, capsys):
     reconstructing a prep session from memory the way  had to."""
     blocked = tmp_path / "a-file-not-a-dir"
     blocked.write_text("", encoding="utf-8")
-    log_finding("combat-generator", "combat-generator/enemies-line-arithmetic", "mechanical", "unhealable",
+    log_finding("build-session", "build-session/enemies-line-arithmetic", "mechanical", "unhealable",
                 heal_attempts=3, output_anchor="the Enemies line", path=blocked / "findings.jsonl")
 
     err = capsys.readouterr().err
     quoted = json.loads(err[err.index("{"):err.rindex("}") + 1])
-    assert quoted["inventory_row"] == "combat-generator/enemies-line-arithmetic"
+    assert quoted["inventory_row"] == "build-session/enemies-line-arithmetic"
     assert quoted["disposition"] == "unhealable"
 
 

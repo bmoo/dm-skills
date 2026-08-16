@@ -70,7 +70,7 @@ below.
 
 | Skill | Correction | Where it landed |
 |---|---|---|
-| combat-generator, dungeon-generator | Fights shortlisted from model memory (2024 MM only), not the catalog → **mandate browsing all active sources.** | In source: `combat-generator/SKILL.md` — "**MUST** browse the chosen source's catalog"; `dungeon-generator/SKILL.md` — "**MUST** browse the chosen source's catalog". Closed. |
+| combat-generator, dungeon-generator | Fights shortlisted from model memory (2024 MM only), not the catalog → **mandate browsing all active sources.** | In source: `build-session/combat.md` — "**MUST** browse the chosen source's catalog" (the single copy since the generator merge; the keyed-site procedure points at it). Closed. |
 | combat-generator | Bare creature names on the page → **names must carry stat-block refs.** | `330f614`; assertion C6. Closed unless it recurs. |
 | dungeon-generator | Unenforceable "no consecutive fights" rule → **countable balance rule.** | `8f44a47` (U2). Closed — and the model for how a U-row becomes a real check. |
 

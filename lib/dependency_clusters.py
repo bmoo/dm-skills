@@ -1,13 +1,15 @@
 """Maintainer guard: the declared dependency clusters match the tree.
 
-The CLI installs one skill at a time, but several skills reach across a skill
-boundary — `combat-generator` opens `../spotlight/doctrine.md` mid-step,
-`dungeon-generator` invokes `combat-generator` as a delegate. A selective
+The CLI installs one skill at a time, but some skills reach across a skill
+boundary — `build-session`'s fight and keyed-site procedures open
+`../spotlight/doctrine.md` mid-step. A selective
 install of the dependent alone leaves a dangling load or a missing delegate, so
-the library **declares** the clusters: the master table lives under
+the library **declares** the edges: the master table lives under
 *Dependency clusters* in ``docs/campaign-contract.md`` (maintainer-side, never
-shipped), and the consumer-facing statement with the install command per cluster
-lives in ``README.md``.
+shipped). While any declared edge is **hard**, the consumer-facing statement
+with the install command per cluster lives in ``README.md``; with every edge
+degrading (the state since the generator merge) the README carries no cluster
+section and none is demanded.
 
 A hand-maintained dependency list is exactly the prose that goes stale — the
 failure this repo keeps designing against. Three assertions, all over the real
@@ -22,7 +24,7 @@ tree:
 ``stale_declarations``
     every declared **load** row still has at least one such path in the tree.
     Without this half, a load that was removed (or converted to a delegate, as
-     did for `dungeon-generator` → `combat-generator`) would sit in the table
+    interface refactors have done before) would sit in the table
     forever, telling installers to install a skill they no longer need.
 
 ``install_command_gaps``
@@ -64,7 +66,7 @@ README_HEADING = "### Dependency clusters"
 KINDS = ("load", "delegate", "citation")
 STRENGTHS = ("hard", "degrades", "none")
 
-# `combat-generator` | `spotlight` | load — hard | …
+# `build-session` | `spotlight` | load — degrades | …
 _CELL_SKILL_RE = re.compile(r"^`([a-z][a-z0-9-]*)`$")
 _COUPLING_RE = re.compile(r"^\**([a-z]+)\**\s*—\s*\**([a-z]+)\**$")
 
@@ -265,10 +267,19 @@ def install_commands(repo_root: Path = REPO_ROOT) -> list[set[str]]:
 
 
 def install_command_gaps(repo_root: Path = REPO_ROOT) -> list[str]:
-    """Skills with a hard dependency that no README command installs whole."""
+    """Skills with a hard dependency that no README command installs whole.
+
+    With no hard rows in the table there is nothing for the README to
+    advertise, so the check passes without demanding the README carry a
+    cluster section at all — the generator merge removed the last hard edge,
+    and the section went with it. The day a hard edge returns, this reads the
+    README again and fails until the section does too."""
+    closure = hard_closure(repo_root)
+    if not closure:
+        return []
     commands = install_commands(repo_root)
     problems: list[str] = []
-    for skill, needed in sorted(hard_closure(repo_root).items()):
+    for skill, needed in sorted(closure.items()):
         wanted = {skill} | needed
         if not any(wanted <= command for command in commands):
             problems.append(

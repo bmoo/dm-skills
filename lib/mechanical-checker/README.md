@@ -17,10 +17,10 @@ findings = run_checks(artifact, producing_skill, checks)
   - `artifact` — the generated output **as a string**. The generator has its
     output text in context and hands it in. `run_checks` performs **no I/O**: it
     never reads a file, never calls a model. String in, findings out.
-  - `producing_skill` — one of `"combat-generator"`, `"dungeon-generator"`,
-    `"build-session"`. Only checks owned by this skill may be
-    requested, so a caller applies **only its own skill's rubric subset** (spec
-    user story 17).
+  - `producing_skill` — `"build-session"`, the one skill whose flows run
+    these checks since the generator merge. Only checks owned by this skill
+    may be requested, so a caller applies **only its own skill's rubric
+    subset** (spec user story 17).
   - `checks` — the rubric subset: the list of check ids to apply.
   - `context` *(optional)* — external data a roster-dependent check needs and the
     artifact text cannot carry. See **Context** below. Defaults to `None`, so
@@ -116,9 +116,9 @@ flagged-ability roster**, and **default-scale** needs to know whether the DM
 **overrode** the default. That external data rides in an optional `context` dict:
 
 ```python
-run_checks(output, "dungeon-generator", ["dungeon-generator/default-scale",
-            "dungeon-generator/every-flagged-pc-staged",
-            "dungeon-generator/aimed-slots-balanced"], context={
+run_checks(output, "build-session", ["build-session/default-scale",
+            "build-session/every-flagged-pc-staged",
+            "build-session/aimed-slots-balanced"], context={
     "roster": [
         {"pc": "Vex",  "flagged": ["Sentinel reach"]},
         {"pc": "Bram", "flagged": ["Grapple"]},
@@ -130,7 +130,7 @@ run_checks(output, "dungeon-generator", ["dungeon-generator/default-scale",
 
 The extension is **pure** — `context` is data handed in, never I/O — and
 **backward-compatible**: `context` defaults to `None`, so combat's 3-arg calls
-(`run_checks(output, "combat-generator", [...])`) are untouched.
+(`run_checks(output, "build-session", [...])`) are untouched.
 
 How it flows: a check declares its shape at registration. `register_check(id,
 skill)` registers a context-free `str -> list[Finding]` check (the default —
@@ -231,13 +231,13 @@ campaign filed, which belongs to the campaign's reporting workflow.
 
 ## Adding a check (the extension point)
 
-Later extensions add the remaining rows for combat-generator, dungeon-generator,
+Later extensions add the remaining rows for the fight and keyed-site procedures,
 and build-session. They grow this
 library by **registering more checks** — a one-function, one-registration
 operation:
 
 ```python
-@register_check("combat-generator/enemies-line-arithmetic", "combat-generator")
+@register_check("build-session/enemies-line-arithmetic", "build-session")
 def check_enemies_line_arithmetic(artifact: str) -> list[Finding]:
     # pure str -> list[Finding]; return [] when the promise holds
     ...
@@ -251,13 +251,11 @@ encounter-meta required-lines reference check.
 
 ## How this ships — dereference-on-install (assumption, documented)
 
-There is **one canonical copy**, this directory. Each generator carries a
+There is **one canonical copy**, this directory. The consuming skill carries a
 **relative symlink** to it inside its own `scripts/`:
 
 ```
-skills/combat-generator/scripts/mechanical_checker  -> ../../../lib/mechanical-checker
-skills/dungeon-generator/scripts/mechanical_checker -> ../../../lib/mechanical-checker
-skills/build-session/scripts/mechanical_checker     -> ../../../lib/mechanical-checker
+skills/build-session/scripts/mechanical_checker -> ../../../lib/mechanical-checker
 ```
 
 **Assumed:** the `skills` CLI copies skill dirs with **dereference-on**, so each

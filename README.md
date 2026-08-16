@@ -58,48 +58,31 @@ not a prerequisite — and fall back to the bundled SRD 5.2 dataset
 (`lib/srd/`, CC-BY-4.0 with attribution).
 
 Then start prepping: ask your agent to prep the next session
-(`build-session`), generate a dungeon or a fight (`dungeon-generator`,
-`combat-generator`), vet the magic items prep may hand out
-(`review-rewards`), or absorb what happened last time (`catch-up`).
+(`build-session` — fights and keyed sites are built in-flow), vet the magic
+items prep may hand out (`review-rewards`), or absorb what happened last time
+(`catch-up`).
 
-### Dependency clusters — install these together
-
-**A single-skill install is supported, but three skills are not standalone.**
-They reach across a skill boundary: `combat-generator` and `dungeon-generator`
-open spotlight's doctrine files mid-step, and `dungeon-generator` sizes every
-fight by invoking `combat-generator`. Install one of those alone and it breaks
-partway through a run — a dangling relative link, or a delegate that isn't
-there. Install the whole cluster instead:
-
-```bash
-# spotlight cluster — fights and keyed sites
-npx skills add bmoo/dm-skills --skill combat-generator --skill spotlight
-npx skills add bmoo/dm-skills --skill dungeon-generator --skill combat-generator --skill spotlight
-```
-
-Everything else stands alone. `spotlight`, `catch-up`,
-`seed-clues`, `campaign-art`, `party-sync`, `review-rewards` and
-`to-session-brief` have no hard dependency, and **`--skill build-session` on its own stays honest**: every one
-of its cross-skill edges is guarded by *"if installed"*, so it degrades to
-lean-sheet and page-building duties and hands nothing off. What each skill
-loses when a soft dependency is absent — `build-session` without `spotlight`
-skips the session spotlight plan; `party-sync` without it skips the
-Spotlight-profile refresh — is declared edge by edge in
+**Every skill installs alone.** No skill has a hard dependency on another:
+every cross-skill edge is guarded by *"if installed"* and degrades. What each
+skill loses when a soft dependency is absent — `build-session` without
+`spotlight` skips the session spotlight plan and leaves its fights untextured;
+`party-sync` without it skips the Spotlight-profile refresh — is declared edge
+by edge in
 [docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs),
-which `lib/dependency_clusters.py` holds to the tree and to the commands above.
+which `lib/dependency_clusters.py` holds to the tree.
 
 ## How the skills fit together
 
 The library runs a loop around your campaign repo: prep writes pages into the
 record, play happens at the table, and what happened gets absorbed back in
-before the next prep. Solid arrows are hard edges (the spotlight cluster);
-dotted arrows degrade gracefully when the target skill isn't installed.
+before the next prep. Dotted arrows degrade gracefully when the target skill
+isn't installed.
 
 ```mermaid
 flowchart TD
     repo[("Campaign repo<br/>(the record)")]
 
-    brief["to-session-brief"] -- "session brief" --> build["build-session"]
+    brief["to-session-brief"] -- "session brief" --> build["build-session<br/>(fights & keyed sites in-flow)"]
     repo -- "Eight Steps over the record" --> build
     build -- "session page" --> repo
     repo --> play(["Play the session"])
@@ -110,12 +93,7 @@ flowchart TD
     art["campaign-art"] -- "illustrations" --> repo
     seed["seed-clues"] -- "clues for under-clued targets" --> repo
 
-    dungeon["dungeon-generator"] -- "sizes every fight via" --> combat["combat-generator"]
-    dungeon -- "keyed sites" --> repo
-    combat -- "encounters" --> repo
-    combat -- "doctrine" --> spot["spotlight"]
-    dungeon -- "doctrine" --> spot
-    build -. "spotlight plan, if installed" .-> spot
+    build -. "spotlight plan & fight textures, if installed" .-> spot["spotlight"]
 ```
 
 ## Roster
@@ -128,16 +106,15 @@ flowchart TD
   safe to rerun.
 - **`build-session`** — the one skill that owns session pages: traverses the
   Eight Steps of Lazy DM Prep against the campaign record and compiles the
-  result into a durable session page (or stops at a lean sheet). Carries the
-  library's single statement of the session-page format and an optional PDF
-  renderer.
+  result into a durable session page (or stops at a lean sheet). Builds the
+  session's fights (sized to the party's action economy with the SRD 5.2
+  XP-budget table, each carrying a complication and a spotlight texture) and
+  its keyed sites (complete, runnable non-linear dungeons with a dungeon-wide
+  mechanic and setting-true rewards) with its own bundled procedures. Carries
+  the library's single statement of the session-page format and an optional
+  PDF renderer.
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.
-- **`combat-generator`** — combats sized to the party's action economy with
-  the SRD 5.2 XP-budget table, grounded in a campaign-record node, carrying a
-  complication and a spotlight texture.
-- **`dungeon-generator`** — complete, runnable non-linear keyed sites with
-  party-balanced fights, a dungeon-wide mechanic, and setting-true rewards.
 - **`seed-clues`** — seeds clues toward an under-clued target: a revelation
   short on evidence, or a node short on leads.
 - **`spotlight`** — spotlight doctrine ("shoot your monks"): aim situations

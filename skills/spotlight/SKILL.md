@@ -25,9 +25,9 @@ Two reference files sit beside this one:
   combat and out-of-combat, verified against the 2024 rules. Patterns, not
   inventory.
 
-This skill owns both files. Three consumers load them directly:
-combat-generator and dungeon-generator (texturing fights) and party-sync
-(sync-time flagging). A caller that needs a whole session's plan **invokes
+This skill owns both files. Two consumers load them directly:
+build-session's fight and keyed-site procedures (texturing fights) and
+party-sync (sync-time flagging). A caller that needs a whole session's plan **invokes
 this skill through the delegate interface below** rather than opening these
 files. Changing their shape is a breaking change (library sync obligations:
 `docs/campaign-contract.md`).
@@ -58,7 +58,7 @@ campaign's record repo (the repo's guide says where): the encounter ledger
 and per-session JSONs. **Only this campaign's record feeds this** — never
 another campaign's data, even for the same players. Before played sessions
 exist, fall back to `Spotlight:` lines in prepped encounter-meta blocks
-(format: combat-generator's *Filing format* section).
+(format: the *Filing format* section of build-session's `combat.md`).
 
 ## Invoked as a delegate — the interface
 
