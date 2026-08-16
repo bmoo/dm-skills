@@ -63,12 +63,10 @@ items prep may hand out (`review-rewards`), or absorb what happened last time
 (`catch-up`).
 
 **Every skill installs alone.** No skill has a hard dependency on another:
-every cross-skill edge is guarded by *"if installed"* and degrades. What each
-skill loses when a soft dependency is absent — `party-sync` without
-`build-session` skips the Spotlight-profile refresh — is declared edge
-by edge in
-[docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs),
-which `lib/dependency_clusters.py` holds to the tree.
+every optional cross-skill step is offered only when its companion is installed,
+and the rest of the skill degrades gracefully without it. For the maintainer
+contract, see
+[docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs).
 
 ## How the skills fit together
 

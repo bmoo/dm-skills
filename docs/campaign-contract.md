@@ -9,8 +9,8 @@ the next run discovers it.
 
 No required layout does not mean no *default* one. The wiki bootstrap copies
 `lib/wiki-scaffold/template/` into a fresh campaign repo
-(`lib/wiki-scaffold/README.md` — "copied verbatim into the consumer repo
-**root**") — the `nodes/{locations,factions,npcs,events}` skeleton, `story/`,
+(`lib/wiki-scaffold/README.md` — "a starting wiki for planning and running the
+campaign") — the `nodes/{locations,factions,npcs,events}` skeleton, `story/`,
 `sessions/`, `players/`, `log.md`, `wiki-schema.md`, and the `scripts/`
 catalog-and-check tooling — and, with the consumer's consent, appends the
 guide block that points discovery at it
@@ -43,9 +43,8 @@ are install-time decisions, not per-campaign negotiations. The session page's
 *skeleton* is likewise library-owned (the WotC 2024 adventure-chapter
 convention); campaigns own where session pages live and the method rules
 layered on top. Which skills have to be installed *together* for those
-assumptions to hold is the other install-time decision — see
-[Dependency clusters](#dependency-clusters--what-a-selective-install-needs)
-below.
+assumptions to hold is never an install-time decision: every skill installs
+alone and degrades gracefully when an optional companion is absent.
 
 | Slot | What the campaign's docs should answer | Read by |
 |---|---|---|
@@ -70,49 +69,8 @@ authoritative probe text on every slot.
 
 ## Dependency clusters — what a selective install needs
 
-The CLI installs one skill at a time (`npx skills add bmoo/dm-skills --skill
-<name>`), and some skills reach across a skill boundary. This table is the
-**master** declaration of every such edge, and `lib/dependency_clusters.py`
-parses it: an undeclared `../<other-skill>/` reference anywhere in `skills/`
-fails `pytest lib/`, as does a declared **load** edge whose path has since
-disappeared. This file never ships. While any edge is **hard**, the
-consumer-facing statement of the cluster — with its install command — lives in
-the README and the lint holds those commands to the table; since the generator
-merge folded combat-generator and dungeon-generator into build-session, every
-declared edge degrades, so the README carries no cluster section.
-
-Three couplings, and they fail differently on a selective install:
-
-- **load** — the skill text tells the reader to open a sibling's file by
-  relative path. Absent, the link dangles mid-step.
-- **delegate** — the skill invokes a sibling *skill* and never touches its
-  files. Nothing dangles; the run stalls at a delegate that isn't there.
-- **citation** — a pointer to where a shape is specified, explicitly not a
-  file to open at run time. Absent, nothing breaks at run time; only the
-  maintainer's trail to the spec goes cold.
-
-**hard** means the dependent skill cannot finish its stated job without the
-sibling; **degrades** means the guarded part is skipped and the rest of the run
-stands.
-
-| Skill | Needs | Coupling | Without it |
-|---|---|---|---|
-| `build-session` | `catch-up` | delegate — degrades | The pre-flight offers a catch-up run *"(if installed)"* before building on stale state. |
-| `build-session` | `seed-clues` | delegate — degrades | Step 5 widens a thin clue slate *"(if installed)"* rather than padding it by hand. |
-| `build-session` | `campaign-art` | delegate — degrades | Step 5's art pass *"(if installed)"*, with a stated ASCII fallback. |
-| `party-sync` | `build-session` | load — degrades | The Spotlight-profile half of a sync applies the flagging heuristic in build-session's `spotlight-doctrine.md`, guarded by *"if that skill is installed"*. The sync still runs — cache, Character section, backstory, bookkeeping — but rung 1 of the data ladder never gets written, so the prep flows fall to rung 2 and derive the flags live. |
-| `catch-up` | `build-session` | citation — none | Names `build-session/session-page-format.md` as where the `Spotlight:` / `Spotlight (scene):` ledger shape is stated. catch-up reads the session *page*, not the format file. |
-| `to-session-brief` | `seed-clues` | citation — none | The brief template's `Exit edge` line names seed-clues Step 5 as where that convention is stated. The brief is drafted and published without opening any of seed-clues' files, so nothing dangles when it is absent. |
-
-No hard edge remains — the generator and spotlight merges collapsed the old
-spotlight + combat-generator + dungeon-generator cluster into build-session's
-own reference files, and the one surviving cross-skill load is guarded.
-Any skill installs alone and degrades per its row above.
-
-The lint pins the *presence* of an edge and the README's agreement with it. It
-cannot judge whether an edge is a load or a citation, or whether it is hard —
-those columns are prose, and they are only as true as the last person to read
-the surrounding step.
+Any skill installs alone and degrades gracefully when an optional companion is
+not installed.
 
 ## Sync obligations — maintainers only
 
@@ -124,7 +82,7 @@ live here, out of the shipped skill bodies.
 
 | Shape | Owned by | Must move in the same commit |
 |---|---|---|
-| `> [!encounter-meta]` block | build-session (*session-page-format.md*, *The encounter-meta block*) — the shape ships beside the page format it lands on | build-session's fight procedure (`combat.md`), whose *Filing format* section cites the spec and owns what goes in the fields; its keyed-site procedure (`dungeon.md`), which files its fights in the same shape; catch-up, which reads its `Spotlight:` field as half the fired/denied ledger. The two code paths that read the block (`build-session/scripts/session_parser.py` and `build-session/scripts/mechanical_checker/checker.py`) are pinned to the spec by `lib/encounter_meta_spec.py`, so a shape change fails `pytest lib/` until both move with it |
+| `> [!encounter-meta]` block | build-session (*session-page-format.md*, *The encounter-meta block*) — the shape ships beside the page format it lands on | build-session's fight procedure (`combat.md`), whose *Filing format* section cites the spec and owns what goes in the fields; its keyed-site procedure (`dungeon.md`), which files its fights in the same shape; catch-up, which reads its `Spotlight:` field as half the fired/denied ledger. The two code paths that read the block are `build-session/scripts/session_parser.py` and `build-session/scripts/mechanical_checker/checker.py`. |
 | The `Spotlight (scene):` line | build-session (*session-page-format.md*, Conventions) | build-session's keyed-site procedure (`dungeon.md`), which files one for a keyed area's non-combat beat; catch-up, which reads it as the other half of the fired/denied ledger — the non-fight one |
 | `xp-budget.md`, `complications.md` | build-session's fight procedure (`combat.md`, skill-internal) | Nobody loads these across a skill boundary any more — since the generator merge they sit beside the fight procedure inside build-session, and the page and keyed-site flows size fights by following `combat.md`, which owns these files |
 | `spotlight-doctrine.md`, `class-patterns.md` | build-session (skill-internal since the spotlight merge) | build-session's spotlight, fight, and keyed-site procedures (`spotlight.md`, `combat.md`, `dungeon.md`) load them beside themselves; party-sync loads `spotlight-doctrine.md` across the skill boundary (guarded, *"if that skill is installed"*); `catch-up` reads the page's annotations and loads neither |

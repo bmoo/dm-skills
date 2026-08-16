@@ -199,10 +199,8 @@ def run_checks(
 # which the fight procedure's *Filing format* section cites rather than
 # restates.
 #
-# The list below stays a **literal**: this directory materialises into every
-# consumer through a symlink and must not read the maintenance docs at run time.
-# `lib/encounter_meta_spec.py` is what holds it to the spec — a maintainer-side
-# test asserting this tuple equals the labels the shipped section declares.
+# The list below stays a **literal**: this directory ships with build-session
+# and must not read the maintenance docs at run time.
 #
 # This one check proves the whole path end to end.  extends the same registry
 # with the rest of the fight procedure's mechanical rows.

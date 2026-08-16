@@ -266,9 +266,7 @@ Consequences are the ones the symlink arrangement was chosen for, now had
 directly: `build-session` is self-contained at the consumer (selective-install-safe),
 and this copy sits inside its skill's folder, so it is covered by that skill's
 folder hash and version-pinned by the stock mechanism (no separate pin). There is
-no longer a dereference-on-install assumption to document, and nothing for
-`lib/test_symlink_integrity.py` to resolve — that guard now covers only the
-`wiki-scaffold` template assets, which are still shared this way.
+no longer a dereference-on-install assumption to document.
 
 ## Running the tests
 

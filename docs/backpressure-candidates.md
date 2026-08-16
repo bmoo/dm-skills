@@ -128,8 +128,6 @@ subset, missing a `Preparation` section and 4 art pieces) and `fbfe586` (five
 keyed pages with no map) are both *"a fixture passed because nobody ran the right
 subset against it."* That bug **cannot exist** against real runs, where each
 fresh artifact must clear the full applicable subset by construction.
-`lib/test_session_fixture_sweep.py` is the corpus-shaped patch for a
-corpus-shaped problem.
 
 ### Verdicts carry no evidence
 
