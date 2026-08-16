@@ -106,9 +106,8 @@ Each has a `verdict-map.md` naming the expected verdict per instance. Every one
 of them defers the run: *"A future harness (out of scope here — deferred to a
 separate follow-up) runs the checker over each
 instance and asserts the returned verdict equals the **Expected verdict**
-column."* Nothing in `lib/` does. The only code that touches these files is
-`lib/citation_anchors.py`, which asserts their **anchor phrases still exist** —
-not that any grader returns the right verdict.
+column."* Nothing in `lib/` runs the checker over these files or asserts that
+any grader returns the right verdict.
 
 This re-scopes the **not-runnable-at-the-table** candidate above. Its status note
 says the fix "relies on the author re-reading" and is "untested against a third
@@ -129,8 +128,6 @@ subset, missing a `Preparation` section and 4 art pieces) and `fbfe586` (five
 keyed pages with no map) are both *"a fixture passed because nobody ran the right
 subset against it."* That bug **cannot exist** against real runs, where each
 fresh artifact must clear the full applicable subset by construction.
-`lib/test_session_fixture_sweep.py` is the corpus-shaped patch for a
-corpus-shaped problem.
 
 ### Verdicts carry no evidence
 

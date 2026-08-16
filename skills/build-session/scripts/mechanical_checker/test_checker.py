@@ -736,12 +736,6 @@ def test_good_session_passes_the_whole_page_owned_subset():
     assert run_checks(_load(SESSION_GOOD), "build-session", SESSION_SUBSET, context=SESSION_CTX) == []
 
 
-# The sweep that holds every session fixture — not just SESSION_GOOD — against the
-# two keyed-page rows lives maintainer-side, in `lib/test_session_fixture_sweep.py`.
-# It walks this repo's fixture corpus, which a consumer does not have, and the walk
-# it needs belongs to a module that deliberately does not ship.
-
-
 def test_page_flow_may_request_procedure_rows_without_error():
     # Since the generator merge every row is owned by build-session, so the
     # registry no longer polices the fight/site/page split — the skill text's

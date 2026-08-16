@@ -1,4 +1,4 @@
-"""The gate half of ``wiki_scaffold_lint`` — see that module for why these two
+"""Tests for ``wiki_scaffold_lint`` — see that module for why these two
 facts are the ones worth pinning, and *Static lints* in
 ``docs/eval-assertion-inventory.md`` for the rows they derive from.
 
@@ -59,20 +59,13 @@ def test_a_forgotten_shipped_path_is_reported(tmp_path):
 
 
 def test_a_dotfile_in_the_template_is_reported_too(tmp_path):
-    """The repo's usual walker skips dotfiles; this check must not.
-
-    A `.gitignore` shipped in the template would land in the consumer's root and
-    overwrite theirs — the exact clobber the preflight refuses — so it has to be
-    named there like any other path. Pins the deliberate choice of ``iterdir``
-    over ``tree_scan.iter_tree`` against a well-meaning later "fix".
-    """
+    """A dotfile shipped in the template must be named by the preflight too."""
     (tmp_path / ".gitignore").write_text("", encoding="utf-8")
     assert preflight_gaps(template=tmp_path) == {".gitignore"}
 
 
 def test_directories_are_reported_not_just_files(tmp_path):
-    """The scaffold's top level is mostly directories; a file-only walker would
-    make this check nearly vacuous."""
+    """The scaffold's top level includes directories, which must be guarded."""
     (tmp_path / "vault").mkdir()
     assert preflight_gaps(template=tmp_path) == {"vault"}
 

@@ -266,9 +266,7 @@ Consequences are the ones the symlink arrangement was chosen for, now had
 directly: `build-session` is self-contained at the consumer (selective-install-safe),
 and this copy sits inside its skill's folder, so it is covered by that skill's
 folder hash and version-pinned by the stock mechanism (no separate pin). There is
-no longer a dereference-on-install assumption to document, and nothing for
-`lib/test_symlink_integrity.py` to resolve — that guard now covers only the
-`wiki-scaffold` template assets, which are still shared this way.
+no longer a dereference-on-install assumption to document.
 
 ## Running the tests
 
@@ -279,9 +277,9 @@ dir; at the consumer the materialised copy sits beside the generator's other
 scripts and imports the same flat way.
 
 ```
-# The gate — maintainer guards, then the shipped checker beside build-session's
+# The gate — checks over shipped content, then the checker beside build-session's
 # other script tests.
-python -m pytest lib/ skills/build-session/scripts/
+python -m pytest checks/ skills/build-session/scripts/
 
 python -m pytest skills/build-session/scripts/mechanical_checker/  # this dir only
 ```

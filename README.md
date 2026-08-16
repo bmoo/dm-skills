@@ -63,12 +63,10 @@ items prep may hand out (`review-rewards`), or absorb what happened last time
 (`catch-up`).
 
 **Every skill installs alone.** No skill has a hard dependency on another:
-every cross-skill edge is guarded by *"if installed"* and degrades. What each
-skill loses when a soft dependency is absent — `party-sync` without
-`build-session` skips the Spotlight-profile refresh — is declared edge
-by edge in
-[docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs),
-which `lib/dependency_clusters.py` holds to the tree.
+every optional cross-skill step is offered only when its companion is installed,
+and the rest of the skill degrades gracefully without it. For the maintainer
+contract, see
+[docs/campaign-contract.md](docs/campaign-contract.md#dependency-clusters--what-a-selective-install-needs).
 
 ## How the skills fit together
 
@@ -149,9 +147,9 @@ maintainer machinery, not consumer surface:
   (`skills/build-session/scripts/mechanical_checker/`) is derived from it, never
   hand-authored. It is consumer surface rather than maintainer machinery — it
   ships inside the one skill that runs it. `CLAUDE.md` states the sync rules.
-- **`pytest lib/` is the gate on every content commit** — it holds citation
-  anchors and dependency clusters to the tree. Add
-  `skills/build-session/scripts/` to also run the shipped checker's own units.
+- **`pytest checks/ skills/build-session/scripts/` is the gate on every content
+  commit** — it runs checks over shipped content and the units that ship with
+  build-session.
 - Maintainer tooling in `.claude/skills/` never ships.
 
 ## License and attribution
