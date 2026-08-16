@@ -29,8 +29,8 @@ Two assertions, derived from the inventory rows of the same names — see
     since ``wiki-index.py`` generates it on the first run — so an *extra* named
     path is fine and a *missing* one is not.
 
-**Deliberately dumb**, in the spirit of ``dependency_clusters`` and
-``retired_phrases``. It does not read the schema, grade a page, or judge the
+**Deliberately dumb**, in the spirit of ``dependency_clusters``. It does not
+read the schema, grade a page, or judge the
 seed prose. It pins the two facts that go stale when someone edits the template
 without rerunning the bootstrap by hand: the seed content stops conforming, or a
 new top-level file slips past the preflight list.

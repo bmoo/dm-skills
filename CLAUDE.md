@@ -1,4 +1,4 @@
-# dnd-skills — working notes
+# dm-skills — working notes
 
 ## Transient visual output → Artifacts
 
@@ -71,19 +71,10 @@ crept back anywhere, and no citation half-parses. `python lib/citation_anchors.p
 the same report directly. When a phrase you cite gets reworded in the skill
 text, re-pick the anchor rather than loosening the check.
 
-### Retiring a claim the library used to make
+### When a commit reverses something the library asserts
 
-The mirror of the anchor check, and the same `pytest lib/` gate:
-`lib/retired_phrases.py` holds a denylist of sentences the library **used to**
-assert, grepped over every tracked file. `d1a08f9` changed a fact in one skill
-and left six other locations asserting the old one; `docs/campaign-contract.md`'s
-*"Must move in the same commit"* table is the manual mechanism that didn't catch
-it, because reading it is a step a human has to remember.
-
-So when a commit **reverses** something the library asserts — not a reword, a
-reversal — add the sentence it falsified to `RETIRED`, naming the retiring commit
-beside it. Two rules, both enforced by tests: the phrase must be gone from the
-whole tree when you add it (that failure is how you find the copy you missed),
-and it must be quotable from the removed side of the commit you name. See
-`lib/retired_phrases.py` for the longer version and
-`docs/campaign-contract.md` for where the obligation sits.
+A reversal — not a reword — is rarely confined to one file. `docs/campaign-contract.md`'s
+*"Must move in the same commit"* table records where each coupled shape is
+restated; read it and sweep the tree for the sentence you just falsified, so the
+change lands everywhere at once rather than in the one file you were editing.
+Nothing enforces this mechanically.

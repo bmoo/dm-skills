@@ -135,7 +135,7 @@ campaign repo's docs should answer — is indexed in
   campaign-record structures. Skills discover a campaign repo's shape from its
   own docs and degrade gracefully (or ask) when a structure is absent.
 - **Config doctrine**: campaign facts live in the campaign repo; personal
-  secrets live at user level (`~/.config/dnd-skills/`); the installed skill
+  secrets live at user level (`~/.config/dm-skills/`); the installed skill
   folder is read-only at runtime.
 - **Writing conventions**: Matt Pocock's writing-great-skills guidelines.
 
@@ -150,7 +150,7 @@ maintainer machinery, not consumer surface:
   hand-authored. It is consumer surface rather than maintainer machinery — it
   ships inside the one skill that runs it. `CLAUDE.md` states the sync rules.
 - **`pytest lib/` is the gate on every content commit** — it holds citation
-  anchors, retired phrases, and dependency clusters to the tree. Add
+  anchors and dependency clusters to the tree. Add
   `skills/build-session/scripts/` to also run the shipped checker's own units.
 - Maintainer tooling in `.claude/skills/` never ships.
 

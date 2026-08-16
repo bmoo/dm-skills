@@ -9,7 +9,7 @@ It needs the sanctioned tree walker
 walker does not ship, so the shipped test module importing it broke collection in
 every vendored copy. And what it asserts is about *this repo's fixture corpus*: a
 consumer has no session fixtures to sweep, so the check has nothing to say there.
-Same reasoning that already puts `citation_anchors` and `retired_phrases` at the
+Same reasoning that already puts `citation_anchors` at the
 `lib/` top level rather than inside a shipping directory.
 
 Depending on the shipped checker from up here is the allowed direction — maintainer
