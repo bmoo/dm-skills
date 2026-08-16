@@ -191,9 +191,9 @@ only place with a perfect record of that and, until now, no way to report it.
 - **Two record kinds**, discriminated by the `record` field, so a reader never has
   to infer the kind from which fields are present:
   - `"finding"` — `timestamp · skill · inventory_row · tier · disposition ·
-    heal_attempts · output_anchor`. `inventory_row` is **the grouping key** (a row
-    id, not a line citation — a line citation rots); for a mechanical finding it is
-    the `Finding`'s `check_id` verbatim.
+    heal_attempts · output_anchor`. The compatibility-named `inventory_row` field
+    is **the grouping key**: it holds a stable check id, not a line citation; for
+    a mechanical finding it is the `Finding`'s `check_id` verbatim.
   - `"run"` — `timestamp · skill · tier · checks_evaluated`, supplying **the
     denominator** and **the record that a tier ran at all**.
     `checks_evaluated` is the **list** of check ids, not a count:

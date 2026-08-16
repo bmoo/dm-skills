@@ -66,12 +66,6 @@ reads that record and publishes to the campaign repo's **tracker**, so it lands
 nothing in the record and claims no slot. See the per-skill SKILL.md for the
 authoritative probe text on every slot.
 
-
-## Dependency clusters — what a selective install needs
-
-Any skill installs alone and degrades gracefully when an optional companion is
-not installed.
-
 ## Sync obligations — maintainers only
 
 The library-owned formats above are coupled across skills, so a shape change

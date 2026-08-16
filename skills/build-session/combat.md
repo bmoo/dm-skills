@@ -214,7 +214,7 @@ build-session/ qualifier>])`. Each id is one promise:
 **The fresh check** (Part 2) grades the two criteria this procedure owns, as
 this skill's own text states them — the prose-reference rule in *Filing
 format* below and the fragile-creatures rule in
-[`xp-budget.md`](xp-budget.md) — named by their stable row ids
+[`xp-budget.md`](xp-budget.md) — named by their stable check ids
 `[build-session/stat-block-refs-in-prose,
 build-session/swarm-carries-fragile-creatures]`, with the party roster as
 the checker's third input.
