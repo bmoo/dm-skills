@@ -349,6 +349,33 @@ RETIRED = [
         "ee88018",
         "The spike's feasibility claim died with the trace class; nothing cites it as grounds any more.",
     ),
+    # --- 7940851: the verification-chain cut — one one-round fresh check
+    # replaces the dual-axis, multi-round judgement loop; findings_log gains
+    # the judgement tier's real code path.
+    RetiredPhrase(
+        "Two axes, two checkers.",
+        "7940851",
+        "The Spec and Standards bars are graded by one fresh check in one pass; "
+        "the parallel second checker with an unmerged verdict is gone.",
+    ),
+    RetiredPhrase(
+        "Three rounds, then the loop exhausts.",
+        "7940851",
+        "The check is one round with one fix pass and no re-grade; there is no "
+        "loop left to exhaust.",
+    ),
+    RetiredPhrase(
+        "writes this record by hand",
+        "7940851",
+        "The judgement tier now logs through findings_log's own parameters "
+        "(verdict, quoted_span, reason); no checker restates the schema by hand.",
+    ),
+    RetiredPhrase(
+        "capped at three rounds",
+        "7940851",
+        "Back-pressure as a capped multi-round loop is retired; the fresh check "
+        "grades once.",
+    ),
 ]
 
 

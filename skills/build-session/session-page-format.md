@@ -160,8 +160,15 @@ page — a named gap is prep information; a silent one is a defect.
   used ("the Forgotten", "the candle-ledger"); an undefined metaphor
   ("the needle", "polish the brass") is a defect, however evocative. (These
   bad examples are deliberately inert — an exemplar phrase vivid enough to
-  admire is vivid enough to leak into generated pages. Keep them boring.) The
-  test: a competent DM who has never seen this campaign could execute
+  admire is vivid enough to leak into generated pages. Keep them boring.)
+  Two boundaries bind: **naming is not defining** — a term merely
+  mentioned earlier on the page (a rumor "of a deep bargain") is still
+  undefined at use, while a term explained in the clause that uses it
+  ("a breath-book — a slim journal of confessions in a whisper-code") is
+  defined where it's used; and the rule is **scoped to run-time text
+  only** — the same aphorism that breaks a spotlight line is legal in a
+  design-intent aside, because the DM never executes an aside mid-scene.
+  The test: a competent DM who has never seen this campaign could execute
   the line with only this page open.
 - **Read-aloud is what they perceive.** A `> [!read-aloud]` block —
   wherever it appears: the opener, a keyed area, a clue payload's Show —

@@ -22,22 +22,21 @@ those through artifacts just because they're visual.
 ## The verifier is derived — keep it in sync when you edit a skill
 
 `docs/eval-assertion-inventory.md` is the **master** list of every checkable
-promise the skills make. The runtime verifier is *derived* from it, never
-hand-authored:
-
-- each skill's `judgement-rubric.md` + corpus verdict-maps
-  (`dungeon-generator/lead-interpretability`, `build-session/clue-interpretability`,
-  `build-session/plain-language`)
-- `lib/mechanical-checker/checker.py` + its fixtures
+promise the skills make. The runtime verifier derived from it is
+`lib/mechanical-checker/checker.py` + its fixtures — the chain is
+**inventory → `checker.py` only**. (Subjective bars are no longer derived
+artifacts: since the verification-chain cut they live as completion criteria
+in each skill's own text, graded by a one-round fresh check, so editing one
+is a skill-text edit plus its inventory row.)
 
 So when a skill edit **adds, changes, or removes a checkable promise**
 (an arithmetic/count/format rule, a graph property, or a subjective quality
 bar like "interpretable" / "no undefined coinage"), update the chain in order:
 
 1. **the inventory row first** (master), then
-2. the derived rubric/verdict-map and/or `checker.py` + a fixture.
+2. `checker.py` + a fixture, where the promise is mechanical.
 
-Never hand-edit a derived artifact out of sync with the inventory. The anchor
+Never hand-edit the checker out of sync with the inventory. The anchor
 check below covers one half of the drift mechanically — reword a passage a row
 cites and `pytest lib/` fails — but a *new* promise added to a skill is invisible
 to it, so until the maintainer-side additive sweep ships this rule is the
@@ -45,8 +44,8 @@ only guard against that half.
 
 ### Cite an anchor phrase, never a line number
 
-Every citation in that chain — inventory row, rubric, `checker.py` docstring,
-corpus README — names a **file plus a phrase that appears verbatim in it**:
+Every citation in that chain — inventory row, `checker.py` docstring —
+names a **file plus a phrase that appears verbatim in it**:
 
 ```
 (`combat-generator/SKILL.md` — "each creature × count with looked-up XP")
@@ -55,8 +54,7 @@ corpus README — names a **file plus a phrase that appears verbatim in it**:
 ```
 
 A bare filename (plain `SKILL.md`, or `xp-budget.md`) means the file of the
-skill the context belongs to: the inventory section it sits under, or the skill
-directory the rubric lives in.
+skill the context belongs to: the inventory section it sits under.
 Anywhere with no owning skill (`checker.py`, the inventory's lint and
 unenforceable sections, the library prose) spells the skill out. Anything with a
 `/` is written relative to `skills/`.

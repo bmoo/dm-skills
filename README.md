@@ -171,8 +171,8 @@ Everything below `docs/` and `lib/` beyond the two files linked above is
 maintainer machinery, not consumer surface:
 
 - `docs/eval-assertion-inventory.md` is the master list of every checkable
-  promise the skills make; the runtime verifier (judgement rubrics, corpus
-  verdict-maps, `lib/mechanical-checker/`) is derived from it, never
+  promise the skills make; the runtime verifier (`lib/mechanical-checker/`)
+  is derived from it, never
   hand-authored. `CLAUDE.md` states the sync rules.
 - **`pytest lib/` is the gate on every content commit** — it holds citation
   anchors, retired phrases, and dependency clusters to the tree.

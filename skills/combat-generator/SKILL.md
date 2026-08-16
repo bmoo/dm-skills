@@ -252,47 +252,48 @@ hand-back); a standalone run drafts it now from the numbers Steps 3–6 settled.
   [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md).
 
 This is the deterministic slice of done. The subjective promises are the
-judgement pass below — run it after this self-check, before you offer.
+fresh check below — run it after this self-check, before you offer.
 
-### Definition of done — the judgement pass
+### Definition of done — the fresh check
 
 The subjective promises — is a creature named *in the prose*, does a swarm
 carry a fragile creature — need a grader that isn't you: you mark your own
 homework, and you mark it kindly. When the block is drafted and self-healed,
-hand it to a fresh checker. This gates *completion*: the offer below forms only
-when the checker approves or the loop exhausts.
+hand it to **one fresh-context checker**, one round. This gates *completion*:
+the offer below forms only when the check has run and its findings are
+answered.
 
-- **Launch a fresh checker — output, rubric, roster, nothing else.** Per
-  [`scripts/judgement_checker/checker-launch-protocol.md`](scripts/judgement_checker/checker-launch-protocol.md),
-  start a genuinely fresh-context, **read-only** checker and hand it **only
-  three things**: (1) the drafted encounter block exactly as it stands, (2)
-  combat-generator's [`judgement-rubric.md`](judgement-rubric.md) — the rows
-  **stat-block-refs-in-prose** and **swarm-carries-fragile-creatures**, named
-  as combat's so it grades against no other skill's promises — and (3) the
-  party roster. Withhold your own reasoning — chain of thought, heal telemetry,
+- **Launch it fresh — output, criteria, roster, nothing else.** Start a
+  genuinely fresh-context, **read-only** checker and hand it **only three
+  things**: (1) the drafted encounter block exactly as it stands, (2) the two
+  criteria as this skill's own text states them — the prose-reference rule
+  in *Filing format* below, the fragile-creatures rule in
+  [`xp-budget.md`](xp-budget.md) — named as combat-generator's rows
+  `[combat-generator/stat-block-refs-in-prose,
+  combat-generator/swarm-carries-fragile-creatures]`, and (3) the party
+  roster. Withhold your own reasoning — chain of thought, heal telemetry,
   any note arguing the fight is good: a checker that sees only what a reader
-  sees grades what a reader gets. It returns a plain `approve | disapprove`
-  with advisory findings beneath — each citing the inventory row it broke
-  (`combat-generator/stat-block-refs-in-prose` /
-  `combat-generator/swarm-carries-fragile-creatures`) and where in the block,
-  carrying **no fix**. Its default when it cannot tell is **disapprove**.
-- **Back-pressure — refine and re-drive, up to three rounds.** On `disapprove`,
-  drive the loop in
-  [`scripts/judgement_checker/back-pressure-driver.md`](scripts/judgement_checker/back-pressure-driver.md):
-  you — this same invocation — refine the block against the ranked findings
-  (the promise-pointers *are* the instruction; you own *how* to fix), then
-  launch a **new** fresh checker on the revised block. You own the cross-round
-  ledger, marking each finding `fixed` / `skipped` / `no_change_needed`. At
-  most **three rounds** — if round 3 still returns `disapprove`, the loop
-  **exhausts**.
-- **On exhaustion, enrich the one offer.** The surviving findings fold into the
-  file-offer below, carrying their promise-pointers, block anchors, and your
-  outcome ledger — *"N issues I couldn't resolve — file anyway, or take over."*
-  An `approve` run returned an **empty** findings list, so the offer reads
-  exactly as it always has. Judgement gates *completion*, not filing.
+  sees grades what a reader gets. It returns a plain `approve | disapprove`;
+  every finding cites its inventory row, where in the block it sits, the
+  **quoted span** it fired on, and a one-line **reason** — and carries **no
+  fix**. Its default when it cannot tell is **disapprove**. Log the pass
+  through the shared library
+  ([`scripts/mechanical_checker`](scripts/mechanical_checker), module
+  `findings_log`): one `log_run` with `tier="judgement"` and the verdict,
+  one `log_finding` per finding with its quoted span and reason.
+- **On `disapprove`, one fix pass — no re-grade.** Refine the block against
+  the findings once (the promise-pointers *are* the instruction; you own
+  *how* to fix), marking each finding `fixed` / `skipped` /
+  `no_change_needed`. Do not launch a second checker: one fresh read is the
+  signal.
+- **Survivors enrich the one offer.** Findings you skipped or could not fix
+  fold into the file-offer below, carrying their promise-pointers, quoted
+  spans, and your outcome ledger — *"N issues I couldn't resolve — file
+  anyway, or take over."* An `approve` leaves the offer reading exactly as
+  it always has. The check gates *completion*, not filing.
 - **File nothing.** The checker is read-only over your block; the DM's yes
-  below stays the sole trigger that writes to a page. The checker's one write
-  is the out-of-band findings-log append its launch protocol instructs.
+  below stays the sole trigger that writes to a page. The check's one write
+  is the out-of-band findings-log append above.
 
 Then **offer**, but don't assume: to file the encounter into wherever this repo
 keeps session prep or the location page, and to log it if the repo keeps a

@@ -77,6 +77,8 @@ def test_finding_record_carries_every_schema_field(log_path):
         "disposition": "unhealable",
         "heal_attempts": 3,
         "output_anchor": "the Enemies line",
+        "quoted_span": "",
+        "reason": "",
     }
 
 
@@ -89,17 +91,42 @@ def test_healed_findings_are_logged_not_filtered(log_path):
     assert rows == ["combat-generator/enemies-line-arithmetic"] * 4
 
 
-def test_judgement_findings_log_raised_once_per_round(log_path):
-    """One record per round the finding appears in. It carries no round number —
-    the checker is stateless across rounds by design, so round order is recovered
-    at read time from the timestamps."""
-    for _ in range(2):
-        log_finding("build-session", "build-session/spotlight-coverage", "judgement", "raised",
-                    output_anchor="the roster table", path=log_path)
-    records = _lines(log_path)
-    assert [r["disposition"] for r in records] == ["raised", "raised"]
-    assert [r["heal_attempts"] for r in records] == [None, None]
-    assert {r["tier"] for r in records} == {"judgement"}
+def test_judgement_finding_carries_its_evidence(log_path):
+    """The evidence contract: a judgement finding records the quoted span it
+    fired on and a one-line reason, so a wrong verdict is distinguishable from
+    a right one at read time."""
+    log_finding("build-session", "build-session/spotlight-coverage", "judgement", "raised",
+                output_anchor="the roster table",
+                quoted_span="Nyla is named nowhere on the page",
+                reason="the staged rite is an unused obvious carrier", path=log_path)
+    record, = _lines(log_path)
+    assert record["disposition"] == "raised"
+    assert record["heal_attempts"] is None
+    assert record["tier"] == "judgement"
+    assert record["quoted_span"] == "Nyla is named nowhere on the page"
+    assert record["reason"] == "the staged rite is an unused obvious carrier"
+
+
+def test_judgement_finding_without_evidence_raises(log_path):
+    """A verdict with nothing behind it cannot be audited — both halves of the
+    evidence are required, and the refusal is a caller bug, not I/O."""
+    with pytest.raises(ValueError, match="quoted_span and reason"):
+        log_finding("build-session", "build-session/plain-language", "judgement", "raised",
+                    quoted_span="thread the needle", path=log_path)
+    with pytest.raises(ValueError, match="quoted_span and reason"):
+        log_finding("build-session", "build-session/plain-language", "judgement", "raised",
+                    reason="undefined metaphor in a spotlight line", path=log_path)
+    assert not log_path.exists()
+
+
+def test_mechanical_finding_needs_no_evidence_fields(log_path):
+    """The evidence contract is judgement-only: a deterministic finding states
+    expected-vs-actual through the checker, so the fields default empty."""
+    log_finding("combat-generator", "combat-generator/budget-line-arithmetic", "mechanical", "healed",
+                heal_attempts=2, path=log_path)
+    record, = _lines(log_path)
+    assert record["quoted_span"] == ""
+    assert record["reason"] == ""
 
 
 def test_heal_attempts_and_anchor_default_when_unknown(log_path):
@@ -161,14 +188,34 @@ def test_run_record_names_its_tier_and_defaults_to_mechanical(log_path):
 
 def test_judgement_run_record_is_distinguishable_from_a_mechanical_one(log_path):
     """Both tiers write a run row over the same skill; without the tier field a
-    reader could not tell which tier's denominator it was holding."""
+    reader could not tell which tier's denominator it was holding. A judgement
+    run also carries its verdict — an approve run with zero findings and a run
+    that never happened must stay distinguishable."""
     log_run("build-session", ["build-session/skeleton-sections-in-order"], path=log_path)
     log_run("build-session", ["build-session/npc-rows-named", "build-session/clue-interpretability"],
-            tier="judgement", path=log_path)
+            tier="judgement", verdict="approve", path=log_path)
     mechanical, judgement = _lines(log_path)
     assert mechanical["tier"] == "mechanical"
+    assert "verdict" not in mechanical
     assert judgement["tier"] == "judgement"
+    assert judgement["verdict"] == "approve"
     assert judgement["checks_evaluated"] == ["build-session/npc-rows-named", "build-session/clue-interpretability"]
+
+
+def test_judgement_run_without_a_verdict_raises(log_path):
+    """The verdict is the property of the pass; a judgement run row that omits
+    it is the retired multi-round shape and is refused."""
+    with pytest.raises(ValueError, match="judgement run requires verdict"):
+        log_run("build-session", ["build-session/npc-rows-named"], tier="judgement", path=log_path)
+    assert not log_path.exists()
+
+
+def test_mechanical_run_with_a_verdict_raises(log_path):
+    """Deterministic findings are their own verdict; a labelled one is a
+    mislabelled caller."""
+    with pytest.raises(ValueError, match="mechanical run carries no verdict"):
+        log_run("build-session", ["build-session/key-npcs-header"], verdict="approve", path=log_path)
+    assert not log_path.exists()
 
 
 def test_unknown_tier_on_a_run_raises(log_path):

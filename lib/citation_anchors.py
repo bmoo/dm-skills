@@ -44,9 +44,9 @@ copied byte-exact.
 
 Path resolution: a citation with a ``/`` is relative to ``skills/`` (falling back
 to the repo root, for ``lib/…``); a bare filename is relative to the citing
-context's own skill — the inventory section it sits under, or the skill directory
-the rubric lives in. Contexts with no owning skill (``checker.py``, the two
-non-skill inventory sections, the library prose) must spell the skill out.
+context's own skill — the inventory section it sits under. Contexts with no
+owning skill (``checker.py``, the non-skill inventory sections, the library
+prose) must spell the skill out.
 
 This guard lives at the ``lib/`` top level, beside ``test_symlink_integrity.py``
 and outside ``lib/mechanical-checker/`` — that directory materialises into every
@@ -116,17 +116,6 @@ SWEPT_FILES: dict[str, str | None] = {
     "lib/mechanical-checker/README.md": None,
     "lib/mechanical-checker/test_checker.py": None,
     "lib/test_session_fixture_sweep.py": None,
-    "lib/judgement-checker/rubric-format.md": None,
-    "lib/judgement-checker/reference/rubric-example-every-row-named.md": None,
-    "skills/combat-generator/judgement-rubric.md": "combat-generator",
-    "skills/dungeon-generator/judgement-rubric.md": "dungeon-generator",
-    "skills/build-session/judgement-rubric.md": "build-session",
-    "skills/build-session/spec-axis-rubric.md": "build-session",
-    "skills/build-session/corpus/clue-interpretability/README.md": "build-session",
-    "skills/build-session/corpus/plain-language/README.md": "build-session",
-    "skills/build-session/corpus/spotlight-coverage/README.md": "build-session",
-    "skills/build-session/corpus/spotlight-coverage/verdict-map.md": "build-session",
-    "skills/build-session/corpus/spotlight-coverage/instances/edge-second-straight-rest.md": "build-session",
     "CLAUDE.md": None,
     # Maintainer prose, not the derivation chain — but its scaffold-as-default
     # paragraph cites the wiki-scaffold assets by anchor phrase, so it

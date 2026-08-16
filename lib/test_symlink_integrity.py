@@ -1,8 +1,8 @@
 """Build/CI guard: each skill's materialised ``lib/`` assets are
 byte-identical to their canonical sources.
 
-Three libraries ship this way — the deterministic ``mechanical-checker``,
-the judgement-tier ``judgement-checker``, and the ``wiki-scaffold``
+Two libraries ship this way — the deterministic ``mechanical-checker``
+and the ``wiki-scaffold``
 template assets the setup skill copies into a consumer repo. In-repo each
 consuming skill reaches its library through a *relative symlink*. At the consumer
 the ``skills`` CLI dereferences that symlink on install into a real, independent
@@ -27,11 +27,10 @@ from tree_scan import iter_tree
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# The checker libraries every generator links inside its scripts/ dir:
+# The checker library every generator links inside its scripts/ dir:
 # (symlink name, canonical source dir under lib/).
 LIBRARIES = [
     ("mechanical_checker", "mechanical-checker"),  # deterministic tier
-    ("judgement_checker", "judgement-checker"),    # judgement tier
 ]
 
 GENERATORS = ["combat-generator", "dungeon-generator", "build-session"]
