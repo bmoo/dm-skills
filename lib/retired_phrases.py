@@ -376,6 +376,40 @@ RETIRED = [
         "Back-pressure as a capped multi-round loop is retired; the fresh check "
         "grades once.",
     ),
+    # --- 7467a0d: the generator merge — dungeon-generator and combat-generator
+    # became build-session's internal `combat.md` / `dungeon.md` procedures.
+    # Every skill installs alone now, so the README's install clusters, the
+    # contract's hard-edge accounting, and the two-copy rules-sourcing doctrine
+    # (with the `doctrine_sync` guard over it) reversed in the same commit.
+    RetiredPhrase(
+        "three skills are not standalone",
+        "7467a0d",
+        "Every skill installs alone; the generators are build-session's internal "
+        "procedures, not cluster members.",
+    ),
+    RetiredPhrase(
+        "The duplication is the accepted answer",
+        "7467a0d",
+        "The rules-sourcing doctrine lives once, inside build-session; "
+        "doctrine_sync retired with the second copy.",
+    ),
+    RetiredPhrase(
+        "Every hard edge points at `spotlight` or `combat-generator`",
+        "7467a0d",
+        "No hard edge remains: the generator edges became internal loads and the "
+        "spotlight edge is one guarded, degradable load.",
+    ),
+    RetiredPhrase(
+        "Editing the rules-sourcing doctrine: edit both copies",
+        "7467a0d",
+        "There is one copy; the contract section demanding the paired edit died "
+        "with the second.",
+    ),
+    RetiredPhrase(
+        "an edit to one copy is an edit to both, in the same commit",
+        "7467a0d",
+        "Same reversal, stated as the rule that section enforced.",
+    ),
 ]
 
 
