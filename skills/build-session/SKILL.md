@@ -83,9 +83,8 @@ order:
    revelations tracker) and the most recent session's ending.
 4. The standing-feedback file — `.claude/standing-feedback.md` at the
    campaign repo root, **if present** (its absence is a no-op, never an
-   error). It holds the DM's accumulated corrections from past builds —
-   one file, DM-authored, campaign-owned. Treat every entry as a
-   standing constraint on tonight's page, at method-doc precedence.
+   error). DM-authored corrections from past builds: treat every entry
+   as a standing constraint on tonight's page, at method-doc precedence.
 
 **Done when:** the record's marker and the session history agree on where
 play stands, and you can name the session's number, its likely destination
