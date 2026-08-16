@@ -66,26 +66,20 @@ mutters "Monk fight." Defenses:
 Anti-tell hides the tell from veterans; **Legibility is its inverse** — it
 governs *how plainly the DM points at an aimed beat*, calibrated to how much
 D&D the player has under their belt. A newcomer can miss that a beat is
-theirs even when it fires. The canonical failure: a brand-new player's
-*Speak with Animals* pulls the night's richest clue out of a pen of
-frightened sheep — the beat was staged for them and it fired — but they
-don't read the moment as *theirs*, and it never lands as a win. The fix is
-not more staging; it is telegraphing the staged beat loudly enough for
-*that* player to catch it.
-
-**Legibility is orthogonal to the texture palette.** Texture picks *what*
-fires (Aimed, Puzzle, …); legibility picks *how plainly the DM signposts it*.
-The two never collide — every Aimed or Puzzle beat carries both a texture and
-a legibility read.
+theirs even when it fires — staged for them, fired, and never read as
+*theirs*, so it never lands as a win. The fix is not more staging; it is
+telegraphing the staged beat loudly enough for *that* player to catch it.
+Every Aimed or Puzzle beat carries both a texture (*what* fires) and a
+legibility read (*how plainly it's signposted*).
 
 Each PC carries a **Table experience** rung. The canonical vocabulary — a
 three-rung ordinal — lives here and nowhere else:
 
 - **`new`** — new to D&D. **Telegraph the beat explicitly**: name the opening
   in the fiction, or say plainly that this is their moment, so they recognize
-  it's theirs and take it up. *(New-vs-seasoned, same beat: to a `new`
-  player the sheep's answer arrives as "the sheep are agitated — you're the
-  only one who can ask them what they saw; what do you do?")*
+  it's theirs and take it up. *(A Speak-with-Animals beat staged at a pen of
+  frightened sheep arrives as "the sheep are agitated — you're the only one
+  who can ask them what they saw; what do you do?")*
 - **`learning`** — building fluency. **A light nudge** — surface the hook and
   let them make the connection: a nod toward the opening, not a spelled-out
   prompt.

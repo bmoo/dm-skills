@@ -29,10 +29,9 @@ site need not share a scale.
   alone.
 
   A site whose edge list sits on a **node** page is out of scope: Step R5
-  files onto the session page the site is built out on, so a render read off
-  a node page would have nowhere to land. Moving such a site's build-out to a
-  session page is the consuming repo's business — this library does not own
-  topology's relocation between page kinds.
+  files onto the session page the site is built out on, so a render read
+  off a node page would have nowhere to land; relocating topology between
+  page kinds is the consuming repo's business.
 
 A page without a filed edge list can't be rendered; authoring one is
 node-deepening work (build-session's `node-deepening.md`), not this step's.
@@ -107,10 +106,8 @@ fix the layout, never fudge it.
   square count (`cols × rows`) — the prompt references it.
 - `--fill` paints every non-floor cell as dark mottled earth, and it is
   the standard anchor: the thematic surround must ride the *preserved*
-  channel like the geometry does. Asking the prompt to fill blank margins
-  instead was tested and failed — licensed to repaint the field, the model
-  painted over two of the anchor's fainter lanes, orphaning a room and
-  deleting a priced route.
+  channel like the geometry does (a prompt licensed to repaint the margins
+  has painted over lanes).
 
 **Layout rules** — each bought with a render failure:
 
@@ -165,12 +162,11 @@ Compose from these parts, in order:
    **Palette words suppress the grid.** A masonry palette — "red brick",
    "flagstone", "cobbles", "tile" — makes the model pave those rooms in
    fine coursing *instead of* drawing the 5-ft grid, and only in those
-   rooms — a quarter of one fixture's rooms went un-countable this way for
-   four straight renders. Whenever the palette names a coursed material,
-   say so explicitly: the grid squares are **large**, far bigger than a
-   floor brick; **brick coursing, cobbles and flagstone patterns are not a
-   grid**; every room must carry the same grid drawn *on top of* whatever
-   material it has, one continuous size across the whole map.
+   rooms. Whenever the palette names a coursed material, say so
+   explicitly: the grid squares are **large**, far bigger than a floor
+   brick; **brick coursing, cobbles and flagstone patterns are not a
+   grid**; every room carries the same grid drawn *on top of* its
+   material, one continuous size across the whole map.
    Then **the surround**: declare the anchor's dark fill SOLID EARTH —
    unexcavated ground, nothing in it passable — and dress it in the site's
    own strata (roots reaching down, old bones, buried debris), kept dimmer
@@ -249,9 +245,7 @@ image** — never from memory, never from the image itself:
 - one line per **trap** and **hazard** marking;
 - one line per **room**: present, labeled with its ID, **and its floor grid
   countable** — walk this room by room, never as one global glance: the
-  failure is *per-palette*, not per-image, and a single global "grid
-  visible" line once passed four renders while a quarter of the rooms had
-  none;
+  failure is *per-palette*, not per-image;
 - two furniture lines: legend box present and truthful · scale bar present;
 - one **labels** line: no bare edge-ID codes painted anywhere, and the
   wanted labels — room IDs + names, entrance destinations, hazard short
@@ -264,64 +258,53 @@ image** — never from memory, never from the image itself:
   corridor, or opening.
 
 **Walk the slate on the image you are filing, not the diff from the last
-one.** A re-roll or targeted edit regenerates *everything*, including
-the parts nobody asked to change — inheriting lines from an earlier render's
-walk once shipped a map with the grid gone from four rooms and doors grown
-on three `open` passages, all unnoticed. Re-walk every line, every render.
+one.** A re-roll or targeted edit regenerates *everything*, including the
+parts nobody asked to change. Re-walk every line, every render.
 
-Read the rendered image and mark every line **pass / amend / critical**.
-The measure: *the flag is for divergence that breaks the dungeon, not
-divergence that needs an edit* — a functional map with structural
-differences feeds back into the record as a conscious amendment.
+Read the rendered image and mark every line **pass / amend / critical** —
+the flag is for divergence that breaks the dungeon, not divergence that
+needs an edit:
 
 - **Pass** — matches, or differs only in ways the bar doesn't price
   (room a square bigger, corridor bends, style).
 - **Amend** — any divergence that leaves the floor check standing.
   **Resolution: the drawn map is canonical.** Amend the filed edge list,
   the prose around it, and any other page that snapshots the site to match
-  the image — in the filing commit, named in the log; conscious, never
-  silent. This covers cosmetic drift *and* structural divergence: a door
-  drawn where `open` was written, a wrong base symbol (missing grate
-  bars), rooms moved or resized, a re-routed or dead-ended **bonus**
-  connection — even a secret, *provided* the amendment carries its load:
-  if the lost or changed link backed a clue-web lead or a revelation,
-  re-seed that clue (`seed-clues`) as part of the same amendment. The sin
-  being guarded against is *silent* loss; the cure is a recorded edit, not
-  an escalation.
+  the image — in the filing commit, named in the log. This covers cosmetic
+  drift *and* structural divergence — a door drawn where `open` was
+  written, rooms moved, a re-routed **bonus** connection, even a secret —
+  *provided* the amendment carries its load: if the lost or changed link
+  backed a clue-web lead or a revelation, re-seed that clue
+  (`seed-clues`) in the same amendment. The sin guarded against is
+  *silent* loss; the cure is a recorded edit, not an escalation.
 - **Critical** — the drawn geometry breaks the floor check or the sheet:
   an entrance lost, a spine route to the objective deleted, a free
-  bypass invented around a priced route (a tube skipping a locked
-  strongroom door), a room missing or unlabeled, an illegible or absent
-  floor grid.
+  bypass invented around a priced route, a room missing or unlabeled, an
+  illegible or absent floor grid.
 
 **Restoring the spec is conformance; adopting the drawing is a decision.**
 Drawn-map-is-canon settles *drafting* divergence — it is not licence to
 adopt a change that rewrites a node's role, deletes a priced gate, or
 re-points a clue. While the edge list is still achievable, prefer another
 render: the DM only ever needs to be asked to **change** canon, never to
-**keep** it. (One render tempted an amend that would have let a drowned
-culvert bypass a toll gate entirely; re-rendering to spec cost one image
-and no fiction.)
+**keep** it.
 
 **Re-roll policy:** any critical line → re-roll, **naming the failure
 precisely in the tightened prompt** — a named failure reliably fixes on the
 next roll — up to **two re-rolls** (three images total). *Cost to canon is a
-second trigger*: a divergence that is cheap to name but expensive to amend
-earns a roll even when it scores as amend, because the alternative is
-rewriting load-bearing fiction to match a fixable drawing error. Beyond the
-ceiling, a **targeted edit pass** — same anchor and prompt, only the
-surviving failures named — is the sanctioned remedy; it is not a fresh roll.
+second trigger*: a divergence cheap to name but expensive to amend earns a
+roll even when it scores as amend. Beyond the ceiling, a **targeted edit
+pass** — same anchor and prompt, only the surviving failures named — is the
+sanctioned remedy; it is not a fresh roll.
 
 **Expect the tight-lane class to trade** — naming one fix reliably costs
-another, and no render yet has had every tight-lane edge right at once.
-That is the step's ceiling, and the reason bonus-edge drift is priced as
-amend rather than chased. Judge each render on its own full slate — don't
-mix rooms from different runs. If every render still carries a critical
-line, stop and flag the DM with the best image and the failed lines. The
-flag means *this divergence needs your decision* — accept-with-amendment, a
-targeted edit pass, more rolls, or no map — not that the map is unusable.
-That flag is the only point the DM enters the loop; amendments never
-escalate.
+another; that is the step's ceiling, and the reason bonus-edge drift is
+priced as amend rather than chased. Judge each render on its own full
+slate — don't mix rooms from different runs. If every render still carries
+a critical line, stop and flag the DM with the best image and the failed
+lines: *this divergence needs your decision* — accept-with-amendment, a
+targeted edit pass, more rolls, or no map. That flag is the only point the
+DM enters the loop; amendments never escalate.
 
 ## Step R5 — File
 
@@ -329,18 +312,14 @@ On a fully passing (or amend-resolved) slate:
 
 1. Image is already at `Media/images/<site-basename>-map.png` (match the
    basename of the page the site is built out on; `-map` suffix).
-2. Embed on the **session page** the site is built out on. The map is
-   purpose-built for that session and is session-scoped output by the same
-   test that keeps the edge table off a node page, so it files with the
-   session it was made for. It lands as the page's *clickable keyed hotspot
-   map* (the session format's "the map navigates too" treatment — a `[!map]`
-   callout carrying a badge per key, each jumping to that key's section),
-   not as a plain `[!map]` embed. Badge positions start from the layout
-   JSON's room centers, then are verified against the drawn render — rooms
-   drift in generation. The render **replaces** any earlier stylized site
-   illustration (delve painting, strata cutaway) on that page: one keyed map
-   per site, the one the DM runs from, and the superseded image is retired
-   in the same change.
+2. Embed on the **session page** the site is built out on — session-scoped
+   output by the same test that keeps the edge table off a node page. It
+   lands as the page's *clickable keyed hotspot map* (the session format's
+   "the map navigates too" treatment), never a plain `[!map]` embed; badge
+   positions start from the layout JSON's room centers, then are verified
+   against the drawn render — rooms drift in generation. The render
+   **replaces** any earlier stylized site illustration on that page: one
+   keyed map per site, the superseded image retired in the same change.
 3. Apply any amendments to the edge list **in the same commit** as
    the embed — the page must never carry a map and an edge list that
    disagree.

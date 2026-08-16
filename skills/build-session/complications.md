@@ -9,12 +9,10 @@ rest, prefer one *both sides can interact with* — an element whose control can
 shift mid-fight — over a static modifier: a second interactive element doesn't
 add to the fight's possible states, it multiplies them.
 
-Pick by fit, not by rolling down the list. A good complication is legible
-(players grasp it fast), changes a real decision, and reads as part of the
-fiction rather than a bolted-on rule. Telegraph every complication openly as
-the fight opens — players can only make meaningful choices about elements they
-can perceive, and a complication they never see is a gotcha, not a
-complication.
+Pick by fit, not by rolling down the list: legible (players grasp it fast),
+changing a real decision, and part of the fiction rather than a bolted-on
+rule. Telegraph every complication openly as the fight opens — a
+complication the players never see is a gotcha, not a complication.
 
 ## Objective beyond "kill them all"
 
@@ -132,11 +130,9 @@ are the shapes to look for:
 
 ## A note on clues
 
-A fleeing or surrendering enemy, a controller revealed behind innocent minions,
-a ritual object left behind — these are **clue-bearing outcomes**. If the
-encounter sits on a location's wiki page and this repo tracks clues/leads, a
-complication is a natural place to plant one toward another node. Surface that
-when you generate; don't silently bury a clue opportunity inside a
-kill-them-all fight. Any clue planted this way must be interpretable using
-only what the players already know when the fight happens — a payload that
-requires unseen content to mean anything is a defect, not foreshadowing.
+A fleeing or surrendering enemy, a controller revealed behind innocent
+minions, a ritual object left behind — these are **clue-bearing outcomes**,
+and a complication is a natural place to plant a lead toward another node
+(the fight procedure's Step 6 surfaces this). Don't silently bury a clue
+opportunity inside a kill-them-all fight; the usual clue-interpretability
+bar applies.

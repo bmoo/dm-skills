@@ -62,6 +62,20 @@ def test_iter_tree_skips_dot_directories_and_build_artifacts(tmp_path):
     assert found == ["skills/real.md"]
 
 
+def test_iter_tree_skips_nested_git_checkouts(tmp_path):
+    (tmp_path / "skills").mkdir()
+    (tmp_path / "skills" / "real.md").write_text("shipped", encoding="utf-8")
+    clone = tmp_path / "old-repo"
+    (clone / ".git").mkdir(parents=True)
+    (clone / ".git" / "config").write_text("[core]", encoding="utf-8")
+    (clone / "skills").mkdir()
+    (clone / "skills" / "copy.md").write_text("the clone's copy", encoding="utf-8")
+
+    found = [p.relative_to(tmp_path).as_posix() for p in iter_tree(tmp_path)]
+
+    assert found == ["skills/real.md"]
+
+
 def test_iter_tree_honours_the_pattern_and_yields_only_files(tmp_path):
     (tmp_path / "docs").mkdir()
     (tmp_path / "docs" / "note.md").write_text("prose", encoding="utf-8")

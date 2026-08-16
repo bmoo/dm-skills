@@ -83,7 +83,7 @@ skill text itself**, not over a run's output. Those cost nothing — no model, n
 | build-session/targeted-spotlight-names-target-and-staging | An aimed or puzzle fight names *whom* it shoots at and the staging that fires their ability (`combat.md` — "if aimed or puzzle, who it shoots at and the staging that fires their ability") | parse | Yes |
 | build-session/swarm-carries-fragile-creatures | More than two creatures per character → fragile creatures included (`xp-budget.md` — "more than **two creatures per character**", "include **fragile creatures that can be defeated quickly**") | parse (ratio) + judgement | Trigger yes, remedy no |
 | build-session/complication-from-menu | At least one complication, drawn from the menu (`combat.md` — "choose **at least one** complication", "An encounter without a complication is not finished") | — | No parse target — see `unenforceable/complication-field-missing` |
-| build-session/set-piece-two-complication-sections | Set-piece fights take two complications from different menu sections (`combat.md` — "for a set-piece fight, take **two, from different menu sections**"; sections at the `complications.md` H2s — "## Terrain & the battlefield") | parse (section membership) | Section half yes; trigger no — see `unenforceable/set-piece-undefined` |
+| build-session/set-piece-two-complication-sections | Set-piece fights take two complications from different menu sections (`combat.md` — "for a set-piece fight, take **two, from different menu sections**"; the menu sections are `complications.md` — "## Terrain & the battlefield" and its sibling H2s) | parse (section membership) | Section half yes; trigger no — see `unenforceable/set-piece-undefined` |
 
 ## build-session — the keyed-site procedure (`dungeon.md`)
 

@@ -65,53 +65,47 @@ content type it places.
 ## Step 1 — Pin the situation
 
 *Inside a session build these arrive settled from the prep run — skip to
-Step 3.* Otherwise, settle five things before any math:
+Step 3.* Otherwise, settle five things before any math — where one is
+ambiguous and the choice changes the fight, ask in one line; otherwise pick
+the obvious reading and name it:
 
-- **Where.** The node or location the fight happens at. If the DM named a
-  location with its own page in the campaign record, **read the whole page** —
-  its inhabitants, factions, terrain, and clue/lead notes are your enemy roster
-  and your complication seeds. If only a vibe was given, pick the fitting node
-  or say you're inventing the place.
-- **Who & why.** Which faction or creatures, and what they want *right now* —
-  enemies with an objective (guard, retrieve, stall, flee) drive better fights
-  than enemies who exist to be killed. Pull from the location's faction ties
-  and any live campaign-status tracking this repo keeps.
-- **Difficulty.** Low / Moderate / High (the budget reference defines each
-  band). If unstated, default **Moderate** and say so.
-- **Setting frame.** Take it from the campaign record, not from assumption —
-  the location's page and the repo's setting material carry the tone, the
-  world's rules, and what's mundane vs. hidden. Hold that for the complication
-  and the terrain so the fight reads as part of *this* campaign.
-- **Terrain potential.** If the node's physical layout plausibly supports
-  multiple levels — a balcony, scaffolding, a stairwell, a parking structure —
-  default to laying the fight out across them; if the node reads as a single
-  open space, keep it flat. Independent of whether elevation ends up as
-  Step 6's chosen complication.
-
-If any of the five is ambiguous and the choice changes the fight, ask in one
-line; otherwise pick the obvious reading and name your choice.
+- **Where.** The node or location. If the DM named one with its own page in
+  the campaign record, **read the whole page** — its inhabitants, factions,
+  terrain, and clue/lead notes are your enemy roster and complication seeds.
+  If only a vibe was given, pick the fitting node or say you're inventing
+  the place.
+- **Who & why.** Which faction or creatures, and what they want *right
+  now* — enemies with an objective (guard, retrieve, stall, flee) drive
+  better fights than enemies who exist to be killed.
+- **Difficulty.** Low / Moderate / High. If unstated, default **Moderate**
+  and say so.
+- **Setting frame.** From the campaign record, not assumption — the tone,
+  the world's rules, what's mundane vs. hidden — so the fight reads as part
+  of *this* campaign.
+- **Terrain potential.** If the node's layout plausibly supports multiple
+  levels — a balcony, a stairwell, a parking structure — default to laying
+  the fight out across them; a single open space stays flat. Independent of
+  whether elevation ends up as Step 6's chosen complication.
 
 ## Step 2 — Pin the party (action economy)
 
-*Inside a session build the party and rosters arrive from the prep run.* The
-encounter must match **how many characters act and what they can do**,
-alongside level.
+*Inside a session build the party and rosters arrive from the prep run.*
+The encounter must match **how many characters act and what they can do**,
+alongside level:
 
-- **Head-count and classes** from wherever this repo tracks player characters
-  (a `players/` folder, character sheets, a session log). Where a sheet is
-  undecided, leave it undecided.
+- **Head-count and classes** from wherever this repo tracks player
+  characters; where a sheet is undecided, leave it undecided. Where classes
+  aren't set, size to head-count and level, and flag that the
+  action-economy read will sharpen once classes are known.
 - **Builds, not just head-count.** For each PC with a sheet, read their
   **Spotlight profile** via the
   [data ladder in `spotlight.md`](spotlight.md#the-data-ladder): the
-  character half carries the flagged setup-dependent abilities, the player half
-  the observed style that outranks them. A missing or stale rung self-heals per
-  the ladder — read it regardless.
-- **Level.** Use the level the DM gives; if unstated, derive it from the repo's
-  leveling rules and campaign-progress tracking. State the level you're sizing
-  for.
-- **Composition gaps.** Where classes aren't set, size to head-count and level,
-  and flag that the action-economy read will sharpen once classes are known
-  (no healer or no ranged answer changes which complications bite).
+  character half carries the flagged setup-dependent abilities, the player
+  half the observed style that outranks them. A missing or stale rung
+  self-heals per the ladder — read it regardless.
+- **Level.** Use the level the DM gives; if unstated, derive it from the
+  repo's leveling rules and campaign progress. State the level you're
+  sizing for.
 
 ## Step 3 — Compute the XP budget
 
@@ -194,96 +188,36 @@ Present the encounter in chat as a runnable block:
 - **Clue note** — if it sits on a node, the lead a complication outcome can
   carry.
 
-### Definition of done — the mechanical self-check
+### Definition of done
 
 Before you offer, **compose the encounter-meta callout** (the *Filing format*
-section below) in context and check it against its own mechanical promises.
-Composing is not filing: the block is drafted to self-check and written to a
-page only on the DM's yes. Draft the block now from the numbers Steps 3–6
-settled — it is what the page build embeds.
+section below) in context from the numbers Steps 3–6 settled — it is what the
+page build embeds — then run both parts of the shared verification protocol in
+[`verification.md`](verification.md) over it. Composing is not filing: the
+block is written to a page only on the DM's yes below.
 
-- **Run the checks.** Hand the drafted block to
-  `run_checks(output, "build-session",
-  ["build-session/encounter-meta-required-lines",
-  "build-session/enemies-line-arithmetic",
-  "build-session/budget-line-arithmetic",
-  "build-session/per-char-matches-budget-table",
-  "build-session/distinct-stat-block-cap",
-  "build-session/stat-block-refs-on-enemies-line",
-  "build-session/spotlight-texture-in-palette",
-  "build-session/targeted-spotlight-names-target-and-staging"])` — the
-  runnable checks live beside this skill at
-  [`scripts/mechanical_checker`](scripts/mechanical_checker). Each check is one
-  promise: **encounter-meta-required-lines** the six required lines are
-  present; **enemies-line-arithmetic** the `Enemies:` line sums (each creature
-  × count with looked-up XP reaches the stated total);
-  **budget-line-arithmetic** per-char × N = budget, spent ≤ budget;
-  **per-char-matches-budget-table** the per-char figure matches the budget table for
-  that level × difficulty; **distinct-stat-block-cap** never more than three
-  distinct stat blocks; **stat-block-refs-on-enemies-line** every creature on
-  the `Enemies:` line carries its `{monster:Name}` token or stat-block link;
-  **spotlight-texture-in-palette** the `Spotlight:` texture is one of the five;
-  **targeted-spotlight-names-target-and-staging** an aimed or puzzle spotlight
-  names whom it shoots at and carries its staging clause.
-- **Self-heal, silently.** Drive each finding through the shared
-  [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md) —
-  re-derive the sum, re-add the missing line, re-source the bare name — up to
-  **three attempts per check**, re-running that check after each. A finding
-  that heals is telemetry; this is arithmetic you fix, not arithmetic you ask
-  the DM to adjudicate.
-- **Escalate what won't heal.** A check still failing after three attempts is
-  **unhealable** — surface it in the offer below as a terminal mechanical
-  escalation: which check, expected vs. actual, where in the block, how many
-  attempts. A compiler is certain — no confidence hedge.
-- **File nothing.** The self-check runs over the block you hold in context; the
-  DM's yes below stays the sole trigger that writes to a page. The loop's one
-  write is out-of-band: it appends a **run record** for the pass, then each
-  finding — healed and unhealable alike — to the validator findings log, per
-  [`self-heal-loop.md`](scripts/mechanical_checker/self-heal-loop.md).
+**The self-check** (Part 1) hands the drafted block to
+`run_checks(output, "build-session", [<the ids below, under the
+build-session/ qualifier>])`. Each id is one promise:
 
-This is the deterministic slice of done. The subjective promises are the
-fresh check below — run it after this self-check, before you offer.
+| Check id | Promise |
+|---|---|
+| `encounter-meta-required-lines` | the six required lines are present |
+| `enemies-line-arithmetic` | the `Enemies:` line sums — each creature × count with looked-up XP reaches the stated total |
+| `budget-line-arithmetic` | per-char × N = budget, spent ≤ budget |
+| `per-char-matches-budget-table` | the per-char figure matches the budget table for that level × difficulty |
+| `distinct-stat-block-cap` | never more than three distinct stat blocks |
+| `stat-block-refs-on-enemies-line` | every creature on the `Enemies:` line carries its `{monster:Name}` token or stat-block link |
+| `spotlight-texture-in-palette` | the `Spotlight:` texture is one of the five |
+| `targeted-spotlight-names-target-and-staging` | an aimed or puzzle spotlight names whom it shoots at and carries its staging clause |
 
-### Definition of done — the fresh check
-
-The subjective promises — is a creature named *in the prose*, does a swarm
-carry a fragile creature — need a grader that isn't you: you mark your own
-homework, and you mark it kindly. When the block is drafted and self-healed,
-hand it to **one fresh-context checker**, one round. This gates *completion*:
-the offer below forms only when the check has run and its findings are
-answered.
-
-- **Launch it fresh — output, criteria, roster, nothing else.** Start a
-  genuinely fresh-context, **read-only** checker and hand it **only three
-  things**: (1) the drafted encounter block exactly as it stands, (2) the two
-  criteria as this skill's own text states them — the prose-reference rule
-  in *Filing format* below, the fragile-creatures rule in
-  [`xp-budget.md`](xp-budget.md) — named as their inventory rows
-  `[build-session/stat-block-refs-in-prose,
-  build-session/swarm-carries-fragile-creatures]`, and (3) the party
-  roster. Withhold your own reasoning — chain of thought, heal telemetry,
-  any note arguing the fight is good: a checker that sees only what a reader
-  sees grades what a reader gets. It returns a plain `approve | disapprove`;
-  every finding cites its inventory row, where in the block it sits, the
-  **quoted span** it fired on, and a one-line **reason** — and carries **no
-  fix**. Its default when it cannot tell is **disapprove**. Log the pass
-  through the shared library
-  ([`scripts/mechanical_checker`](scripts/mechanical_checker), module
-  `findings_log`): one `log_run` with `tier="judgement"` and the verdict,
-  one `log_finding` per finding with its quoted span and reason.
-- **On `disapprove`, one fix pass — no re-grade.** Refine the block against
-  the findings once (the promise-pointers *are* the instruction; you own
-  *how* to fix), marking each finding `fixed` / `skipped` /
-  `no_change_needed`. Do not launch a second checker: one fresh read is the
-  signal.
-- **Survivors enrich the one offer.** Findings you skipped or could not fix
-  fold into the file-offer below, carrying their promise-pointers, quoted
-  spans, and your outcome ledger — *"N issues I couldn't resolve — file
-  anyway, or take over."* An `approve` leaves the offer reading exactly as
-  it always has. The check gates *completion*, not filing.
-- **File nothing.** The checker is read-only over your block; the DM's yes
-  below stays the sole trigger that writes to a page. The check's one write
-  is the out-of-band findings-log append above.
+**The fresh check** (Part 2) grades the two criteria this procedure owns, as
+this skill's own text states them — the prose-reference rule in *Filing
+format* below and the fragile-creatures rule in
+[`xp-budget.md`](xp-budget.md) — named as their inventory rows
+`[build-session/stat-block-refs-in-prose,
+build-session/swarm-carries-fragile-creatures]`, with the party roster as
+the checker's third input.
 
 Then **offer**, but don't assume: to file the encounter into wherever this repo
 keeps session prep or the location page, and to log it if the repo keeps a
@@ -302,16 +236,13 @@ session spotlight plan is transient — half of what catch-up reconciles after
 play, so an aimed or puzzle fight names the PC it shoots at. **Never file an
 encounter without one.**
 
-**The block's shape is specified once, and not here.** It lives with the page
-format the block travels on:
+**The block's shape is specified once, and not here.** It lives at
 [*The encounter-meta block*](session-page-format.md#the-encounter-meta-block)
-in `session-page-format.md` beside this file — the template, its six required
-labels (Party, Enemies, Budget, Terrain, Spotlight, Objective, plus the
-optional Note) and the shape both the session parser and the deterministic
-checker are pinned to. Write the block exactly as specified there; the
-keyed-site procedure files its fights in the same shape. This is a **citation,
-not a file to open at run time** — you already know the shape; the pointer is
-where a shape change lands (library sync obligations:
+in `session-page-format.md` — the template, its required labels, and the
+shape both the session parser and the deterministic checker are pinned to;
+the keyed-site procedure files its fights in the same shape. A **citation,
+not a file to open at run time** — you already know the shape; the pointer
+is where a shape change lands (library sync obligations:
 `docs/campaign-contract.md`).
 
 What this skill owns is what goes *in* those fields. **Every creature name — on
