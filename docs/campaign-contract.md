@@ -139,27 +139,17 @@ deliberate separation (a scene line never sits inside an encounter-meta block,
 so the fight-variety ledger stays fights-only) is stated there once, beside
 both shapes.
 
-### When a shape change lands: retire the phrase it falsifies
+### When a shape change lands: sweep for the phrase it falsifies
 
 This table is prose, and nothing consults it — which is how `d1a08f9` changed a
 fact in `build-session/SKILL.md` and left six other locations asserting the old
-one. The mechanical half of
-that obligation lives in `lib/retired_phrases.py`
-: a denylist of sentences the
-library **used to** assert, grepped over every tracked file, failing `pytest lib/`
-if one survives anywhere.
+one. Reading it is a step a human has to remember, and no check covers the
+omission.
 
-So a commit that changes what a coupled shape asserts carries three things, not
-two: the change, the consumers named in the row above, **and an entry in
-`RETIRED` for the sentence it just falsified** — with the commit that retired it
-in the comment beside it. The entry is what turns "I updated everything" from a
-claim into an assertion: it fails on arrival if any copy is still out there, so
-adding it is how you find the one you missed.
-
-It is deliberately dumb — a string denylist, not a dependency graph over prose.
-It only catches a **reversal** stated in words that survived somewhere; that is
-the failure that actually occurs. `lib/retired_phrases.py` documents the two
-rules an entry must satisfy.
+So a commit that changes what a coupled shape asserts carries two things: the
+change, and the consumers named in the row above. Before calling it done, grep
+the tree for the sentence it just falsified — the failure that actually occurs
+is a **reversal** stated in words that survived somewhere.
 
 ### The rules-sourcing doctrine has one copy
 

@@ -34,7 +34,7 @@ tree:
     consumer-facing half honest when an edge is added: declaring a new hard
     dependency and leaving the README's command short fails here.
 
-**Deliberately dumb**, in the spirit of ``retired_phrases.py``. It pins the
+**Deliberately dumb**. It pins the
 *presence* of an edge and the README's agreement with it. It cannot tell a load
 from a citation, and it cannot tell hard from degrades — those columns are prose,
 and they are only as true as the last person to read the surrounding step. What

@@ -1,4 +1,4 @@
-# dnd-skills
+# dm-skills
 
 The ubiquitous language of this skills library: the terms its skills, its
 verification chain, and its planning artifacts use with a fixed meaning.
