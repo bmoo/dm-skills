@@ -18,9 +18,10 @@ from tree_scan import is_ignored, iter_tree
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # `tree_scan` itself is where the walking lives; the guard below allows it there
-# and nowhere else under `lib/`. Note the sweep also covers `lib/mechanical-checker/`,
-# which *ships* — `tree_scan` does not, so a walk that
-# genuinely belongs in a shipped checker earns a row here rather than an import.
+# and nowhere else under `lib/`. Note the sweep also covers the shipped checker at
+# `skills/build-session/scripts/mechanical_checker/` — `tree_scan` does not ship, so
+# a walk that genuinely belongs in a shipped checker earns a row here rather than
+# an import.
 _WALKER_ALLOWLIST = {
     "tree_scan.py",
     # Shipped consumer tooling, not a maintainer test: it walks the consumer's
@@ -34,11 +35,11 @@ _WALKER_ALLOWLIST = {
 # to name what it forbids — does not match its own guard, and stays covered by it.
 _WALKER_CALLS = tuple(f"{name}(" for name in (".rglob", ".glob", "os.walk", "glob.glob"))
 
-# The directories that *materialise* into every consumer repo: in this repo each
-# generator's `scripts/` reaches them by symlink, at the consumer they are real
-# copies with nothing above them. Nothing under here may import a module that
+# The directories that *materialise* into every consumer repo, repo-relative.
+# The checker sits inside the one skill that runs it, and at the consumer it is a
+# real copy with nothing above it. Nothing under here may import a module that
 # stays behind.
-_SHIPPED_DIRS = ("mechanical-checker",)
+_SHIPPED_DIRS = ("skills/build-session/scripts/mechanical_checker",)
 
 
 def _fake_worktree(tree: Path) -> Path:
@@ -152,7 +153,7 @@ def test_no_shipped_module_imports_a_maintainer_side_module():
     """This is the sibling gap to the walker check above. That one forbids a shipped
     file from *calling* a raw walker; this one forbids it from *importing* the
     walker that already exists, which is how `fbfe586` reached `tree_scan` from
-    `lib/mechanical-checker/test_checker.py` and broke collection in every
+    the checker's `test_checker.py` and broke collection in every
     vendored copy while `pytest lib/` — where `lib/` is on the path — stayed green.
 
     Scope is the shipped dirs only: maintainer code importing maintainer code is
@@ -161,7 +162,7 @@ def test_no_shipped_module_imports_a_maintainer_side_module():
     maintainer = _maintainer_side_modules()
     offenders = []
     for shipped_dir in _SHIPPED_DIRS:
-        for path in iter_tree(REPO_ROOT / "lib" / shipped_dir, "**/*.py"):
+        for path in iter_tree(REPO_ROOT / shipped_dir, "**/*.py"):
             for number, line in enumerate(
                 path.read_text(encoding="utf-8").splitlines(), 1
             ):

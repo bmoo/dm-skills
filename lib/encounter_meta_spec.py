@@ -4,7 +4,7 @@ code paths that read the block are checked against it.
 The block's field list used to be asserted in three independent places — prose
 in the fight procedure (now `build-session/combat.md`), the wire-format parser
 (`build-session/scripts/session_parser.py`), and the deterministic checker
-(`lib/mechanical-checker/checker.py`, the
+(`build-session/scripts/mechanical_checker/checker.py`, the
 `build-session/encounter-meta-required-lines` row). Three copies, no
 mechanism: a label added to one was a label missing from the other two, and
 nothing said so.
@@ -21,8 +21,8 @@ source** rather than a relocation:
 
 ``checker_required_labels``
     the shipped checker's ``_ENCOUNTER_META_REQUIRED`` literal, loaded by path.
-    It stays a literal — ``lib/mechanical-checker/`` materialises into every
-    consumer through a symlink and must not read this repo's docs at run time —
+    It stays a literal — the checker's directory materialises into every
+    consumer and must not read this repo's docs at run time —
     and the test asserts it equals the spec's list. Pinned, not duplicated.
 
 ``parse_spec_example``
@@ -60,7 +60,7 @@ SPEC_FILE = "skills/build-session/session-page-format.md"
 SPEC_HEADING = "## The encounter-meta block"
 SPEC_ANCHOR = "#the-encounter-meta-block"
 
-CHECKER = "lib/mechanical-checker/checker.py"
+CHECKER = "skills/build-session/scripts/mechanical_checker/checker.py"
 PARSER = "skills/build-session/scripts/session_parser.py"
 
 # The file that cites the spec instead of restating it.
@@ -140,8 +140,8 @@ def spec_optional_labels(repo_root: Path = REPO_ROOT) -> list[str]:
 
 
 def _load(relative: str, name: str, repo_root: Path = REPO_ROOT) -> ModuleType:
-    """Import a module by path — ``lib/mechanical-checker`` has a hyphen, and the
-    parser lives under a skill; neither is importable by name."""
+    """Import a module by path — both the checker and the parser live under a
+    skill directory, which is not importable by name."""
     spec = importlib.util.spec_from_file_location(name, repo_root / relative)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)

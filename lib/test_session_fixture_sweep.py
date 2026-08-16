@@ -1,8 +1,8 @@
 """Maintainer guard: no session fixture in this repo's corpus encodes a keyed page
 the session-page format forbids.
 
-`fbfe586` added this sweep, and it initially lived inside
-`lib/mechanical-checker/` — which *materialises into every consumer*. Two things
+`fbfe586` added this sweep, and it initially lived inside the checker's own
+directory — which *materialises into every consumer*. Two things
 put it here instead.
 It needs the sanctioned tree walker
 (`lib/test_tree_scan.py` — "walk the tree through tree_scan.iter_tree"), and that
@@ -23,11 +23,13 @@ import sys
 from tree_scan import iter_tree
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MECHANICAL_CHECKER = REPO_ROOT / "lib" / "mechanical-checker"
+MECHANICAL_CHECKER = (
+    REPO_ROOT / "skills" / "build-session" / "scripts" / "mechanical_checker"
+)
 FIXTURES = MECHANICAL_CHECKER / "fixtures"
 
-# The shipped checker is reached by path: `lib/mechanical-checker` has a hyphen, so
-# it is not importable by name, and it is not a package.
+# The shipped checker is reached by path: it lives under a skill directory, which
+# is not importable by name, and it is not a package.
 sys.path.insert(0, str(MECHANICAL_CHECKER))
 
 from checker import run_checks  # noqa: E402  (needs the path above)

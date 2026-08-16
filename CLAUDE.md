@@ -23,7 +23,7 @@ those through artifacts just because they're visual.
 
 `docs/eval-assertion-inventory.md` is the **master** list of every checkable
 promise the skills make. The runtime verifier derived from it is
-`lib/mechanical-checker/checker.py` + its fixtures — the chain is
+`build-session/scripts/mechanical_checker/checker.py` + its fixtures — the chain is
 **inventory → `checker.py` only**. (Subjective bars are no longer derived
 artifacts: since the verification-chain cut they live as completion criteria
 in each skill's own text, graded by a one-round fresh check, so editing one

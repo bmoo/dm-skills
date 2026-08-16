@@ -5,8 +5,9 @@ itself, the checker's literal drifting off the spec, the parser no longer
 reading the spec's own block, the citing skill growing its own copy back.
 
 Like ``test_citation_anchors.py`` and ``test_doctrine_sync.py`` beside it, this
-lives at the ``lib/`` top level rather than inside ``lib/mechanical-checker/`` —
-that directory materialises into every consumer through a symlink, and a check
+lives at the ``lib/`` top level rather than inside the shipped checker at
+``skills/build-session/scripts/mechanical_checker/`` —
+that directory materialises into every consumer, and a check
 over *this repo's* skill text must not ship with it.
 """
 

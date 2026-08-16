@@ -249,30 +249,26 @@ Add a labeled fixture pair under `fixtures/` (one that passes → zero findings,
 that breaks → the expected finding) and a `test_*.py` case, mirroring the
 encounter-meta required-lines reference check.
 
-## How this ships — dereference-on-install (assumption, documented)
+## How this ships
 
-There is **one canonical copy**, this directory. The consuming skill carries a
-**relative symlink** to it inside its own `scripts/`:
+There is **one copy**, this directory, and it sits where it ships:
 
 ```
-skills/build-session/scripts/mechanical_checker -> ../../../lib/mechanical-checker
+skills/build-session/scripts/mechanical_checker/
 ```
 
-**Assumed:** the `skills` CLI copies skill dirs with **dereference-on**, so each
-install materialises the symlink into a **real, independent file tree** inside the
-installed skill. Consequences: each generator is self-contained at the consumer
-(selective-install-safe — installing one generator materialises its own real
-copy); and each materialised copy sits inside its skill's folder, so it is covered
-by that skill's folder hash and version-pinned by the stock mechanism (no separate
-pin).
+It used to live under `lib/`, reached by a relative symlink from each generator's
+own `scripts/`, because three generators shared it. The generator fold left
+`build-session` as the only consumer, so the indirection bought nothing and the
+directory moved inside the skill that runs it.
 
-The post-install dereference cannot be tested from this repo. The in-repo guard
-that stands in for it is `lib/test_symlink_integrity.py` (one level **up**, so it
-does not itself ship): it actively resolves each symlink, asserts it points inside
-the repo at exactly this directory, and asserts **byte-identity** of the files
-reached *through* the symlink versus the canonical files. That is the assertion
-the spec calls for — it resolves and compares, it does not trust the symlink
-silently. It is the real defense against a silently-skipped broken symlink.
+Consequences are the ones the symlink arrangement was chosen for, now had
+directly: `build-session` is self-contained at the consumer (selective-install-safe),
+and this copy sits inside its skill's folder, so it is covered by that skill's
+folder hash and version-pinned by the stock mechanism (no separate pin). There is
+no longer a dereference-on-install assumption to document, and nothing for
+`lib/test_symlink_integrity.py` to resolve — that guard now covers only the
+`wiki-scaffold` template assets, which are still shared this way.
 
 ## Running the tests
 
@@ -283,6 +279,9 @@ dir; at the consumer the materialised copy sits beside the generator's other
 scripts and imports the same flat way.
 
 ```
-python -m pytest lib/                    # checker units + symlink-integrity guard
-python -m pytest lib/mechanical-checker/ # checker units only (what ships)
+# The gate — maintainer guards, then the shipped checker beside build-session's
+# other script tests.
+python -m pytest lib/ skills/build-session/scripts/
+
+python -m pytest skills/build-session/scripts/mechanical_checker/  # this dir only
 ```
