@@ -40,36 +40,9 @@ The checker now lives inside the skill that runs it. Run
 `pytest checks/ skills/build-session/scripts/` to exercise the fixture you just
 added along with checks over shipped content.
 
-Never hand-edit the checker out of sync with the inventory. The anchor
-check below covers one half of the drift mechanically — reword a passage a row
-cites and `pytest lib/` fails — but a *new* promise added to a skill is invisible
-to it, so until the maintainer-side additive sweep ships this rule is the
-only guard against that half.
-
-### Cite an anchor phrase, never a line number
-
-Every citation in that chain — inventory row, `checker.py` docstring —
-names a **file plus a phrase that appears verbatim in it**:
-
-```
-(`build-session/combat.md` — "each creature × count with looked-up XP")
-(`build-session/xp-budget.md` — "three distinct stat blocks", "CR 0 sparingly")
-(`build-session/SKILL.md` — "the DM's yes"; `build-session/spotlight-doctrine.md` — "flagged ability")
-```
-
-A bare filename (plain `SKILL.md`, or `xp-budget.md`) means the file of the
-skill the context belongs to: the inventory section it sits under.
-Anywhere with no owning skill (`checker.py`, the inventory's lint and
-unenforceable sections, the library prose) spells the skill out. Anything with a
-`/` is written relative to `skills/`.
-
-Line numbers rotted on every edit and nothing read them, so nobody noticed
-in the anchor-migration work. `lib/citation_anchors.py` now enforces the replacement, and **`pytest
-lib/` is the gate** — no hook to install. It asserts three things: every anchor
-phrase is still in the file it names, no filename-plus-line-number citation has
-crept back anywhere, and no citation half-parses. `python lib/citation_anchors.py` prints
-the same report directly. When a phrase you cite gets reworded in the skill
-text, re-pick the anchor rather than loosening the check.
+Never hand-edit the checker out of sync with the inventory. A *new* promise
+added to a skill is invisible until its inventory row and, where applicable,
+checker support are added, so this rule is the guard against that drift.
 
 ### When a commit reverses something the library asserts
 

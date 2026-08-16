@@ -6,8 +6,7 @@ behind after the load went away, a README install command that no longer covers
 a cluster. The tree tests then run it over the real repo, which is what gates a
 commit: ``pytest lib/`` is the gate.
 
-Like ``test_citation_anchors.py`` beside it, this lives at the ``lib/`` top level
-rather than inside the shipped checker at
+This lives at the ``lib/`` top level rather than inside the shipped checker at
 ``skills/build-session/scripts/mechanical_checker/`` — that directory materialises
 into every consumer, and a check over *this repo's* install-time
 docs must not ship with it.

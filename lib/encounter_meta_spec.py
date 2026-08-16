@@ -40,8 +40,8 @@ source** rather than a relocation:
     searched for. This is the guard that keeps the fourth copy from growing
     back.
 
-Like ``citation_anchors`` and ``doctrine_sync`` beside it, this lives at the
-``lib/`` top level and never ships.
+Like ``doctrine_sync`` beside it, this lives at the ``lib/`` top level and
+never ships.
 """
 
 from __future__ import annotations

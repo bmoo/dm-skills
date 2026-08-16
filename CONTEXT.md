@@ -35,11 +35,6 @@ One promise in the inventory, carrying a stable id (`build-session/npc-rows-name
 that outlives any rewording of the promise text.
 _Avoid_: entry, check id, rule
 
-**Anchor phrase**:
-The verbatim quotation a citation uses to point at where a promise lives, in place
-of a line number. A citation names a file plus a phrase that still appears in it.
-_Avoid_: line reference, pointer, quote
-
 **Derived artifact**:
 Anything generated from the inventory rather than authored directly —
 `checker.py` and its fixtures. Never hand-edited out of sync with its

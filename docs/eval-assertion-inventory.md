@@ -8,15 +8,7 @@ derived from.
 as `node-deepening.md`,
 so its rows are filed under `build-session` below.
 
-**This file invents no criteria.** Every row cites a file plus an **anchor
-phrase** that appears verbatim in the shipped skill text — ``
-(`build-session/combat.md` — "each creature × count with looked-up XP") ``. A
-bare filename means the file of
-the skill the section is about; anything else is written relative to `skills/`.
-Anchors replaced line numbers, which rotted on every edit and which nothing read
-; `lib/citation_anchors.py`
-asserts, on every `pytest lib/`, that each phrase is still there and that no
-line-number citation has crept back. Where a promise cannot be enforced as
+**This file invents no criteria.** Where a promise cannot be enforced as
 written, it is flagged in
 [Unenforceable as written](#unenforceable-as-written) — flagged, not fixed.
 Rewriting skill text is a different job.

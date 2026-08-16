@@ -106,9 +106,8 @@ Each has a `verdict-map.md` naming the expected verdict per instance. Every one
 of them defers the run: *"A future harness (out of scope here — deferred to a
 separate follow-up) runs the checker over each
 instance and asserts the returned verdict equals the **Expected verdict**
-column."* Nothing in `lib/` does. The only code that touches these files is
-`lib/citation_anchors.py`, which asserts their **anchor phrases still exist** —
-not that any grader returns the right verdict.
+column."* Nothing in `lib/` runs the checker over these files or asserts that
+any grader returns the right verdict.
 
 This re-scopes the **not-runnable-at-the-table** candidate above. Its status note
 says the fix "relies on the author re-reading" and is "untested against a third

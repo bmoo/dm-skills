@@ -161,5 +161,4 @@ now lives once, in build-session's `combat.md`, and the keyed-site procedure
 its own single home — `lib/rules-sourcing.md` and the bundled SRD dataset
 (`lib/srd/`) ship once and materialise into the skill by symlink, like the
 mechanical checker. An edit to the doctrine is now an ordinary single-file
-edit; the citation-anchor sweep still holds every phrase the inventory cites
-in it.
+edit.
