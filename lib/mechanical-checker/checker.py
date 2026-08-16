@@ -661,10 +661,11 @@ def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Fin
 # --- The render-ready edge list: parse it into a graph, then assert. --------- #
 #
 # The graph-floor checks and the edge-grammar checks read the `## Edges
-# (render-ready)` table, whose contract states (`build-session/map-render.md`
-# — "Each row: edge ID, endpoints, and a Type column"): each row is an
-# edge ID, an Endpoints cell, and a Type cell. `—` (em-dash) joins two interior
-# rooms; `→` marks an edge crossing the site boundary (an entrance). In the Type
+# (render-ready)` table, whose contract states
+# (`build-session/map-render.md` — "edge ID, endpoints, and a Type column"):
+# each row is an edge ID, an Endpoints cell, and a Type cell. `—` (em-dash)
+# joins two interior rooms; `→` marks an edge crossing the site boundary (an
+# entrance). In the Type
 # cell everything before the first em-dash is `·`-separated typed tokens; prose
 # follows the dash. This parser formalises that stated contract into a graph.
 

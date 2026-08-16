@@ -32,7 +32,10 @@ guards, and both are needed:
     anchor never parses is invisible to both guards above, so it is caught here.
     The way this happens in practice is a wrapped citation inside a ``#`` comment
     or a ``>`` blockquote: the continuation line's prefix lands between the dash
-    and the phrase, and the citation silently stops being one.
+    and the phrase, and the citation silently stops being one. The other shape
+    (issue #21) is prose *before* the dash — ``the `complications.md` H2s —
+    "## Terrain…"`` — which never even starts as a citation; a cited path within
+    a short gap of a dash-quote pair is flagged the same way.
 
 **Whitespace is normalised on both sides** before matching — runs of whitespace
 collapse to a single space. The cited files are hard-wrapped at ~80 columns and
@@ -63,16 +66,31 @@ from typing import Iterable, Iterator
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+# The path half of every citation pattern below — one grammar, so a change to
+# what counts as a citable path (a new extension, say) lands everywhere at once.
+CITED_PATH_RE = r"`(?P<path>[A-Za-z0-9_.][A-Za-z0-9_./-]*\.(?:md|py))`"
+
 # `path.md` — "anchor", "another anchor"
 CITATION_RE = re.compile(
-    r"`(?P<path>[A-Za-z0-9_.][A-Za-z0-9_./-]*\.(?:md|py))`\s*—\s*"
+    CITED_PATH_RE + r"\s*—\s*"
     r"(?P<anchors>\"[^\"]+\"(?:\s*,\s*\"[^\"]+\")*)"
 )
 ANCHOR_RE = re.compile(r"\"([^\"]+)\"")
 
 # A citation that starts but whose anchor never parses — see ``malformed_citations``.
-CITATION_START_RE = re.compile(
-    r"`(?P<path>[A-Za-z0-9_.][A-Za-z0-9_./-]*\.(?:md|py))`\s*—"
+CITATION_START_RE = re.compile(CITED_PATH_RE + r"\s*—")
+
+# The escape CITATION_START_RE can't see (issue #21): prose between the path and
+# the em dash — ``the `complications.md` H2s — "## Terrain…"`` — so the citation
+# never parses and the dash no longer follows the path directly. The dash-quote
+# pair is the citation signature; a cited path within a short prose gap of one,
+# with no intervening backtick or quote (which would mean the pair belongs to a
+# different, well-formed citation), is treated as a mis-phrased citation and must
+# be rephrased. The gap bound keeps a path mentioned much earlier in a sentence
+# from being implicated by an unrelated dash-quote pair further on.
+NEAR_MISS_GAP = 60
+CITATION_NEAR_MISS_RE = re.compile(
+    CITED_PATH_RE + r"[^`\"—]{0,%d}—\s*\"" % NEAR_MISS_GAP
 )
 
 # The rot being retired: `SKILL.md:203-212`, `session-page-format.md:64`, and the
@@ -283,6 +301,7 @@ def malformed_citations(repo_root: Path = REPO_ROOT, files: Iterable[str] | None
     for source in SWEPT_FILES if files is None else files:
         text = (repo_root / source).read_text(encoding="utf-8")
         starts = {match.start() for match in CITATION_START_RE.finditer(text)}
+        starts.update(match.start() for match in CITATION_NEAR_MISS_RE.finditer(text))
         parsed = {match.start() for match in CITATION_RE.finditer(text)}
         for offset in sorted(starts - parsed):
             line = text.count("\n", 0, offset) + 1
