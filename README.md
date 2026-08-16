@@ -142,11 +142,10 @@ campaign repo's docs should answer — is indexed in
 Everything below `docs/` and `lib/` beyond the two files linked above is
 maintainer machinery, not consumer surface:
 
-- `docs/eval-assertion-inventory.md` is the master list of every checkable
-  promise the skills make; the runtime verifier
-  (`skills/build-session/scripts/mechanical_checker/`) is derived from it, never
-  hand-authored. It is consumer surface rather than maintainer machinery — it
-  ships inside the one skill that runs it. `CLAUDE.md` states the sync rules.
+- The runtime verifier lives at
+  `skills/build-session/scripts/mechanical_checker/`. It ships inside the one
+  skill that runs it; its README describes the checks, test gate, and extension
+  procedure.
 - **`pytest checks/ skills/build-session/scripts/` is the gate on every content
   commit** — it runs checks over shipped content and the units that ship with
   build-session.

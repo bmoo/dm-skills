@@ -209,8 +209,8 @@ def log_finding(
       ``"build-session"``, ``"build-session"``). One prep session emits
       findings from up to three skills, interleaved, because delegation is a
       chain.
-    - ``inventory_row`` — the promise-pointer: the eval-inventory row this
-      finding broke, which for a mechanical finding is the ``Finding``'s
+    - ``inventory_row`` — the promise-pointer: the stable row id this finding
+      broke, which for a mechanical finding is the ``Finding``'s
       ``check_id`` verbatim. **The grouping key**, and a row id rather than a line
       citation because a line citation inherits the rot problem.
     - ``tier`` — ``"mechanical"`` or ``"judgement"``.

@@ -7,13 +7,13 @@ Status: accepted.
 This repository accumulated a second body of machinery that polices the first:
 checks over its own maintenance documents. The runtime cost is negligible, but
 the maintenance cost is not. A skill edit has to be reasoned about both for its
-meaning and for every inventory row, citation, dependency declaration, fixture,
+meaning and for every stable row id, citation, dependency declaration, fixture,
 or symlink roster that it might falsify.
 
 Those guards were built in response to a real failure: a commit changed a fact in
 one skill and left several other locations asserting the old fact. They prevented
 that class of stale restatement, but doing so made every skill edit pay the cost
-of maintaining the verification chain.
+of maintaining the verification documentation.
 
 ## Decision
 

@@ -87,7 +87,7 @@ def register_check(
     ``producing_skill``. Raises if the id is already taken (two checks sharing an
     id is the silent-collision failure class this loop exists to kill).
 
-    ``check_id`` is the promise's inventory slug, ``<qualifier>/<stem>``, and its
+    ``check_id`` is the promise's stable slug, ``<qualifier>/<stem>``, and its
     qualifier IS ``producing_skill`` — that is the whole reason the shipping skill
     folder was chosen as the qualifier. Registering a check whose qualifier names
     a different skill (or an id carrying no qualifier at all) raises HERE, at
@@ -192,7 +192,7 @@ def run_checks(
 # Reference check — the encounter-meta required lines (the fight procedure).
 # --------------------------------------------------------------------------- #
 #
-# From docs/eval-assertion-inventory.md: the `> [!encounter-meta]` block must
+# The `> [!encounter-meta]` block must
 # carry its six required lines — Party, Enemies, Budget, Terrain, Spotlight,
 # Objective (Note optional). The block spec lives in the format doc the block
 # travels on (`build-session/session-page-format.md` — "Note is optional"),
@@ -1773,7 +1773,7 @@ def check_skeleton_sections_in_order(artifact: str) -> List[Finding]:
 
 # --- The Key NPCs roster table. ---------------------------------------------- #
 
-# THE LIBRARY CONTRADICTS ITSELF ON THIS HEADER — the inventory records it as
+# THE LIBRARY CONTRADICTS ITSELF ON THIS HEADER — this is a known
 # unenforceable/npc-roster-column-contradiction.
 # (`build-session/SKILL.md` — "the roster table in the format's shape")
 # states a FOUR-column header (Name | Role | Stat Block | Location);
@@ -1863,7 +1863,7 @@ _LOCATION_KEY_RE = re.compile(r"\b[A-Z]\d+\b|\[[^\]]+\]\([^)]+\)")
 
 @register_check("build-session/location-uses-page-keys", "build-session")
 def check_location_uses_keys(artifact: str) -> List[Finding]:
-    """PROXY — the inventory rates this "Partial". The Location column uses page
+    """PROXY — the Location column uses page
     keys (`T1`) or links to keyed sections, not prose directions
     (`build-session/session-page-format.md` — "not prose directions"). The
     defensible proxy: a cell must carry a key

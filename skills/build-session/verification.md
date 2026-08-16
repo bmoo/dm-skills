@@ -50,7 +50,7 @@ when the check has run and its findings are answered.
 
 **The criteria live in the skill text.** There is no separate rubric:
 the checker grades the artifact against the completion criteria written
-where each promise is stated, named as their inventory rows.
+where each promise is stated, named by their stable row ids.
 
 - **Launch it fresh — output, criteria, roster, nothing else.** Start a
   genuinely fresh-context, **read-only** checker and hand it only: the
@@ -63,7 +63,7 @@ where each promise is stated, named as their inventory rows.
 - **One round, one verdict, evidence required.** The checker returns a
   plain `approve | disapprove`; its default when it cannot tell is
   **disapprove**, and there are no waivers. Every finding cites its
-  inventory row, where on the artifact it sits, the **quoted span** it
+  row id, where on the artifact it sits, the **quoted span** it
   fired on, and a one-line **reason** — and carries **no fix**. A
   verdict with nothing behind it cannot be argued with, audited, or
   used to judge the checker itself later.
