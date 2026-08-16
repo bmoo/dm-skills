@@ -65,53 +65,47 @@ content type it places.
 ## Step 1 — Pin the situation
 
 *Inside a session build these arrive settled from the prep run — skip to
-Step 3.* Otherwise, settle five things before any math:
+Step 3.* Otherwise, settle five things before any math — where one is
+ambiguous and the choice changes the fight, ask in one line; otherwise pick
+the obvious reading and name it:
 
-- **Where.** The node or location the fight happens at. If the DM named a
-  location with its own page in the campaign record, **read the whole page** —
-  its inhabitants, factions, terrain, and clue/lead notes are your enemy roster
-  and your complication seeds. If only a vibe was given, pick the fitting node
-  or say you're inventing the place.
-- **Who & why.** Which faction or creatures, and what they want *right now* —
-  enemies with an objective (guard, retrieve, stall, flee) drive better fights
-  than enemies who exist to be killed. Pull from the location's faction ties
-  and any live campaign-status tracking this repo keeps.
-- **Difficulty.** Low / Moderate / High (the budget reference defines each
-  band). If unstated, default **Moderate** and say so.
-- **Setting frame.** Take it from the campaign record, not from assumption —
-  the location's page and the repo's setting material carry the tone, the
-  world's rules, and what's mundane vs. hidden. Hold that for the complication
-  and the terrain so the fight reads as part of *this* campaign.
-- **Terrain potential.** If the node's physical layout plausibly supports
-  multiple levels — a balcony, scaffolding, a stairwell, a parking structure —
-  default to laying the fight out across them; if the node reads as a single
-  open space, keep it flat. Independent of whether elevation ends up as
-  Step 6's chosen complication.
-
-If any of the five is ambiguous and the choice changes the fight, ask in one
-line; otherwise pick the obvious reading and name your choice.
+- **Where.** The node or location. If the DM named one with its own page in
+  the campaign record, **read the whole page** — its inhabitants, factions,
+  terrain, and clue/lead notes are your enemy roster and complication seeds.
+  If only a vibe was given, pick the fitting node or say you're inventing
+  the place.
+- **Who & why.** Which faction or creatures, and what they want *right
+  now* — enemies with an objective (guard, retrieve, stall, flee) drive
+  better fights than enemies who exist to be killed.
+- **Difficulty.** Low / Moderate / High. If unstated, default **Moderate**
+  and say so.
+- **Setting frame.** From the campaign record, not assumption — the tone,
+  the world's rules, what's mundane vs. hidden — so the fight reads as part
+  of *this* campaign.
+- **Terrain potential.** If the node's layout plausibly supports multiple
+  levels — a balcony, a stairwell, a parking structure — default to laying
+  the fight out across them; a single open space stays flat. Independent of
+  whether elevation ends up as Step 6's chosen complication.
 
 ## Step 2 — Pin the party (action economy)
 
-*Inside a session build the party and rosters arrive from the prep run.* The
-encounter must match **how many characters act and what they can do**,
-alongside level.
+*Inside a session build the party and rosters arrive from the prep run.*
+The encounter must match **how many characters act and what they can do**,
+alongside level:
 
-- **Head-count and classes** from wherever this repo tracks player characters
-  (a `players/` folder, character sheets, a session log). Where a sheet is
-  undecided, leave it undecided.
+- **Head-count and classes** from wherever this repo tracks player
+  characters; where a sheet is undecided, leave it undecided. Where classes
+  aren't set, size to head-count and level, and flag that the
+  action-economy read will sharpen once classes are known.
 - **Builds, not just head-count.** For each PC with a sheet, read their
   **Spotlight profile** via the
   [data ladder in `spotlight.md`](spotlight.md#the-data-ladder): the
-  character half carries the flagged setup-dependent abilities, the player half
-  the observed style that outranks them. A missing or stale rung self-heals per
-  the ladder — read it regardless.
-- **Level.** Use the level the DM gives; if unstated, derive it from the repo's
-  leveling rules and campaign-progress tracking. State the level you're sizing
-  for.
-- **Composition gaps.** Where classes aren't set, size to head-count and level,
-  and flag that the action-economy read will sharpen once classes are known
-  (no healer or no ranged answer changes which complications bite).
+  character half carries the flagged setup-dependent abilities, the player
+  half the observed style that outranks them. A missing or stale rung
+  self-heals per the ladder — read it regardless.
+- **Level.** Use the level the DM gives; if unstated, derive it from the
+  repo's leveling rules and campaign progress. State the level you're
+  sizing for.
 
 ## Step 3 — Compute the XP budget
 
@@ -242,16 +236,13 @@ session spotlight plan is transient — half of what catch-up reconciles after
 play, so an aimed or puzzle fight names the PC it shoots at. **Never file an
 encounter without one.**
 
-**The block's shape is specified once, and not here.** It lives with the page
-format the block travels on:
+**The block's shape is specified once, and not here.** It lives at
 [*The encounter-meta block*](session-page-format.md#the-encounter-meta-block)
-in `session-page-format.md` beside this file — the template, its six required
-labels (Party, Enemies, Budget, Terrain, Spotlight, Objective, plus the
-optional Note) and the shape both the session parser and the deterministic
-checker are pinned to. Write the block exactly as specified there; the
-keyed-site procedure files its fights in the same shape. This is a **citation,
-not a file to open at run time** — you already know the shape; the pointer is
-where a shape change lands (library sync obligations:
+in `session-page-format.md` — the template, its required labels, and the
+shape both the session parser and the deterministic checker are pinned to;
+the keyed-site procedure files its fights in the same shape. A **citation,
+not a file to open at run time** — you already know the shape; the pointer
+is where a shape change lands (library sync obligations:
 `docs/campaign-contract.md`).
 
 What this skill owns is what goes *in* those fields. **Every creature name — on

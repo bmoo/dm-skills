@@ -74,12 +74,9 @@ the rest of the package and strips nothing.
 ## Rules sourcing — non-negotiable
 
 The sourcing doctrine is stated once, in [`combat.md`](combat.md)'s *Rules
-sourcing — non-negotiable* block, and binds every content type this procedure
-places — monster stat blocks, XP values, item text, trap and door mechanics.
-The same three obligations, restated in one line each: never source rules
-content from training-data memory; browse the chosen source's catalog
-*before* Step 5 shortlists; and when nothing in the chain answers, name the
-gap instead of filling it from memory.
+sourcing — non-negotiable* block, and binds every content type this
+procedure places — monster stat blocks, XP values, item text, trap and door
+mechanics. Browse the chosen source's catalog *before* Step 5 shortlists.
 
 ## Step 1 — Pin the anchor and the objective
 
@@ -101,11 +98,10 @@ or propose candidates — the objective is settled before any design.
 
 ## Step 2 — Pin the party
 
-Once, up front, the same way the fight procedure does: count heads and note
-classes wherever this repo tracks player characters; take the level the DM
-gives or derive it from the repo's leveling rules and campaign progress.
-State the level and size you're building for, and flag any composition gaps.
-Read each PC's **Spotlight profile** via the
+Once, up front, the same way the fight procedure does: heads, classes, and
+level from wherever this repo tracks them; state the level and size you're
+building for, and flag any composition gaps. Read each PC's **Spotlight
+profile** via the
 [data ladder in `spotlight.md`](spotlight.md#the-data-ladder) —
 Step 5 textures fights with it.
 
@@ -347,12 +343,10 @@ the DM says to keep it. On the yes, run this checklist:
 - [ ] Dungeon key onto the **session page**, pre-play, per the repo's page
   and granularity conventions — the concealed edge section with it. A node
   page is durable canon, and **session-scoped content must not land on one
-  while the session is unplayed**, so the key does not go there now (still
-  create the node if Step 1 invented it, and let it say where the site is
-  built out). Whether a played site's topology is later promoted onto its
-  node page is the consuming repo's affair — its absorption or catch-up
-  flow — and is **not required**; a repo with no such flow gets the
-  prohibition and stops there.
+  while the session is unplayed** (still create the node if Step 1 invented
+  it, and let it say where the site is built out). Whether a played site's
+  topology is later promoted onto its node page is the consuming repo's
+  affair, and **not required**.
 - [ ] Each fight files as an encounter-meta block per the fight procedure's
   *Filing format* section ([`combat.md`](combat.md)) — its `Spotlight:` line
   feeds the variety check's fallback ledger, so no fight files without one.
