@@ -194,6 +194,20 @@ page — a named gap is prep information; a silent one is a defect.
   What the box excises is not deleted: it lands beside the box as DM
   text keyed to the interaction that reveals it ("if they examine the
   stones…"), or as a clue payload where it is discoverable knowledge.
+- **Written to be spoken.** Player-facing prose — read-aloud blocks,
+  clue-payload Shows, NPC voice and tell lines, art captions, handout
+  text — is written to be read aloud comfortably by an ordinary speaker
+  to a table that includes middle schoolers. Plain words in plain
+  sentences; the test is **would the DM say this word out loud in
+  everyday conversation, and would a seventh grader follow it?** Genre
+  vocabulary the table learns from play is welcome; literary vocabulary
+  is not — when a plainer word carries the same picture, use it. A hard
+  word must earn its place (the scene genuinely needs it, or it is a
+  game or genre term), and a read-aloud block carries at most one.
+  Vividness comes from concrete detail, not vocabulary: name what is
+  seen, not the register it evokes. **DM-facing text is exempt** — the
+  Adventure Background, sidebars, encounter-meta, and briefs are read
+  silently by the DM and stay information-dense.
 - **Spotlight lines.** The session's spotlight plan never appears on the
   page as a table; each beat it stages appears at the scene that stages
   it, so the page records what was aimed where without holding the plan.
@@ -422,6 +436,11 @@ Walk every box; each points at the authority it checks against:
       keyed areas, clue-payload Shows — passes the perception test: no
       hidden history, causes, intent, or meanings; no imposed emotions or
       decisions; nothing described beyond the party's vantage.
+- [ ] The spoken-register sweep is done: every piece of player-facing
+      prose — read-aloud blocks, clue-payload Shows, NPC voice and tell
+      lines, art captions, handout text — passes the *Written to be
+      spoken* test, with at most one earned hard word per read-aloud
+      block.
 - [ ] Every link resolves; conventions match the repo guide.
 - [ ] Stub references swept: any page that called this session a stub or
       placeholder now reflects the build.

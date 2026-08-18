@@ -130,8 +130,10 @@ renderer that knows them can style them, and anywhere else they read as
 ordinary quoted text. Kinds:
 
 - `read-aloud` — boxed text to read at the table. Player-facing only:
-  immediate sensory description, visible writing, heard dialogue.
-  Interpretation and hidden causes stay in the adjacent DM prose.
+  immediate sensory description, visible writing, heard dialogue,
+  written in plain spoken language an ordinary reader delivers
+  comfortably. Interpretation and hidden causes stay in the adjacent
+  DM prose.
 - `dm-sidebar` — DM-only staging notes.
 - `encounter-meta` — a combat's vitals block (party, enemies, budget,
   terrain, spotlight, objective).
