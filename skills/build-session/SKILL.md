@@ -433,7 +433,8 @@ where each promise is stated —
 [`session-page-format.md`](session-page-format.md) for the session page
 (named NPC rows, no page-history preamble, lead actionability, the
 page-wide stat-block sweep, plain run-time language, the read-aloud
-perception boundary, spotlight lines), this skill's Step 3 for spotlight
+perception boundary, the spoken register of player-facing prose,
+spotlight lines), this skill's Step 3 for spotlight
 coverage, and [`node-deepening.md`](node-deepening.md) for a deepened
 node page (clue interpretability, no plot decisions) — run the node
 criteria only when a node was deepened this run. The brief's
