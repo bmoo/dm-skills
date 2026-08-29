@@ -1,0 +1,111 @@
+<title>Floating Fight Forms</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#F6F3EC; --panel:#FFFDF8; --ink:#2A2620; --ink-soft:#6B6459;
+  --rule:#DDD6C8; --bronze:#8A6A2F;
+  --float:#3D5A78;
+  --meta-bg:#F0EDE4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#1C1A16; --panel:#25221D; --ink:#E9E4D8; --ink-soft:#A39B8C;
+    --rule:#3B372F; --bronze:#C9A25C;
+    --float:#8FB0D0;
+    --meta-bg:#211F19;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#1C1A16; --panel:#25221D; --ink:#E9E4D8; --ink-soft:#A39B8C;
+  --rule:#3B372F; --bronze:#C9A25C;
+  --float:#8FB0D0;
+  --meta-bg:#211F19;
+}
+body{background:var(--ground); color:var(--ink); font-family:"Alegreya Sans",system-ui,sans-serif;
+  font-size:17px; line-height:1.55; margin:0;}
+.wrap{max-width:44rem; margin:0 auto; padding:1.2rem 1.1rem 4rem;}
+h1,h3{font-family:Vollkorn,Georgia,serif; text-wrap:balance; line-height:1.2;}
+h1{font-size:1.7rem; margin:.6rem 0 .3rem;}
+h3{font-size:1.3rem; margin:.1rem 0 .1rem;}
+h4{font-family:Vollkorn,Georgia,serif; font-size:1rem; margin:1rem 0 .25rem;}
+.proto-flag{display:inline-block; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--bronze); border:1px solid var(--bronze); border-radius:3px; padding:.1rem .5rem; margin-top:1rem;}
+.lede{color:var(--ink-soft); margin-bottom:1.4rem;}
+.eyebrow{font-size:.72rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  margin-bottom:.4rem; color:var(--float);}
+.card{background:var(--panel); border:1px solid var(--rule); border-top:4px solid var(--float);
+  border-radius:6px; padding:1.2rem 1.3rem 1.4rem; margin:1.2rem 0 2.2rem;}
+.sub{color:var(--ink-soft); font-size:.95rem; margin:.1rem 0 .8rem;}
+.meta{font-family:"JetBrains Mono",monospace; font-size:.78rem; line-height:1.6;
+  background:var(--meta-bg); border-left:3px solid var(--float); border-radius:4px;
+  padding:.7rem .9rem; overflow-x:auto; white-space:pre; margin:.6rem 0 .2rem;}
+.rawnote{font-size:.78rem; color:var(--ink-soft); font-style:italic; margin:.2rem 0 .6rem;}
+.role{font-variant:small-caps; font-weight:700; letter-spacing:.03em; color:var(--float);}
+.formnote{font-size:.88rem; color:var(--ink-soft); border-top:1px solid var(--rule);
+  margin-top:1.1rem; padding-top:.7rem;}
+.delta{border:1px solid var(--rule); border-left:3px solid var(--bronze); border-radius:4px;
+  padding:.7rem .9rem; font-size:.92rem; color:var(--ink-soft); margin:1.6rem 0;}
+p{margin:.4rem 0;}
+</style>
+
+<div class="wrap">
+<span class="proto-flag">Prototype · throwaway</span>
+<h1>Floating Fight Forms</h1>
+<p class="lede">Two finalists, both written <b>functionally</b> — no place, no faction, no fiction that implies a scene. The title names the mechanism; every actor is a role. The two forms differ in exactly one place: the <b>Enemies line</b> — pre-cast or uncast.</p>
+
+<!-- ============ A' ============ -->
+<div class="card">
+<div class="eyebrow">Option A′ · pre-cast roster</div>
+<h3>The Countdown</h3>
+<p class="sub">4 PCs, level 3 · Moderate · 600 XP</p>
+
+<div class="meta">&gt; [!encounter-meta]
+&gt; Enemies: 4x {monster:Cultist} (25) + {monster:Cult Fanatic} (450)
+&gt;          + {monster:Giant Poisonous Snake} (50) = 600 XP
+&gt; Budget: Moderate, lvl 3, 4 PCs -&gt; 150 x 4 = 600 XP (spent 600)
+&gt; Objective: stop the leader's work before the end of round 4
+&gt; Spotlight: aimed — Wren (rogue), quiet climb route to the high position</div>
+<p class="rawnote">Raw filing format shown on purpose — the campaign site renders this as a styled callout with each {monster:…} linked to its stat block.</p>
+
+<h4>The cast</h4>
+<p>The creature names live on the Enemies line only — everywhere else they are <span class="role">the leader</span> (the fanatic), <span class="role">the screen</span> (the cultists), and <span class="role">the skirmisher</span> (the snake). The math is exact and the stat links are ready.</p>
+
+<h4>Needs four terrain roles</h4>
+<p>A <span class="role">high position</span> for ranged threat. A <span class="role">cover field</span> forming a quiet climb to it — Wren's route. A <span class="role">choke</span> on the approach. A <span class="role">hazard</span> between the party and <span class="role">the leader</span>.</p>
+
+<h4>Runs like this</h4>
+<p>Ranged threat on the <span class="role">high position</span> fires on whoever crosses the <span class="role">choke</span>. <span class="role">The screen</span> guards <span class="role">the leader</span> and gives ground rather than chase; <span class="role">the skirmisher</span> works the <span class="role">hazard</span>. <span class="role">The leader</span> advances the work every turn and abandons it only when bloodied — then flees through the <span class="role">hazard</span>. End of round 4, the work completes and the stakes are lost.</p>
+
+<div class="formnote">At the table: the live scene supplies the nouns — what the work <i>is</i>, what the stakes <i>are</i>, which walls are the <span class="role">high position</span>. Say them out loud and run.</div>
+</div>
+
+<!-- ============ C' ============ -->
+<div class="card">
+<div class="eyebrow">Option C′ · uncast roster</div>
+<h3>The Countdown</h3>
+<p class="sub">4 PCs, level 3 · Moderate · 600 XP · roster cast at the table</p>
+
+<div class="meta">&gt; [!encounter-meta]
+&gt; Enemies: 1x leader (~450) + 4x screen (~25 ea) + 1x skirmisher (~50)
+&gt;          = ~600 XP — cast from whoever opposes the party in the
+&gt;          live scene, look up real XP, resize the screen to fit
+&gt; Budget: Moderate, lvl 3, 4 PCs -&gt; 150 x 4 = 600 XP
+&gt; Objective: stop the leader's work before the end of round 4
+&gt; Spotlight: aimed — Wren (rogue), quiet climb route to the high position</div>
+<p class="rawnote">Raw filing format shown on purpose — the campaign site renders this as a styled callout. No stat links exist until the roster is cast.</p>
+
+<h4>The cast — made at the table</h4>
+<p>Pick <span class="role">the leader</span>, <span class="role">the screen</span>, and <span class="role">the skirmisher</span> from whoever the scene offers, look up their real XP, and rebalance the screen count to the budget before initiative.</p>
+
+<h4>Needs four terrain roles</h4>
+<p>Identical to A′: <span class="role">high position</span>, <span class="role">cover field</span> (Wren's route), <span class="role">choke</span>, <span class="role">hazard</span>.</p>
+
+<h4>Runs like this</h4>
+<p>Identical to A′ — the prose was already written in roles, so nothing changes with the cast.</p>
+
+<div class="formnote">At the table: two castings, not one — first the enemies into the slots (with a math check), then the scene's nouns into the terrain roles.</div>
+</div>
+
+<div class="delta"><b>The actual choice.</b> Prose, objective, spotlight, and roles are identical. A′ pre-casts the enemies: exact math and stat links done in prep, at the cost of one faction's creatures being baked in. C′ leaves the slots open: runs against anyone, at the cost of a stat lookup and budget check mid-session — the one kind of math the generator exists to take off your plate.</div>
+
+</div>

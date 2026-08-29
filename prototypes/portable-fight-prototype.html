@@ -1,0 +1,244 @@
+<title>Portable Fight Forms</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#F6F3EC; --panel:#FFFDF8; --ink:#2A2620; --ink-soft:#6B6459;
+  --rule:#DDD6C8; --bronze:#8A6A2F;
+  --core:#3D5A78; --core-bg:#EDF1F6; --core-rule:#B9C7D6;
+  --bind:#A1552A; --bind-bg:#F8EFE7; --bind-rule:#E0C4AE;
+  --meta-bg:#F0EDE4;
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#1C1A16; --panel:#25221D; --ink:#E9E4D8; --ink-soft:#A39B8C;
+    --rule:#3B372F; --bronze:#C9A25C;
+    --core:#8FB0D0; --core-bg:#232A33; --core-rule:#3C4A5A;
+    --bind:#D89468; --bind-bg:#332822; --bind-rule:#54402F;
+    --meta-bg:#211F19;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#1C1A16; --panel:#25221D; --ink:#E9E4D8; --ink-soft:#A39B8C;
+  --rule:#3B372F; --bronze:#C9A25C;
+  --core:#8FB0D0; --core-bg:#232A33; --core-rule:#3C4A5A;
+  --bind:#D89468; --bind-bg:#332822; --bind-rule:#54402F;
+  --meta-bg:#211F19;
+}
+body{background:var(--ground); color:var(--ink); font-family:"Alegreya Sans",system-ui,sans-serif;
+  font-size:17px; line-height:1.55; margin:0;}
+.wrap{max-width:46rem; margin:0 auto; padding:1.2rem 1.1rem 4rem;}
+h1,h2,h3{font-family:Vollkorn,Georgia,serif; text-wrap:balance; line-height:1.2;}
+h1{font-size:1.7rem; margin:.6rem 0 .2rem;}
+h2{font-size:1.25rem; margin:1.6rem 0 .5rem;}
+h3{font-size:1.05rem; margin:1.1rem 0 .35rem;}
+.proto-flag{display:inline-block; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--bronze); border:1px solid var(--bronze); border-radius:3px; padding:.1rem .5rem; margin-top:1rem;}
+.lede{color:var(--ink-soft); max-width:38rem;}
+.legend{display:flex; gap:1rem; flex-wrap:wrap; font-size:.85rem; margin:.8rem 0 0;}
+.legend span{display:inline-flex; align-items:center; gap:.4rem;}
+.dot{width:.7rem; height:.7rem; border-radius:2px; display:inline-block;}
+.dot.core{background:var(--core);} .dot.bind{background:var(--bind);}
+nav{position:sticky; top:0; background:var(--ground); display:flex; gap:.4rem;
+  padding:.7rem 0 .6rem; border-bottom:1px solid var(--rule); z-index:5; margin-top:1.1rem;}
+nav button{font:inherit; font-size:.9rem; font-weight:500; color:var(--ink-soft);
+  background:none; border:1px solid var(--rule); border-radius:5px; padding:.35rem .7rem; cursor:pointer;}
+nav button[aria-selected="true"]{color:var(--ground); background:var(--ink); border-color:var(--ink);}
+nav button:focus-visible{outline:2px solid var(--bronze); outline-offset:2px;}
+.variant-head{border-left:3px solid var(--bronze); padding:.2rem 0 .2rem .8rem; margin:1.4rem 0 1rem;}
+.variant-head p{margin:.2rem 0 0; color:var(--ink-soft); font-size:.92rem;}
+.page{background:var(--panel); border:1px solid var(--rule); border-radius:6px; padding:1.1rem 1.2rem 1.3rem;}
+.page h3:first-child{margin-top:.2rem;}
+.tag{font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  border-radius:3px; padding:.08rem .45rem; vertical-align:middle; margin-left:.5rem;}
+.tag.core{color:var(--core); border:1px solid var(--core);}
+.tag.bind{color:var(--bind); border:1px solid var(--bind);}
+.sec{border-radius:5px; padding:.65rem .8rem; margin:.7rem 0;}
+.sec.core{background:var(--core-bg); border:1px solid var(--core-rule);}
+.sec.bind{background:var(--bind-bg); border:1px solid var(--bind-rule);}
+.sec.plain{border:1px solid var(--rule);}
+.sec h4{margin:.1rem 0 .3rem; font-size:.95rem; font-family:Vollkorn,Georgia,serif;}
+.meta{font-family:"JetBrains Mono",monospace; font-size:.78rem; line-height:1.6;
+  background:var(--meta-bg); border-left:3px solid var(--core); border-radius:4px;
+  padding:.7rem .9rem; overflow-x:auto; white-space:pre;}
+ul{margin:.3rem 0 .5rem; padding-left:1.2rem;}
+li{margin:.2rem 0;}
+.role{font-variant:small-caps; font-weight:700; letter-spacing:.03em; color:var(--core);}
+table{border-collapse:collapse; font-size:.9rem; width:100%;}
+.tbl-wrap{overflow-x:auto;}
+th{font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; text-align:left;
+  color:var(--ink-soft); border-bottom:1px solid var(--rule); padding:.3rem .6rem .3rem 0;}
+td{border-bottom:1px solid var(--rule); padding:.35rem .6rem .35rem 0; vertical-align:top;}
+.movecost{margin-top:2rem; border-top:2px solid var(--rule); padding-top:1rem;}
+.movecost .row{display:flex; gap:.9rem; align-items:baseline; margin:.5rem 0;}
+.movecost .row b{min-width:5.4rem; font-family:Vollkorn,Georgia,serif;}
+.readaloud{font-style:italic; border-left:3px solid var(--bronze); padding-left:.8rem; color:var(--ink-soft);}
+em.noun{font-style:normal; border-bottom:1px dashed var(--bind); color:inherit;}
+@media (prefers-reduced-motion: no-preference){ .panel{animation:fade .15s ease;} }
+@keyframes fade{from{opacity:0} to{opacity:1}}
+</style>
+
+<div class="wrap">
+<span class="proto-flag">Prototype · throwaway · answers one question</span>
+<h1>Portable Fight Forms</h1>
+<p class="lede"><b>The question:</b> when a fight built for a potential scene has to move on the fly, what form of write-up makes that a couple-of-edits job? Same fight below, three candidate forms. Pinned fights (keyed rooms, scenes that <i>are</i> the fight) skip all of this.</p>
+<div class="legend">
+  <span><span class="dot core"></span> portable core — travels as-is</span>
+  <span><span class="dot bind"></span> scene binding — repaint on a move</span>
+</div>
+
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-v="v1">Form 1 · One-line note</button>
+  <button role="tab" aria-selected="false" data-v="v2">Form 2 · Named seam</button>
+  <button role="tab" aria-selected="false" data-v="v3">Form 3 · Core + binding</button>
+  <button role="tab" aria-selected="false" data-v="v3b">Form 3b · Floating: core only</button>
+</nav>
+
+<!-- ============ FORM 1 ============ -->
+<section class="panel" id="v1">
+<div class="variant-head">
+  <h2>Form 1 — today's shape, plus one line</h2>
+  <p>The delivery is unchanged. A single <b>If this fight moves</b> line at the end names what must survive. Lightest possible fix; portability lives in the DM's head, prompted once.</p>
+</div>
+<div class="page">
+  <h3>Ambush at the Eelgrass Boathouse</h3>
+  <p><b>Saltmere docks · 4 PCs, level 3 · Moderate · 600 XP</b> (150 × 4)</p>
+
+  <div class="sec plain"><h4>Enemies — 600 / 600 XP</h4>
+  <ul>
+    <li>4 × Cultist — 25 XP each → 100</li>
+    <li>1 × Cult Fanatic — 450</li>
+    <li>1 × Giant Poisonous Snake — 50</li>
+  </ul></div>
+
+  <div class="sec plain"><h4>Terrain &amp; setup</h4>
+  <p>The boathouse loft holds two cultists with hand crossbows behind the winch. Stacked cargo crates give half cover across the main floor. The dock ramp is the only dry way in; the planking along the waterline is slick, and the snake hunts under it. The fanatic opens at the far waterline, mid-rite.</p></div>
+
+  <div class="sec plain"><h4>The spotlight — aimed: Wren (rogue)</h4>
+  <p>The crate stacks form a climbable route to the loft that only Wren can take quietly — Cunning Action up the crates flanks the crossbows and turns the loft. Tell it plainly: the crates are described as stair-stepped toward the loft rail.</p></div>
+
+  <div class="sec plain"><h4>The complication — the drowning-rite (timer)</h4>
+  <p>The fanatic is four rounds from finishing a rite over a bound hostage at the waterline. Each of the fanatic's turns advances it; disrupting the fanatic resets nothing but stops the clock while they fight. Round four, the hostage goes under.</p></div>
+
+  <div class="sec plain"><h4>Tactics</h4>
+  <p>Round one the loft crossbows fire on whoever crosses the ramp; cultists screen the fanatic and give ground rather than chase. The fanatic never leaves the rite unless bloodied — then flees along the waterline. If the rite completes, everything left disengages into the water.</p></div>
+
+  <div class="sec bind" style="background:none">
+  <h4>If this fight moves <span class="tag core">the one new line</span></h4>
+  <p>Keep the four-round rite clock, a quiet climbable route for Wren, and enemies who plausibly serve the Eelgrass Cult near water — everything else is paint.</p></div>
+</div>
+</section>
+
+<!-- ============ FORM 2 ============ -->
+<section class="panel" id="v2" hidden>
+<div class="variant-head">
+  <h2>Form 2 — same shape, seam made visible</h2>
+  <p>No restructuring. Every section is tinted by which side of the seam it sits on, tactics reference terrain <b>by function</b>, and the encounter-meta block is named as the portable core. A move = rewrite the clay sections.</p>
+</div>
+<div class="page">
+  <h3>Ambush at the Eelgrass Boathouse</h3>
+  <p><b>Saltmere docks · 4 PCs, level 3 · Moderate · 600 XP</b> (150 × 4)</p>
+
+  <div class="sec core"><h4>Portable core <span class="tag core">travels as-is</span></h4>
+<div class="meta">&gt; [!encounter-meta]
+&gt; Enemies: 4x {monster:Cultist} (25) + {monster:Cult Fanatic} (450)
+&gt;          + {monster:Giant Poisonous Snake} (50) = 600 XP
+&gt; Budget: Moderate, lvl 3, 4 PCs -&gt; 150 x 4 = 600 XP (spent 600)
+&gt; Objective: stop the drowning-rite before round 4
+&gt; Spotlight: aimed — Wren (rogue), quiet climb route to the high position
+&gt; Habitat: Eelgrass Cult, near water</div>
+  <p style="font-size:.88rem; margin:.5rem 0 0">The block already carries everything scene-independent: roster, math, the complication's <i>mechanic</i>, the spotlight's <i>function</i>. New here: the <b>Habitat</b> line — where these enemies stay plausible.</p></div>
+
+  <div class="sec bind"><h4>Terrain &amp; setup <span class="tag bind">repaint</span></h4>
+  <p><span class="role">High position</span>: the boathouse loft, reached by winch or crates — two cultist crossbows hold it. <span class="role">Cover field</span>: stacked cargo crates, half cover, stair-stepped toward the loft rail. <span class="role">Choke</span>: the dock ramp, the only dry approach. <span class="role">Hazard</span>: slick waterline planking; the snake hunts beneath it. The fanatic opens at the far waterline, mid-rite.</p></div>
+
+  <div class="sec core"><h4>The spotlight — aimed: Wren (rogue) <span class="tag core">travels</span></h4>
+  <p>The <span class="role">cover field</span> forms a quiet climbable route to the <span class="role">high position</span> that only Wren can take — Cunning Action up it flanks the shooters and turns the fight's high ground. Tell it plainly.</p></div>
+
+  <div class="sec core"><h4>The complication — the drowning-rite <span class="tag core">travels</span></h4>
+  <p>Four rounds on the clock; each fanatic turn advances it; round four the hostage goes under. The rite happens past the <span class="role">hazard</span>, so reaching it costs movement.</p></div>
+
+  <div class="sec core"><h4>Tactics <span class="tag core">travels</span></h4>
+  <p>Shooters on the <span class="role">high position</span> fire on whoever crosses the <span class="role">choke</span>; cultists screen the fanatic and give ground. The fanatic never leaves the rite unless bloodied, then flees through the <span class="role">hazard</span>.</p></div>
+
+  <div class="sec bind"><h4>If this fight moves <span class="tag bind">the move recipe</span></h4>
+  <p>Repaint the terrain section only: find the new scene's high position, cover field, choke, and hazard. Check the Habitat line still holds. Everything in slate runs verbatim.</p></div>
+</div>
+</section>
+
+<!-- ============ FORM 3 ============ -->
+<section class="panel" id="v3" hidden>
+<div class="variant-head">
+  <h2>Form 3 — restructured: core, then binding</h2>
+  <p>Two explicit parts. The core never mentions the boathouse; the binding is a role→noun table plus the opening. A move = refill one table. Heaviest change to the delivery format.</p>
+</div>
+<div class="page">
+  <h3>Ambush at the Eelgrass Boathouse</h3>
+  <p><b>4 PCs, level 3 · Moderate · 600 XP</b> (150 × 4)</p>
+
+  <div class="sec core"><h4>Part 1 — the fight itself <span class="tag core">scene-free</span></h4>
+<div class="meta">&gt; [!encounter-meta]
+&gt; Enemies: 4x {monster:Cultist} (25) + {monster:Cult Fanatic} (450)
+&gt;          + {monster:Giant Poisonous Snake} (50) = 600 XP
+&gt; Budget: Moderate, lvl 3, 4 PCs -&gt; 150 x 4 = 600 XP (spent 600)
+&gt; Objective: stop the drowning-rite before round 4
+&gt; Spotlight: aimed — Wren (rogue), quiet climb route to the high position
+&gt; Habitat: Eelgrass Cult, near water</div>
+  <p style="margin:.6rem 0 .2rem"><b>Needs four roles:</b> a <span class="role">high position</span> (shooters), a <span class="role">cover field</span> forming a quiet climb to it (Wren's route), a <span class="role">choke</span> (the approach), a <span class="role">hazard</span> between the party and the rite.</p>
+  <p><b>Runs like this:</b> shooters on the <span class="role">high position</span> fire on the <span class="role">choke</span>; cultists screen the fanatic, giving ground; the fanatic advances the rite every turn and never leaves it unless bloodied, then flees through the <span class="role">hazard</span>. Round four, the hostage goes under.</p></div>
+
+  <div class="sec bind"><h4>Part 2 — tonight's binding <span class="tag bind">refill to move</span></h4>
+  <div class="tbl-wrap"><table>
+    <tr><th>Role</th><th>In this scene</th></tr>
+    <tr><td><span class="role">high position</span></td><td>the boathouse loft, behind the winch</td></tr>
+    <tr><td><span class="role">cover field</span></td><td>stacked cargo crates, stair-stepped to the loft rail</td></tr>
+    <tr><td><span class="role">choke</span></td><td>the dock ramp — only dry way in</td></tr>
+    <tr><td><span class="role">hazard</span></td><td>slick waterline planks; the snake hunts beneath</td></tr>
+    <tr><td>the rite</td><td>the far waterline; the hostage bound to a mooring post</td></tr>
+  </table></div>
+  <p class="readaloud" style="margin-top:.7rem">Lantern light swings from the loft. Between you and the water: a wall of crates, and somewhere behind it, chanting.</p></div>
+</div>
+</section>
+
+<!-- ============ FORM 3b ============ -->
+<section class="panel" id="v3b" hidden>
+<div class="variant-head">
+  <h2>Form 3b — the floating fight: core only, no binding at all</h2>
+  <p>A binding is written only when the fight <i>is</i> the scene — and a pinned fight just keeps today's full concrete shape. A floating fight ships as the core alone, and even its <b>title</b> goes scene-free. Nothing here names the boathouse; at the table you cast whatever scene fired into the four roles, out loud.</p>
+</div>
+<div class="page">
+  <h3>The Drowning-Rite</h3>
+  <p><b>4 PCs, level 3 · Moderate · 600 XP</b> (150 × 4)</p>
+
+  <div class="sec core"><h4>Part 1 — the fight itself <span class="tag core">scene-free</span></h4>
+<div class="meta">&gt; [!encounter-meta]
+&gt; Enemies: 4x {monster:Cultist} (25) + {monster:Cult Fanatic} (450)
+&gt;          + {monster:Giant Poisonous Snake} (50) = 600 XP
+&gt; Budget: Moderate, lvl 3, 4 PCs -&gt; 150 x 4 = 600 XP (spent 600)
+&gt; Objective: stop the drowning-rite before round 4
+&gt; Spotlight: aimed — Wren (rogue), quiet climb route to the high position
+&gt; Habitat: Eelgrass Cult, near water</div>
+  <p style="margin:.6rem 0 .2rem"><b>Needs four roles:</b> a <span class="role">high position</span> (shooters), a <span class="role">cover field</span> forming a quiet climb to it (Wren's route), a <span class="role">choke</span> (the approach), a <span class="role">hazard</span> between the party and the rite.</p>
+  <p><b>Runs like this:</b> shooters on the <span class="role">high position</span> fire on the <span class="role">choke</span>; cultists screen the fanatic, giving ground; the fanatic advances the rite every turn and never leaves it unless bloodied, then flees through the <span class="role">hazard</span>. Round four, the hostage goes under.</p></div>
+
+  <div class="sec bind"><h4>There is no Part 2 <span class="tag bind">by design</span></h4>
+  <p style="font-size:.92rem">No binding ships with a floating fight. When a scene fires, reread the <b>Needs</b> line and cast that scene's nouns into the four roles aloud — the boathouse's loft, crates, ramp, and slick planks were only ever one possible casting. A fight that <i>is</i> a scene (or keys a dungeon room) doesn't use this form at all: it's written pinned and concrete, exactly like Form 1 without the note.</p></div>
+</div>
+</section>
+
+<div class="movecost">
+  <h2>What a move costs at the table</h2>
+  <div class="row"><b>Form 1</b><span>Reread the whole block, hold the one-line note in your head, improvise the rest. Cheapest to write, dearest to run.</span></div>
+  <div class="row"><b>Form 2</b><span>Rewrite the clay-tinted sections — in practice just Terrain &amp; setup. Slate sections run verbatim because tactics already speak in roles.</span></div>
+  <div class="row"><b>Form 3</b><span>Refill a five-row table. Cheapest move, but every fight now reads as two parts even when it never moves.</span></div>
+  <div class="row"><b>Form 3b</b><span>Nothing to move — the fight was never bound. Reread the Needs line, cast the live scene's nouns into the roles aloud. Pinned fights (the fight is the scene) stay fully concrete instead.</span></div>
+</div>
+</div>
+
+<script>
+const tabs=document.querySelectorAll('nav button');
+tabs.forEach(b=>b.addEventListener('click',()=>{
+  tabs.forEach(t=>t.setAttribute('aria-selected',t===b));
+  document.querySelectorAll('.panel').forEach(p=>p.hidden=(p.id!==b.dataset.v));
+}));
+</script>
