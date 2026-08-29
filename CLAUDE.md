@@ -25,12 +25,14 @@ A check earns a place in this repo only if it verifies shipped content or a
 consumer's repo. Checks over this repo's own maintenance documents do not get
 written.
 
-The mechanical checker and its fixtures are build-session's runtime
+The mechanical checker and its fixtures (`lib/mechanical-checker/`, shipped
+into build-session and combat-generator by symlink) are those skills' runtime
 specification. Add a mechanical rule by writing the check and its passing and
 failing fixture; subjective bars stay as completion criteria in the skill text
 and a one-round fresh check grades them.
 
-Run `pytest checks/ skills/build-session/scripts/` for the content gate.
+Run `pytest checks/ lib/mechanical-checker skills/build-session/scripts/`
+for the content gate.
 
 ### When a commit reverses something the library asserts
 

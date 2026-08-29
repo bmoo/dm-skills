@@ -23,7 +23,7 @@ https://creativecommons.org/licenses/by/4.0/legalcode.
 
 SRD material in this repository has been modified from the SRD: the skill
 text adapts and abridges SRD rules text (for example, the encounter XP budget
-material in `skills/build-session/xp-budget.md`), and the `lib/srd/`
+material in `skills/combat-generator/xp-budget.md`), and the `lib/srd/`
 dataset restructures SRD content as JSON.
 
 ## Lazy GM's Resource Document (Sly Flourish)
@@ -46,5 +46,5 @@ and the prose here is independently written:
   teaches in its own words:
   https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon
 - **Dungeon Dudes** — the spotlight doctrine in
-  `skills/build-session/spotlight-doctrine.md`
+  `lib/spotlight-doctrine.md`
   distills advice from their "Shoot Your Monks" episode.

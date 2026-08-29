@@ -5,7 +5,7 @@ dungeon: a non-linear keyed site with party-balanced combats, one dungeon-wide
 mechanic, and setting-true rewards, anchored to a campaign-record node and
 justified by an objective the clue web already promises. Step 5 of a session
 build loads it whenever the party will explore a location room-by-room; it is
-not for a single fight (that's [`combat.md`](combat.md)) and not for deepening
+not for a single fight (that's the `combat-generator` skill) and not for deepening
 a node's fiction without a keyed site (that's
 [`node-deepening.md`](node-deepening.md)).
 
@@ -31,11 +31,13 @@ Four reference files sit beside this one; load each when its step says to:
 - [`map-render.md`](map-render.md) — the tactical-map render step (Step 9):
   edge list → gpt-image-2 render → verification slate → filed `[!map]`.
 
-Fights are sized by **following the fight procedure beside this file
-([`combat.md`](combat.md))** — hand it each fight and embed the sized
-encounter block it produces. Its `xp-budget.md` and `complications.md` are its
-references; it owns the budget math and the complication menu. What Step 5
-does load is [`spotlight-doctrine.md`](spotlight-doctrine.md) and
+Fights are sized by **invoking the `combat-generator` skill** — its slash
+command, `/combat-generator`, once per fight (if installed; without it, key
+each fight's fiction and name the sizing gap): hand it each fight and embed
+the sized encounter block it produces. Its `xp-budget.md` and
+`complications.md` are its references; it owns the budget math and the
+complication menu. What Step 5 does load is
+[`spotlight-doctrine.md`](spotlight-doctrine.md) and
 [`class-patterns.md`](class-patterns.md) beside this file, for the textures
 you rotate across the site (library sync obligations:
 `docs/campaign-contract.md`).
@@ -59,7 +61,7 @@ The product is the runnable dungeon package (Step 7's shape — keyed rooms
 plus the concealed render-ready edge section, the dungeon mechanic, the
 per-route resource arc, rewards, planted leads) **with its own fights already
 sized as `> [!encounter-meta]` blocks**, each built via
-[`combat.md`](combat.md). The page build embeds the package as-is and does
+`/combat-generator`. The page build embeds the package as-is and does
 not re-size its fights or re-check its edges.
 
 The render-ready edge table ships **already concealed** — the whole
@@ -73,10 +75,11 @@ the rest of the package and strips nothing.
 
 ## Rules sourcing — non-negotiable
 
-The sourcing doctrine is stated once, in [`combat.md`](combat.md)'s *Rules
-sourcing — non-negotiable* block, and binds every content type this
-procedure places — monster stat blocks, XP values, item text, trap and door
-mechanics. Browse the chosen source's catalog *before* Step 5 shortlists.
+The sourcing doctrine and its lookup chain are stated once, in
+[`rules-sourcing.md`](rules-sourcing.md) beside this file, and bind every
+content type this procedure places — monster stat blocks, XP values, item
+text, trap and door mechanics. Browse the chosen source's catalog *before*
+Step 5 shortlists.
 
 ## Step 1 — Pin the anchor and the objective
 
@@ -98,11 +101,11 @@ or propose candidates — the objective is settled before any design.
 
 ## Step 2 — Pin the party
 
-Once, up front, the same way the fight procedure does: heads, classes, and
+Once, up front, the same way the fight skill does: heads, classes, and
 level from wherever this repo tracks them; state the level and size you're
 building for, and flag any composition gaps. Read each PC's **Spotlight
 profile** via the
-[data ladder in `spotlight.md`](spotlight.md#the-data-ladder) —
+[data ladder in `spotlight-doctrine.md`](spotlight-doctrine.md#the-data-ladder) —
 Step 5 textures fights with it.
 
 ## Step 3 — Pin the scale
@@ -151,16 +154,16 @@ floor item is checked off the edge list.
 Open [`dungeon-design.md`](dungeon-design.md) for ecology and room
 design, and [`spotlight-doctrine.md`](spotlight-doctrine.md) and
 [`class-patterns.md`](class-patterns.md) for the
-textures you rotate across the site. Per-fight sizing belongs to the fight
-procedure ([`combat.md`](combat.md)), which owns the XP budget and the
-complication menu.
+textures you rotate across the site. Per-fight sizing belongs to the
+`combat-generator` skill, which owns the XP budget and the complication
+menu.
 
 - **Ecology first.** Who lives where and why it holds together — water, food,
   air, security, faction lines. The site must have an internal logic players
   can reason from.
 - **Fights.** You own the **mix**: one High set piece guarding the objective
   or its exit, the rest Low/Moderate, at least one avoidable or negotiable.
-  Build each fight via [`combat.md`](combat.md) — the
+  Build each fight via `/combat-generator` — the
   pinned room and its enemies as the fight situation, the Step 2 party and
   rosters, the difficulty band you chose for that fight, and the fight's
   allocated spotlight beat from the rotation below. It produces the sized
@@ -173,8 +176,8 @@ complication menu.
   steamroll rooms in the mix, and rotate so every PC's flagged ability gets
   staged somewhere. A requested curveball room counts as one aimed slot. The
   **rotation across fights is yours**; the texture you allocate to a fight
-  rides down in that fight's [`combat.md`](combat.md) hand-off, which renders it into
-  the block's `Spotlight:` line.
+  rides down in that fight's `/combat-generator` hand-off, which renders
+  it into the block's `Spotlight:` line.
   - **Balance the aimed slots, don't sequence them.** No PC takes a second
     aimed slot while another PC who flagged for one still has zero, and past
     that the per-PC counts stay within one of each other. Count the slots,
@@ -264,7 +267,7 @@ and the cross-fight properties no single fight block can see; the fresh
 check grades the site's two subjective criteria. Nothing is written until
 the DM's yes in Step 8.
 
-**The inheritance split.** Every fight arrived from the fight procedure
+**The inheritance split.** Every fight arrived from the fight skill
 already checked — its mechanical rows (the six required lines, the XP
 arithmetic, the palette texture, the bare-name rule) by its own self-check,
 its **stat-block-refs-in-prose** and **swarm-carries-fragile-creatures**
@@ -347,9 +350,11 @@ the DM says to keep it. On the yes, run this checklist:
   it, and let it say where the site is built out). Whether a played site's
   topology is later promoted onto its node page is the consuming repo's
   affair, and **not required**.
-- [ ] Each fight files as an encounter-meta block per the fight procedure's
-  *Filing format* section ([`combat.md`](combat.md)) — its `Spotlight:` line
-  feeds the variety check's fallback ledger, so no fight files without one.
+- [ ] Each fight files as an encounter-meta block
+  ([`encounter-meta-format.md`](encounter-meta-format.md) beside this file
+  states the shape; the combat-generator skill's *Filing format* section
+  owns the fields) — its `Spotlight:` line feeds the variety check's
+  fallback ledger, so no fight files without one.
 - [ ] A **non-combat** beat this site stages for a PC — an exploration or
   social spotlight in a keyed area — files its own `Spotlight (scene):`
   line at that key, as a one-line behind-the-screen note in a

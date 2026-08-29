@@ -58,7 +58,8 @@ not a prerequisite — and fall back to the bundled SRD 5.2 dataset
 (`lib/srd/`, CC-BY-4.0 with attribution).
 
 Then start prepping: ask your agent to prep the next session
-(`build-session` — fights and keyed sites are built in-flow), vet the magic
+(`build-session` — keyed sites are built in-flow, each fight via the
+`combat-generator` skill), vet the magic
 items prep may hand out (`review-rewards`), or absorb what happened last time
 (`catch-up`).
 
@@ -77,7 +78,7 @@ isn't installed.
 flowchart TD
     repo[("Campaign repo<br/>(the record)")]
 
-    brief["to-session-brief"] -- "session brief" --> build["build-session<br/>(fights & keyed sites in-flow)"]
+    brief["to-session-brief"] -- "session brief" --> build["build-session<br/>(keyed sites in-flow)"]
     repo -- "Eight Steps over the record" --> build
     build -- "session page" --> repo
     repo --> play(["Play the session"])
@@ -100,14 +101,18 @@ flowchart TD
 - **`build-session`** — the one skill that owns session pages: traverses the
   Eight Steps of Lazy DM Prep against the campaign record and compiles the
   result into a durable session page (or stops at a lean sheet). Builds the
-  session's fights (sized to the party's action economy with the SRD 5.2
-  XP-budget table, each carrying a complication and a spotlight texture), its
-  keyed sites (complete, runnable non-linear dungeons with a dungeon-wide
-  mechanic and setting-true rewards), and its session spotlight plan
-  ("shoot your monks": every PC gets a beat somewhere) with its own bundled
-  procedures. Carries
+  session's keyed sites (complete, runnable non-linear dungeons with a
+  dungeon-wide mechanic and setting-true rewards) and its session spotlight
+  plan ("shoot your monks": every PC gets a beat somewhere) with its own
+  bundled procedures, and hands each fight to `combat-generator`. Carries
   the library's single statement of the session-page format and an optional
   PDF renderer.
+- **`combat-generator`** — builds one fight as a situation, not a script:
+  sized to the party's action economy with the SRD 5.2 XP-budget table,
+  grounded in a campaign-record node, carrying at least one complication
+  and a spotlight texture, delivered with its machine-readable
+  encounter-meta filing block. Runs standalone or invoked by another
+  skill's prep flow (`/combat-generator`).
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.
 - **`seed-clues`** — seeds clues toward an under-clued target: a revelation
@@ -140,13 +145,13 @@ campaign repo's docs should answer — is indexed in
 Everything below `docs/` and `lib/` beyond the two files linked above is
 maintainer machinery, not consumer surface:
 
-- The runtime verifier lives at
-  `skills/build-session/scripts/mechanical_checker/`. It ships inside the one
-  skill that runs it; its README describes the checks, test gate, and extension
-  procedure.
-- **`pytest checks/ skills/build-session/scripts/` is the gate on every content
-  commit** — it runs checks over shipped content and the units that ship with
-  build-session.
+- The runtime verifier lives at `lib/mechanical-checker/` and materialises
+  into build-session and combat-generator by symlink
+  (`scripts/mechanical_checker`); its README describes the checks, test
+  gate, and extension procedure.
+- **`pytest checks/ lib/mechanical-checker skills/build-session/scripts/` is
+  the gate on every content commit** — it runs checks over shipped content
+  and the units that ship with the skills.
 - Maintainer tooling in `.claude/skills/` never ships.
 
 ## License and attribution

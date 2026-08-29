@@ -41,16 +41,16 @@ def _load(name: str) -> str:
 
 def test_valid_block_yields_no_findings():
     artifact = _load("encounter_meta_valid.md")
-    findings = run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"])
+    findings = run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"])
     assert findings == []
 
 
 def test_missing_required_line_yields_one_finding():
     artifact = _load("encounter_meta_missing_terrain.md")
-    findings = run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"])
+    findings = run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"])
     assert len(findings) == 1
     finding = findings[0]
-    assert finding.check_id == "build-session/encounter-meta-required-lines"
+    assert finding.check_id == "combat-generator/encounter-meta-required-lines"
     assert "Terrain" in finding.actual
     assert "missing" in finding.actual.lower()
     assert finding.output_location == "> [!encounter-meta] block"
@@ -62,19 +62,19 @@ def test_missing_required_line_yields_one_finding():
 def test_note_is_optional():
     # The broken fixture omits Note as well as Terrain; only Terrain is reported.
     artifact = _load("encounter_meta_missing_terrain.md")
-    findings = run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"])
+    findings = run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"])
     assert "Note" not in findings[0].actual
 
 
 def test_absent_block_is_a_finding():
-    findings = run_checks("# A page with no fight\n\nJust prose.", "build-session", ["build-session/encounter-meta-required-lines"])
+    findings = run_checks("# A page with no fight\n\nJust prose.", "combat-generator", ["combat-generator/encounter-meta-required-lines"])
     assert len(findings) == 1
-    assert findings[0].check_id == "build-session/encounter-meta-required-lines"
+    assert findings[0].check_id == "combat-generator/encounter-meta-required-lines"
     assert "no `> [!encounter-meta]` block" in findings[0].actual
 
 
 def test_finding_is_the_pinned_shape():
-    findings = run_checks(_load("encounter_meta_missing_terrain.md"), "build-session", ["build-session/encounter-meta-required-lines"])
+    findings = run_checks(_load("encounter_meta_missing_terrain.md"), "combat-generator", ["combat-generator/encounter-meta-required-lines"])
     f = findings[0]
     assert isinstance(f, Finding)
     # exactly the four pinned fields, all strings
@@ -89,8 +89,8 @@ def test_finding_is_the_pinned_shape():
 def test_run_checks_is_pure_no_io():
     # Called twice with the same string, identical output; no file handed in.
     artifact = _load("encounter_meta_valid.md")
-    assert run_checks(artifact, "build-session", ["build-session/encounter-meta-required-lines"]) == run_checks(
-        artifact, "build-session", ["build-session/encounter-meta-required-lines"]
+    assert run_checks(artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"]) == run_checks(
+        artifact, "combat-generator", ["combat-generator/encounter-meta-required-lines"]
     )
 
 
@@ -166,25 +166,25 @@ def test_register_check_rejects_an_unqualified_check_id():
 # --------------------------------------------------------------------------- #
 
 GOOD = "combat_meta_good.md"
-COMBAT_SUBSET = ["build-session/encounter-meta-required-lines", "build-session/enemies-line-arithmetic", "build-session/budget-line-arithmetic", "build-session/per-char-matches-budget-table", "build-session/distinct-stat-block-cap", "build-session/stat-block-refs-on-enemies-line", "build-session/spotlight-texture-in-palette", "build-session/targeted-spotlight-names-target-and-staging"]
+COMBAT_SUBSET = ["combat-generator/encounter-meta-required-lines", "combat-generator/enemies-line-arithmetic", "combat-generator/budget-line-arithmetic", "combat-generator/per-char-matches-budget-table", "combat-generator/distinct-stat-block-cap", "combat-generator/stat-block-refs-on-enemies-line", "combat-generator/spotlight-texture-in-palette", "combat-generator/targeted-spotlight-names-target-and-staging"]
 
 
 def test_good_fixture_passes_the_whole_combat_subset():
     # The clean block breaks no combat mechanical promise — the DoD's happy path.
-    assert run_checks(_load(GOOD), "build-session", COMBAT_SUBSET) == []
+    assert run_checks(_load(GOOD), "combat-generator", COMBAT_SUBSET) == []
 
 
 # Enemies-line arithmetic.
 
 def test_good_fixture_sums():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/enemies-line-arithmetic"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/enemies-line-arithmetic"]) == []
 
 
 def test_wrong_total_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_total.md"), "build-session", ["build-session/enemies-line-arithmetic"])
+    findings = run_checks(_load("combat_meta_bad_total.md"), "combat-generator", ["combat-generator/enemies-line-arithmetic"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/enemies-line-arithmetic"
+    assert f.check_id == "combat-generator/enemies-line-arithmetic"
     assert "600" in f.expected   # 6×25 + 1×450
     assert "500" in f.actual     # the wrong stated total
     assert "Enemies" in f.output_location
@@ -193,14 +193,14 @@ def test_wrong_total_is_one_finding():
 # Budget-line arithmetic (two independent sub-assertions).
 
 def test_good_fixture_holds():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/budget-line-arithmetic"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/budget-line-arithmetic"]) == []
 
 
 def test_spent_over_budget_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_spent.md"), "build-session", ["build-session/budget-line-arithmetic"])
+    findings = run_checks(_load("combat_meta_bad_spent.md"), "combat-generator", ["combat-generator/budget-line-arithmetic"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/budget-line-arithmetic"
+    assert f.check_id == "combat-generator/budget-line-arithmetic"
     assert "spent" in f.expected.lower()
     assert "800" in f.actual
     assert "Budget" in f.output_location
@@ -209,14 +209,14 @@ def test_spent_over_budget_is_one_finding():
 # Per-char matches the budget table.
 
 def test_good_fixture_matches_table():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/per-char-matches-budget-table"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/per-char-matches-budget-table"]) == []
 
 
 def test_wrong_per_char_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_perchar.md"), "build-session", ["build-session/per-char-matches-budget-table"])
+    findings = run_checks(_load("combat_meta_bad_perchar.md"), "combat-generator", ["combat-generator/per-char-matches-budget-table"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/per-char-matches-budget-table"
+    assert f.check_id == "combat-generator/per-char-matches-budget-table"
     assert "150" in f.expected      # Moderate, level 2 → 150
     assert "100" in f.actual        # the stated wrong per-char
     assert "Budget" in f.output_location
@@ -225,23 +225,23 @@ def test_wrong_per_char_is_one_finding():
 def test_stray_band_is_flagged():
     # The reference fixture labels the band "Hard" (75 = Moderate's value):
     # a band with no DMG column is itself the defect this check owns.
-    findings = run_checks(_load("encounter_meta_valid.md"), "build-session", ["build-session/per-char-matches-budget-table"])
+    findings = run_checks(_load("encounter_meta_valid.md"), "combat-generator", ["combat-generator/per-char-matches-budget-table"])
     assert len(findings) == 1
-    assert findings[0].check_id == "build-session/per-char-matches-budget-table"
+    assert findings[0].check_id == "combat-generator/per-char-matches-budget-table"
     assert "Hard" in findings[0].actual
 
 
 # No more than three distinct stat blocks.
 
 def test_good_fixture_within_cap():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/distinct-stat-block-cap"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/distinct-stat-block-cap"]) == []
 
 
 def test_four_stat_blocks_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_fourtypes.md"), "build-session", ["build-session/distinct-stat-block-cap"])
+    findings = run_checks(_load("combat_meta_bad_fourtypes.md"), "combat-generator", ["combat-generator/distinct-stat-block-cap"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/distinct-stat-block-cap"
+    assert f.check_id == "combat-generator/distinct-stat-block-cap"
     assert "4 distinct" in f.actual
     assert "Enemies" in f.output_location
 
@@ -249,14 +249,14 @@ def test_four_stat_blocks_is_one_finding():
 # Every creature carries a stat-block reference.
 
 def test_good_fixture_all_tagged():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/stat-block-refs-on-enemies-line"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/stat-block-refs-on-enemies-line"]) == []
 
 
 def test_bare_name_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_barename.md"), "build-session", ["build-session/stat-block-refs-on-enemies-line"])
+    findings = run_checks(_load("combat_meta_bad_barename.md"), "combat-generator", ["combat-generator/stat-block-refs-on-enemies-line"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/stat-block-refs-on-enemies-line"
+    assert f.check_id == "combat-generator/stat-block-refs-on-enemies-line"
     assert "Bandit Captain" in f.actual
     assert "bare" in f.actual.lower()
     assert "Enemies" in f.output_location
@@ -265,14 +265,14 @@ def test_bare_name_is_one_finding():
 # Spotlight texture from the palette.
 
 def test_good_fixture_in_palette():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/spotlight-texture-in-palette"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/spotlight-texture-in-palette"]) == []
 
 
 def test_off_palette_texture_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_texture.md"), "build-session", ["build-session/spotlight-texture-in-palette"])
+    findings = run_checks(_load("combat_meta_bad_texture.md"), "combat-generator", ["combat-generator/spotlight-texture-in-palette"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/spotlight-texture-in-palette"
+    assert f.check_id == "combat-generator/spotlight-texture-in-palette"
     assert "ambush" in f.actual
     assert "Spotlight" in f.output_location
 
@@ -280,14 +280,14 @@ def test_off_palette_texture_is_one_finding():
 # An aimed/puzzle spotlight names a target and a staging clause.
 
 def test_good_fixture_has_target_and_staging():
-    assert run_checks(_load(GOOD), "build-session", ["build-session/targeted-spotlight-names-target-and-staging"]) == []
+    assert run_checks(_load(GOOD), "combat-generator", ["combat-generator/targeted-spotlight-names-target-and-staging"]) == []
 
 
 def test_missing_staging_is_one_finding():
-    findings = run_checks(_load("combat_meta_bad_nostaging.md"), "build-session", ["build-session/targeted-spotlight-names-target-and-staging"])
+    findings = run_checks(_load("combat_meta_bad_nostaging.md"), "combat-generator", ["combat-generator/targeted-spotlight-names-target-and-staging"])
     assert len(findings) == 1
     f = findings[0]
-    assert f.check_id == "build-session/targeted-spotlight-names-target-and-staging"
+    assert f.check_id == "combat-generator/targeted-spotlight-names-target-and-staging"
     assert "staging" in f.actual.lower()
     assert "Spotlight" in f.output_location
 
@@ -299,7 +299,7 @@ def test_untargeted_texture_imposes_no_target_requirement():
         "aimed at Vex — the captain shoves an ally off the gangway to bait Vex's Sentinel reach",
         "steamroll — the guards wade in and the party rolls over them",
     )
-    assert run_checks(plain, "build-session", ["build-session/targeted-spotlight-names-target-and-staging"]) == []
+    assert run_checks(plain, "combat-generator", ["combat-generator/targeted-spotlight-names-target-and-staging"]) == []
 
 
 # --------------------------------------------------------------------------- #
@@ -310,13 +310,13 @@ def test_untargeted_texture_imposes_no_target_requirement():
 
 def test_run_checks_still_accepts_three_args():
     # Every  call is 3-arg; the new signature must not break them.
-    assert run_checks(_load(GOOD), "build-session", COMBAT_SUBSET) == []
+    assert run_checks(_load(GOOD), "combat-generator", COMBAT_SUBSET) == []
 
 
 def test_context_free_check_ignores_context():
     # A context-free check runs identically whether or not context is handed in.
-    with_ctx = run_checks(_load(GOOD), "build-session", ["build-session/encounter-meta-required-lines"], context={"roster": []})
-    without = run_checks(_load(GOOD), "build-session", ["build-session/encounter-meta-required-lines"])
+    with_ctx = run_checks(_load(GOOD), "combat-generator", ["combat-generator/encounter-meta-required-lines"], context={"roster": []})
+    without = run_checks(_load(GOOD), "combat-generator", ["combat-generator/encounter-meta-required-lines"])
     assert with_ctx == without == []
 
 
@@ -736,12 +736,13 @@ def test_good_session_passes_the_whole_page_owned_subset():
     assert run_checks(_load(SESSION_GOOD), "build-session", SESSION_SUBSET, context=SESSION_CTX) == []
 
 
-def test_page_flow_may_request_procedure_rows_without_error():
-    # Since the generator merge every row is owned by build-session, so the
-    # registry no longer polices the fight/site/page split — the skill text's
-    # "inherit, don't re-check" discipline does. Requesting a fight-owned row
-    # over a page must therefore run (and grade the shape it finds), not raise.
-    run_checks(_load(SESSION_GOOD), "build-session", ["build-session/encounter-meta-required-lines"], context=SESSION_CTX)
+def test_page_flow_may_not_request_fight_rows():
+    # Since the combat-generator hoist the fight rows are owned by that skill
+    # again, so the registry polices the fight/page split: a page flow
+    # requesting a fight-owned row raises instead of re-grading a block that
+    # arrived already checked ("inherit, don't re-check").
+    with pytest.raises(ValueError):
+        run_checks(_load(SESSION_GOOD), "build-session", ["combat-generator/encounter-meta-required-lines"], context=SESSION_CTX)
 
 
 # The nine skeleton sections, present and in order.

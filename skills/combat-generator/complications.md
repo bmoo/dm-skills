@@ -133,6 +133,6 @@ are the shapes to look for:
 A fleeing or surrendering enemy, a controller revealed behind innocent
 minions, a ritual object left behind — these are **clue-bearing outcomes**,
 and a complication is a natural place to plant a lead toward another node
-(the fight procedure's Step 6 surfaces this). Don't silently bury a clue
+(Step 6 of the fight build surfaces this). Don't silently bury a clue
 opportunity inside a kill-them-all fight; the usual clue-interpretability
 bar applies.
