@@ -631,6 +631,44 @@ def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Fin
     ]
 
 
+@register_check("combat-generator/floating-terrain-roles", "combat-generator")
+def check_floating_terrain_roles(artifact: str) -> List[Finding]:
+    """A floating fight's `Terrain:` line is role-form: `needs:` followed by two
+    or more terrain roles (`lib/encounter-meta-format.md` — "its `Terrain:` line
+    carries the terrain *roles* the fight needs"). Requested only when the fight
+    being checked is the floating form — a pinned fight's concrete terrain is a
+    different promise, graded by no mechanical rule. Returns [] when the block or
+    the line is absent; the required-lines check owns presence."""
+    location = "> [!encounter-meta] block, `Terrain:` line"
+    block = _extract_encounter_meta_block(artifact)
+    if block is None:
+        return []
+    value = _meta_line_value(block, "Terrain")
+    if value is None:
+        return []
+    m = re.match(r"needs\s*[:\u2014-]\s*(?P<roles>.+)$", value, re.IGNORECASE)
+    if m is None:
+        return [
+            Finding(
+                check_id="combat-generator/floating-terrain-roles",
+                expected="a role-form Terrain line: `needs:` plus two or more terrain roles",
+                actual=f"Terrain line is not role-form: {value!r}",
+                output_location=location,
+            )
+        ]
+    roles = [r.strip() for r in re.split(r"[,;\u00b7]", m.group("roles")) if r.strip()]
+    if len(roles) >= 2:
+        return []
+    return [
+        Finding(
+            check_id="combat-generator/floating-terrain-roles",
+            expected="two or more terrain roles after `needs:`",
+            actual=f"{len(roles)} role(s) found: {m.group('roles')!r}",
+            output_location=location,
+        )
+    ]
+
+
 # --------------------------------------------------------------------------- #
 # The keyed-site procedure's checks.
 # --------------------------------------------------------------------------- #

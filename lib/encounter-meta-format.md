@@ -20,7 +20,13 @@ nothing else restates it.
 ```
 
 Party, Enemies, Budget, Terrain, Spotlight, and Objective are required;
-Note is optional. Every creature named on the `Enemies:` line carries a
+Note is optional. A **floating** fight (the combat-generator skill's
+scene-free form) fills the same six labels — its `Terrain:` line carries the
+terrain *roles* the fight needs (`needs: a high position, a cover field, a
+choke`) rather than concrete ground, and its creature names appear on the
+`Enemies:` line only. The shape is unchanged; the checker's
+`combat-generator/floating-terrain-roles` rule asserts the role-form line
+when a floating fight is checked. Every creature named on the `Enemies:` line carries a
 stat-block reference (`{monster:Name}` where the render tokens are in use) —
 a bare creature name is a defect here as everywhere on a page. The
 `Spotlight:` field is the **fight** half of a page's spotlight annotations: a

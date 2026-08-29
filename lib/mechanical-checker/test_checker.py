@@ -174,6 +174,31 @@ def test_good_fixture_passes_the_whole_combat_subset():
     assert run_checks(_load(GOOD), "combat-generator", COMBAT_SUBSET) == []
 
 
+# The floating form's role-terrain line.
+
+def test_floating_good_passes_combat_subset_plus_roles_check():
+    # A floating fight fills the same six labels, so the whole subset applies,
+    # plus the role-form Terrain rule its form adds.
+    art = _load("combat_meta_floating_good.md")
+    assert run_checks(art, "combat-generator", COMBAT_SUBSET + ["combat-generator/floating-terrain-roles"]) == []
+
+
+def test_floating_concrete_terrain_is_one_finding():
+    findings = run_checks(_load("combat_meta_floating_bad_concrete.md"), "combat-generator", ["combat-generator/floating-terrain-roles"])
+    assert len(findings) == 1
+    f = findings[0]
+    assert f.check_id == "combat-generator/floating-terrain-roles"
+    assert "needs:" in f.expected
+    assert "boathouse" in f.actual
+    assert "Terrain" in f.output_location
+
+
+def test_pinned_fixture_never_sees_the_floating_check():
+    # The pinned good fixture is graded by the subset alone; the floating rule
+    # is requested only for floating fights, so its concrete terrain is legal.
+    assert run_checks(_load(GOOD), "combat-generator", COMBAT_SUBSET) == []
+
+
 # Enemies-line arithmetic.
 
 def test_good_fixture_sums():

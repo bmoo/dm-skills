@@ -2,9 +2,10 @@
 name: combat-generator
 description: >-
   Generate a combat encounter sized to the party's action economy with the
-  SRD 5.2 XP-budget table, grounded in a campaign-record node and the
-  campaign's own setting, carrying at least one complication and a spotlight
-  texture, delivered with its machine-readable encounter-meta filing block.
+  SRD 5.2 XP-budget table, grounded in the campaign's own setting, carrying
+  at least one complication and a spotlight texture, delivered with its
+  machine-readable encounter-meta filing block — pinned to its scene, or
+  floating: scene-free, written in roles, bound to a scene at the table.
   Use whenever the DM wants a fight/combat/encounter built for a node, a
   session, or a location — or asks what the party should fight — and
   whenever another skill needs one fight sized.
@@ -15,6 +16,20 @@ description: >-
 Build a **situation**, not a scripted fight (the *Don't Prep Plots* frame):
 the right XP budget, enemies that belong in the place, terrain to fight over,
 and a **complication** that turns a hit-point race into a decision.
+
+Every fight takes one of two forms, and the caller names which:
+
+- **Pinned** — the fight *is* the scene: a keyed room, a set-piece, a scene
+  built as a fight. Concrete terrain, tactics in real nouns. Moving it is
+  not a supported operation.
+- **Floating** — Shea's *choose relevant monsters* step with the math
+  already done: a pre-cast roster whose prose is written entirely in
+  **roles** (the leader, the screen; the high position, the choke), bound
+  to a scene only at the table by casting the live scene's nouns into
+  those roles out loud. The form for a fight prepped against a *potential*
+  scene that may never fire.
+
+Unnamed, the form is **pinned**.
 
 Reference files sit beside this one; load each when its step says to:
 
@@ -32,9 +47,13 @@ A caller — the DM mid-prep, or another skill invoking this one with a wider
 prep plan of its own — may hand any of these in already settled; Steps 1–2
 restate them, so skip to Step 3 when they all arrive:
 
-- the pinned fight situation — node/location, the enemies-or-faction and
-  their objective, the terrain potential (Step 1's five pins; don't re-pin
-  what arrives settled);
+- the fight's **form** — pinned or floating. Floating is the caller's
+  call for a fight riding a potential scene; a keyed site's fights are
+  always pinned;
+- the fight situation — for a pinned fight the node/location, the
+  enemies-or-faction and their objective, the terrain potential (Step 1's
+  five pins; don't re-pin what arrives settled); for a floating fight the
+  faction and objective alone;
 - the party and each PC's Spotlight profile (Step 2's read);
 - the difficulty band — Low / Moderate / High (the caller's pick, not a
   default);
@@ -67,6 +86,11 @@ the chosen source's catalog *before* Step 4 shortlists.
 *Handed in settled? Skip to Step 3.* Otherwise, settle five things before
 any math — where one is ambiguous and the choice changes the fight, ask in
 one line; otherwise pick the obvious reading and name it:
+
+**Floating form: there is no Where.** Settle only **Who & why**,
+**Difficulty**, and **Setting frame** — the fight's ground is its faction,
+not a place, and Step 7 states its terrain as roles. Skip the Where and
+Terrain-potential pins entirely.
 
 - **Where.** The node or location. If the DM named one with its own page in
   the campaign record, **read the whole page** — its inhabitants, factions,
@@ -114,7 +138,8 @@ total budget explicitly (e.g. "Moderate, level 2, 5 PCs → 150 × 5 =
 
 ## Step 4 — Spend the budget on enemies that belong
 
-Choose creatures that fit the node and the setting, look up each one's 2024 XP
+Choose creatures that fit the setting and the fight's ground — the node
+(pinned) or the faction (floating) — look up each one's 2024 XP
 via the sourcing chain, and spend toward the budget without going over,
 honoring the **action-economy guardrails** in the budget reference — shape vs.
 party size, the three-monster-type cap, CR spikes.
@@ -139,6 +164,9 @@ aimed:
   at anyone — plain is a legitimate result.
 - **Texturing stages the roster Step 4 already bought** — adding creatures is
   Step 4's job, finished before this step.
+- **Floating form: stage in roles.** The staging speaks in the fight's
+  terrain roles ("the quiet climb to the high position"), never a place —
+  the tell must survive whatever scene ends up casting the roles.
 - **Set legibility on an aimed or puzzle beat.** Texture picks *what* fires;
   the doctrine's [Legibility](spotlight-doctrine.md#legibility) axis picks
   *how plainly the DM points at it*. Read the target PC's **Table experience**
@@ -159,6 +187,11 @@ minions) over one that only adds damage, and wire it into the terrain and the
 enemies' goal so it reads as part of the fiction. If the encounter sits on a
 location's page and this repo tracks clues/leads, check whether the
 complication is a place to plant one toward another node, and call that out.
+
+**Floating form: the complication is pure mechanism** — a timer, a
+protected target, a defended objective — wired to the enemies' goal and the
+terrain *roles*, never to a place. A complication that only works in one
+room belongs to a pinned fight.
 
 One complication is the floor, not the target: for a set-piece fight, take
 **two, from different menu sections** — an objective twist plus a battlefield
@@ -185,6 +218,27 @@ Present the encounter in chat as a runnable block:
 - **Clue note** — if it sits on a node, the lead a complication outcome can
   carry.
 
+That is the **pinned** shape. A **floating** fight delivers the same block
+with three substitutions, under one rule — the **functional-prose rule**:
+creature names appear on the `Enemies:` line only; everywhere else every
+actor and every piece of ground is a role, and nothing names a place,
+a faction, or scene fiction. A noun that implies a place ("ritual",
+"cultist", "boathouse") is a scene descriptor, and a floating fight
+carries none outside its `Enemies:` line.
+
+- **Header** — the title names the fight's *mechanism* ("The Countdown"),
+  never a place or an event that implies one; no node.
+- **The cast** — one line mapping each enemy role to its creature (the
+  leader — the fanatic; the screen — the cultists), so the role-written
+  prose reads back onto the roster.
+- **Terrain roles, not terrain** — what the fight *needs*: 2–4 terrain
+  roles (a high position, a cover field, a choke, a hazard), each with the
+  job it does. At the table, the live scene's nouns are cast into the
+  roles out loud — that casting is the whole scene binding, and it is
+  never written down in prep.
+- **Tactics in roles** — "the screen guards the leader and gives ground" —
+  so they run verbatim under any casting.
+
 ### Definition of done
 
 Before you offer, **compose the encounter-meta callout** (the *Filing format*
@@ -207,6 +261,7 @@ combat-generator/ qualifier>])`. Each id is one promise:
 | `stat-block-refs-on-enemies-line` | every creature on the `Enemies:` line carries its `{monster:Name}` token or stat-block link |
 | `spotlight-texture-in-palette` | the `Spotlight:` texture is one of the five |
 | `targeted-spotlight-names-target-and-staging` | an aimed or puzzle spotlight names whom it shoots at and carries its staging clause |
+| `floating-terrain-roles` | **floating form only** — the `Terrain:` line is role-form: `needs:` plus two or more terrain roles |
 
 **The fresh check** (Part 2) grades the two criteria this skill owns, as
 its own text states them — the prose-reference rule in *Filing format*
@@ -214,7 +269,10 @@ below and the fragile-creatures rule in
 [`xp-budget.md`](xp-budget.md) — named by their stable check ids
 `[combat-generator/stat-block-refs-in-prose,
 combat-generator/swarm-carries-fragile-creatures]`, with the party roster as
-the checker's third input.
+the checker's third input. A **floating** fight adds a third criterion, the
+functional-prose rule as Step 7 states it, under the id
+`combat-generator/floating-functional-prose` — and drops
+`stat-block-refs-in-prose`, whose prose names no creatures to reference.
 
 Then **offer**, but don't assume: to file the encounter into wherever this repo
 keeps session prep or the location page, and to log it if the repo keeps a
@@ -228,7 +286,13 @@ that caller, made once for the whole work.
 
 On the yes, the encounter's vitals land on the page as an **encounter-meta
 callout** (the prose — terrain, tactics, the complication's staging — lives
-around it as normal page text). This is the machine-findable summary other
+around it as normal page text). **Where it lands follows the form**: a
+pinned fight files where its scene lives — the node/location page, or the
+session page's keyed area; a floating fight files into the session page's
+**Relevant Monsters** section (the session-page format's optional section),
+never onto a node — it has no node until play gives it one. A floating
+fight's `Terrain:` line carries its terrain roles (`needs: …`), and its
+creature names appear on the `Enemies:` line only. This is the machine-findable summary other
 tooling greps for: the `Spotlight:` line is the variety check's fallback
 ledger before played sessions exist
 ([`spotlight-doctrine.md`](spotlight-doctrine.md)) and half of what
