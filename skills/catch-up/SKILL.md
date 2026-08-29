@@ -116,7 +116,11 @@ Three rings, then stop:
      lives in `build-session/session-page-format.md`). Record which of those
      staged beats **fired** and which were **denied or skipped** — a beat
      staged but never fired should get louder in future prep; one that fired
-     big can rest. A PC the page never names was planned as resting, so there
+     big can rest. A **floating** fight (a Relevant Monsters entry —
+     combat-generator's scene-free form) that fired records where play
+     bound it: the node or scene, one line beside its block. One that
+     never fired needs no note — unplaced is its normal state, not a
+     denied beat. A PC the page never names was planned as resting, so there
      is nothing to reconcile — but note a PC who has now rested across
      consecutive sessions.
    - *The loot ledger* rides here too: the recap names which PC received

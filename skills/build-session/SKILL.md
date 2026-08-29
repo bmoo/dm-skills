@@ -244,7 +244,9 @@ names what it filled.
   **Important NPCs** — the depth pass (wants, knows, attitude) on top of
   the roster, pulled from that NPC's record and the live state.
 - **Never do monster prep inline.** Fights are built at Step 5, each via
-  the `combat-generator` skill.
+  the `combat-generator` skill. Shea's *choose relevant monsters* step is
+  what Step 5's **floating** fights materialize: fights for scenes that
+  may never fire, prepped scene-free and bound at the table.
 - **Skip rewards** unless one is clearly owed (a promised item, a favor
   called in, a thread that resolves) — then note it as a single line for
   the Conclusion. Favors, information, and access count as rewards too.
@@ -303,12 +305,18 @@ Hand off, don't inline:
 - **Fights** — the method doc's combat pacing sets how many; build each
   one via the repo's fight skill (`combat-generator`, if installed —
   invoke its slash command `/combat-generator` once per fight): the fight
-  situation, the party and rosters, the difficulty band, and the beat the
-  plan allocated to that fight go in; the sized encounter block and its
-  `> [!encounter-meta]` filing block come out, and you embed them as-is —
-  no re-derived budget, no re-picked complication. Without that skill,
-  key each fight's fiction and name it as an unsized gap in Step 8 —
-  never size a fight inline.
+  situation, the party and rosters, the difficulty band, the beat the
+  plan allocated to that fight, **and the fight's form** go in; the sized
+  encounter block and its `> [!encounter-meta]` filing block come out,
+  and you embed them as-is — no re-derived budget, no re-picked
+  complication. **The form is this step's call**: a scene built as a
+  fight is **pinned** and its block lands at that scene; a fight riding a
+  *potential* scene that may never fire is **floating** — scene-free,
+  written in roles — and its block lands in the page's **Relevant
+  Monsters** section (the format file's optional section), placed
+  nowhere until play binds it. Without that skill, key each fight's
+  fiction and name it as an unsized gap in Step 8 — never size a fight
+  inline.
 - **Maps** — the format wants a map per location set, and the method doc
   may require a node map of the session's explorable places. Generate
   them in **the session's own declared art style** (the format's

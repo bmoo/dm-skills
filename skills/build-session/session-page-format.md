@@ -94,14 +94,22 @@ page — a named gap is prep information; a silent one is a defect.
    block in the conventions' shape below), and fights as
    `> [!encounter-meta]` blocks in the library's shape
    ([`encounter-meta-format.md`](encounter-meta-format.md)).
-8. **Conclusion** — how the session's likely endings resolve, rewards owed
+8. **Relevant Monsters** *(optional)* — the session's **floating fights**:
+   the combat-generator skill's scene-free form, one entry each — the
+   `> [!encounter-meta]` callout (its `Terrain:` line carries the roles the
+   fight needs) plus its cast line and role-written tactics. These are
+   fights prepped against *potential* scenes: none is placed anywhere, and
+   whichever scene fires binds one at the table by casting the scene's
+   nouns into its roles. Absent when the session carries none — a pinned
+   fight never files here; it lives at its scene's key.
+9. **Conclusion** — how the session's likely endings resolve, rewards owed
    (an item, a favor, information, access — an item aimed at a particular
    PC names its intended PC, so the handout reconciles after play; aiming
    evenly across the party is prep's job, `build-session`'s loot
    parity), and the **exits**: at least
    two live leads into the clue web toward other nodes, with no steer. A
    session that ends nowhere is a defect.
-9. **Lore appendix** *(optional)* — a "Rise and Ruin of the Salt
+10. **Lore appendix** *(optional)* — a "Rise and Ruin of the Salt
    Barons"-style closer, only where the campaign record already holds the
    material.
 

@@ -11,7 +11,8 @@ This checker verifies the mechanical parts of combat-generator and
 build-session output. Its registered checks cover:
 
 - encounter-meta structure, XP and budget arithmetic, stat-block references,
-  spotlight fields, and encounter constraints;
+  spotlight fields, encounter constraints, and the floating form's
+  role-terrain line;
 - keyed-site topology, typed edges, routes, entrances, guarded approaches,
   dungeon scale, mechanics, and roster staging;
 - session-page skeleton and Key NPC table structure, links, annotations,

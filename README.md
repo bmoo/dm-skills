@@ -109,9 +109,10 @@ flowchart TD
   PDF renderer.
 - **`combat-generator`** — builds one fight as a situation, not a script:
   sized to the party's action economy with the SRD 5.2 XP-budget table,
-  grounded in a campaign-record node, carrying at least one complication
-  and a spotlight texture, delivered with its machine-readable
-  encounter-meta filing block. Runs standalone or invoked by another
+  grounded in the campaign's own setting, carrying at least one
+  complication and a spotlight texture, delivered with its machine-readable
+  encounter-meta filing block — **pinned** to its scene, or **floating**:
+  scene-free, written in roles, bound to a scene at the table. Runs standalone or invoked by another
   skill's prep flow (`/combat-generator`).
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.

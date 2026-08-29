@@ -163,7 +163,8 @@ menu.
   can reason from.
 - **Fights.** You own the **mix**: one High set piece guarding the objective
   or its exit, the rest Low/Moderate, at least one avoidable or negotiable.
-  Build each fight via `/combat-generator` — the
+  Build each fight via `/combat-generator` — always the **pinned** form
+  (the room is the scene; a keyed site holds no floating fights): the
   pinned room and its enemies as the fight situation, the Step 2 party and
   rosters, the difficulty band you chose for that fight, and the fight's
   allocated spotlight beat from the rotation below. It produces the sized
