@@ -7,8 +7,8 @@ file. A generator cannot cheat a compiler, so no external grader is needed.
 
 ## What it checks
 
-This checker verifies the mechanical parts of build-session output. Its
-registered checks cover:
+This checker verifies the mechanical parts of combat-generator and
+build-session output. Its registered checks cover:
 
 - encounter-meta structure, XP and budget arithmetic, stat-block references,
   spotlight fields, and encounter constraints;
@@ -20,11 +20,12 @@ registered checks cover:
   extract, or scale override rather than filesystem access.
 
 Each rule has a stable `<skill>/<rule>` check id, such as
-`build-session/enemies-line-arithmetic`. The decorated function in
+`combat-generator/enemies-line-arithmetic`. The decorated function in
 [`checker.py`](checker.py) is the rule's executable specification; a failure is
 reported with that id in `Finding.check_id`. The checker deliberately does not
 make judgement calls: subjective completion criteria are evaluated by the
-separate fresh check described in build-session's verification procedure.
+separate fresh check described in the shared verification protocol
+(`lib/verification.md`).
 
 ## Public interface — the sole test seam
 
@@ -38,10 +39,9 @@ findings = run_checks(artifact, producing_skill, checks)
   - `artifact` — the generated output **as a string**. The generator has its
     output text in context and hands it in. `run_checks` performs **no I/O**: it
     never reads a file, never calls a model. String in, findings out.
-  - `producing_skill` — `"build-session"`, the one skill whose flows run
-    these checks since the generator merge. Only checks owned by this skill
-    may be requested, so a caller applies **only its own skill's check
-    subset**.
+  - `producing_skill` — `"combat-generator"` or `"build-session"`, whichever
+    skill produced the artifact. Only checks owned by this skill may be
+    requested, so a caller applies **only its own skill's check subset**.
   - `checks` — the list of check ids to apply.
   - `context` *(optional)* — external data a roster-dependent check needs and the
     artifact text cannot carry. See **Context** below. Defaults to `None`, so
@@ -256,7 +256,7 @@ Add a rule by extending this library with **one registration and one fixture
 pair**:
 
 ```python
-@register_check("build-session/enemies-line-arithmetic", "build-session")
+@register_check("combat-generator/enemies-line-arithmetic", "combat-generator")
 def check_enemies_line_arithmetic(artifact: str) -> list[Finding]:
     # pure str -> list[Finding]; return [] when the promise holds
     ...
@@ -272,35 +272,32 @@ and test the missing-context failure.
 
 ## How this ships
 
-There is **one copy**, this directory, and it sits where it ships:
+There is **one copy**, this directory:
 
 ```
-skills/build-session/scripts/mechanical_checker/
+lib/mechanical-checker/
 ```
 
-It used to live under `lib/`, reached by a relative symlink from each generator's
-own `scripts/`, because three generators shared it. The generator fold left
-`build-session` as the only consumer, so the indirection bought nothing and the
-directory moved inside the skill that runs it.
-
-Consequences are the ones the symlink arrangement was chosen for, now had
-directly: `build-session` is self-contained at the consumer (selective-install-safe),
-and this copy sits inside its skill's folder, so it is covered by that skill's
-folder hash and version-pinned by the stock mechanism (no separate pin). There is
-no longer a dereference-on-install assumption to document.
+It materialises into each consumer by a relative symlink from that skill's
+own `scripts/` (`skills/combat-generator/scripts/mechanical_checker`,
+`skills/build-session/scripts/mechanical_checker`), because two skills share
+it — the same arrangement as `lib/rules-sourcing.md` and `lib/srd/`. At
+install time the symlink dereferences, so each installed skill carries its
+own materialised copy and stays selective-install-safe.
 
 ## Running the tests
 
 Flat module layout, mirroring `skills/build-session/scripts/` prior art — no
 package, no `__init__.py`. pytest inserts the test file's own directory on
 `sys.path`, so `from checker import ...` resolves when tests run from within this
-dir; at the consumer the materialised copy sits beside the generator's other
+dir; at the consumer the materialised copy sits beside the skill's other
 scripts and imports the same flat way.
 
 ```
-# The gate — checks over shipped content, then the checker beside build-session's
-# other script tests.
-python -m pytest checks/ skills/build-session/scripts/
+# The gate — checks over shipped content, this checker, then build-session's
+# other script tests (pytest.ini keeps the skill-side symlink from being
+# collected a second time).
+python -m pytest checks/ lib/mechanical-checker skills/build-session/scripts/
 
-python -m pytest skills/build-session/scripts/mechanical_checker/  # this dir only
+python -m pytest lib/mechanical-checker/  # this dir only
 ```

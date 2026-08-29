@@ -1,8 +1,24 @@
-# Rules sourcing — the lookup chain
+# Rules sourcing — the doctrine and the chain
 
 Where rules content — stat blocks, XP values, class features, spells, item
-text — comes from. Take the first rung that answers; never skip past the chain
-to training-data memory.
+text, trap and door mechanics — comes from. **This file is the library's one
+statement of the sourcing doctrine**; every skill that places rules content
+follows it.
+
+- **MUST** source all rules content — monster stat blocks, XP values, item
+  text, trap and door mechanics, any rules detail — from the chain below,
+  never from training-data memory (the 2024 rules differ from 2014). Look up
+  every creature and item you place; confirm a creature's XP before you
+  spend it.
+- **MUST** browse the chosen source's catalog (its listings, filtered by
+  type/CR/etc.) *before* shortlisting — never shortlist from memory, which
+  silently defaults to famous core-book entries and ignores what the table's
+  sources actually offer.
+
+## The chain
+
+Take the first rung that answers; never skip past the chain to training-data
+memory.
 
 1. **The campaign's own content tools.** If this environment has a D&D content
    lookup tool installed (an MCP server or similar), use it. Whatever the

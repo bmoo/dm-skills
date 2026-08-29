@@ -5,10 +5,11 @@ description: >-
   Lazy DM Prep against the campaign record, then compile the result into a
   durable session page in the library's WotC-convention format — or stop at
   a lean in-chat prep sheet when that's all the DM wants. Builds the
-  session's fights (XP-budgeted encounters), keyed sites (non-linear
-  dungeons), and spotlight plan with its own procedures, orchestrates the
-  repo's other prep skills (clue slate, maps), and verifies the page against
-  the format's definition of done; renders a styled PDF on request. Use
+  session's keyed sites (non-linear dungeons) and spotlight plan with its
+  own procedures, hands each fight to the combat-generator skill,
+  orchestrates the repo's other prep skills (clue slate, maps), and
+  verifies the page against the format's definition of done; renders a
+  styled PDF on request. Use
   when the DM wants a session built or made table-ready, asks "what do I
   need before Thursday," or wants a printable PDF of a session page. Not
   for absorbing a played session (catch-up) or standalone node deepening.
@@ -38,8 +39,10 @@ Reference beside this file — load each when its step says to:
 - [`spotlight.md`](spotlight.md) — the spotlight-plan procedure: the data
   ladder, the allocated budget, the roster read. Load at Step 3, for the
   session's spotlight plan.
-- [`combat.md`](combat.md) — the fight procedure: XP-budgeted, complicated,
-  spotlight-textured encounters. Load at Step 5, once per fight.
+- The **`combat-generator` skill** — the fight builder: XP-budgeted,
+  complicated, spotlight-textured encounters. Invoke it via its slash
+  command (`/combat-generator`) at Step 5, once per fight — if installed;
+  without it, fights are named as gaps, never sized inline.
 - [`dungeon.md`](dungeon.md) — the keyed-site procedure: non-linear keyed
   sites with their own fights inside. Load at Step 5, per keyed site.
 - [`render.md`](render.md) — the PDF renderer (`scripts/` beside it). Load
@@ -241,7 +244,7 @@ names what it filled.
   **Important NPCs** — the depth pass (wants, knows, attitude) on top of
   the roster, pulled from that NPC's record and the live state.
 - **Never do monster prep inline.** Fights are built at Step 5, each via
-  [`combat.md`](combat.md).
+  the `combat-generator` skill.
 - **Skip rewards** unless one is clearly owed (a promised item, a favor
   called in, a thread that resolves) — then note it as a single line for
   the Conclusion. Favors, information, and access count as rewards too.
@@ -298,11 +301,14 @@ on the page, and every beat this step stages carries its scene line.
 Hand off, don't inline:
 
 - **Fights** — the method doc's combat pacing sets how many; build each
-  one by loading [`combat.md`](combat.md) beside this file and following
-  it: the fight situation, the party and rosters, the difficulty band, and
-  the beat the plan allocated to that fight go in; the sized encounter
-  block and its `> [!encounter-meta]` filing block come out, and you embed
-  them as-is — no re-derived budget, no re-picked complication.
+  one via the repo's fight skill (`combat-generator`, if installed —
+  invoke its slash command `/combat-generator` once per fight): the fight
+  situation, the party and rosters, the difficulty band, and the beat the
+  plan allocated to that fight go in; the sized encounter block and its
+  `> [!encounter-meta]` filing block come out, and you embed them as-is —
+  no re-derived budget, no re-picked complication. Without that skill,
+  key each fight's fiction and name it as an unsized gap in Step 8 —
+  never size a fight inline.
 - **Maps** — the format wants a map per location set, and the method doc
   may require a node map of the session's explorable places. Generate
   them in **the session's own declared art style** (the format's
@@ -318,7 +324,7 @@ Hand off, don't inline:
   procedure owns the room list, the non-linear edges, and the per-route
   resource arc, and it spends this session's spotlight budget rather than
   allocating a second one — don't run its fights through
-  [`combat.md`](combat.md) a second time; the site build already did.
+  `/combat-generator` a second time; the site build already did.
 - **Thin clue coverage** — if the slate leaves a revelation or route
   under-clued, hand the gap to the repo's clue-seeding skill
   (`seed-clues`, if installed) rather than padding the slate by hand.
@@ -346,8 +352,8 @@ writes to a page. Where a checklist item and the method doc disagree,
 the method doc wins; the brief wins over both, per Step 0.
 
 **Inherit, don't re-check.** The fights and keyed sites on the page
-arrived already self-checked by the procedures that built them
-(`combat.md`'s rows, `dungeon.md`'s rows). Run only the rows
+arrived already self-checked by the builds that made them (the
+combat-generator skill's rows, `dungeon.md`'s rows). Run only the rows
 the *page and session* own. Where a page-owned check reads a delegated
 block — **fights-are-encounter-meta** reads that a fight is *filed* as an
 encounter-meta callout — it grades the block's presence and shape on the

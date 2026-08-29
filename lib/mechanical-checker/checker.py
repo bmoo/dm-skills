@@ -65,7 +65,7 @@ CheckFn = Callable[..., List[Finding]]
 # Each check is registered under its check id and tagged with the producing
 # skill that owns it. Adding a check is a one-function, one-registration
 # operation: write ``def _my_check(artifact) -> list[Finding]`` and decorate it
-# with ``@register_check("build-session/enemies-line-arithmetic",
+# with ``@register_check("combat-generator/enemies-line-arithmetic",
 # "build-session")``. ``run_checks`` then selects it whenever a caller
 # requests that id.
 
@@ -140,7 +140,7 @@ def run_checks(
             and the test seam a plain string-in / findings-out. NO file is read
             inside this function.
         producing_skill: which skill produced the output — one of
-            ``"build-session"``, ``"build-session"``, ``"build-session"``.
+            ``"build-session"``, ``"combat-generator"``.
             Only checks owned by this skill may be requested, so a caller applies
             only its own skill's rubric subset (spec user story 17).
         checks: the rubric subset — the list of check ids to apply.
@@ -194,13 +194,12 @@ def run_checks(
 #
 # The `> [!encounter-meta]` block must
 # carry its six required lines — Party, Enemies, Budget, Terrain, Spotlight,
-# Objective (Note optional). The block spec lives in the format doc the block
-# travels on (`build-session/session-page-format.md` — "Note is optional"),
-# which the fight procedure's *Filing format* section cites rather than
-# restates.
+# Objective (Note optional). The block spec lives in the library's shape
+# statement (`lib/encounter-meta-format.md` — "Note is optional"), which the
+# fight skill's *Filing format* section cites rather than restates.
 #
-# The list below stays a **literal**: this directory ships with build-session
-# and must not read the maintenance docs at run time.
+# The list below stays a **literal**: this directory ships into the skills by
+# symlink and must not read the maintenance docs at run time.
 #
 # This one check proves the whole path end to end.  extends the same registry
 # with the rest of the fight procedure's mechanical rows.
@@ -236,7 +235,7 @@ def _extract_encounter_meta_block(artifact: str) -> str | None:
     return "\n".join(block_lines)
 
 
-@register_check("build-session/encounter-meta-required-lines", "build-session")
+@register_check("combat-generator/encounter-meta-required-lines", "combat-generator")
 def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
     """The encounter-meta block carries all six required lines.
 
@@ -248,7 +247,7 @@ def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
     if block is None:
         return [
             Finding(
-                check_id="build-session/encounter-meta-required-lines",
+                check_id="combat-generator/encounter-meta-required-lines",
                 expected="an encounter-meta block with lines: "
                 + ", ".join(_ENCOUNTER_META_REQUIRED),
                 actual="no `> [!encounter-meta]` block found",
@@ -263,7 +262,7 @@ def check_encounter_meta_required_lines(artifact: str) -> List[Finding]:
     present = [label for label in _ENCOUNTER_META_REQUIRED if label not in missing]
     return [
         Finding(
-            check_id="build-session/encounter-meta-required-lines",
+            check_id="combat-generator/encounter-meta-required-lines",
             expected="all six required lines: " + ", ".join(_ENCOUNTER_META_REQUIRED),
             actual="missing " + ", ".join(missing)
             + (" (present: " + ", ".join(present) + ")" if present else ""),
@@ -346,10 +345,10 @@ def _parse_creatures(enemies_line: str) -> list[_Creature]:
     return creatures
 
 
-@register_check("build-session/enemies-line-arithmetic", "build-session")
+@register_check("combat-generator/enemies-line-arithmetic", "combat-generator")
 def check_enemies_line_arithmetic(artifact: str) -> List[Finding]:
     """On the `Enemies:` line, Σ(count × per-creature XP) equals the stated
-    total (`build-session/session-page-format.md` — "each creature × count with
+    total (`lib/encounter-meta-format.md` — "each creature × count with
     looked-up XP"). Fires only when the line carries entries *and* a total
     to compare — an unparseable or absent line belongs to the required-lines
     check, not here."""
@@ -371,7 +370,7 @@ def check_enemies_line_arithmetic(artifact: str) -> List[Finding]:
     terms = " + ".join(f"{c.count}×{c.per_xp}" for c in creatures)
     return [
         Finding(
-            check_id="build-session/enemies-line-arithmetic",
+            check_id="combat-generator/enemies-line-arithmetic",
             expected=f"Σ(count × XP) = {computed} ({terms})",
             actual=f"stated total {stated}",
             output_location=location,
@@ -380,7 +379,7 @@ def check_enemies_line_arithmetic(artifact: str) -> List[Finding]:
 
 
 # The XP-budget-per-character table, transcribed from
-# `build-session/xp-budget.md` — "XP Budget per Character" (SRD 5.2
+# `combat-generator/xp-budget.md` — "XP Budget per Character" (SRD 5.2
 # "Combat Encounter Difficulty"). Embedded as data so the checker stays pure
 # and self-contained;
 # the citation is the sync obligation if the table ever changes.
@@ -425,11 +424,11 @@ def _parse_budget(block: str):
     return line, _BUDGET_RE.search(line)
 
 
-@register_check("build-session/budget-line-arithmetic", "build-session")
+@register_check("combat-generator/budget-line-arithmetic", "combat-generator")
 def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
     """The `Budget:` line's arithmetic holds — per-char × N = budget, and
-    spent ≤ budget (`build-session/session-page-format.md` — "<per-char> × <N> =
-    **<budget>**"; `build-session/combat.md` — "multiply by party size"). The two are independent
+    spent ≤ budget (`lib/encounter-meta-format.md` — "<per-char> × <N> =
+    **<budget>**"; `combat-generator/SKILL.md` — "multiply by party size"). The two are independent
     fixes, so each violation is its own finding."""
     location = "> [!encounter-meta] block, `Budget:` line"
     block = _extract_encounter_meta_block(artifact)
@@ -443,7 +442,7 @@ def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
     if perchar * n != budget:
         findings.append(
             Finding(
-                check_id="build-session/budget-line-arithmetic",
+                check_id="combat-generator/budget-line-arithmetic",
                 expected=f"per-char × N = budget: {perchar} × {n} = {perchar * n}",
                 actual=f"stated budget {budget}",
                 output_location=location,
@@ -454,7 +453,7 @@ def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
         if spent > budget:
             findings.append(
                 Finding(
-                    check_id="build-session/budget-line-arithmetic",
+                    check_id="combat-generator/budget-line-arithmetic",
                     expected=f"spent ≤ budget ({budget})",
                     actual=f"spent {spent} exceeds budget by {spent - budget}",
                     output_location=location,
@@ -463,10 +462,10 @@ def check_budget_line_arithmetic(artifact: str) -> List[Finding]:
     return findings
 
 
-@register_check("build-session/per-char-matches-budget-table", "build-session")
+@register_check("combat-generator/per-char-matches-budget-table", "combat-generator")
 def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
     """The per-char figure matches the SRD 5.2 budget table for that level ×
-    difficulty (`build-session/xp-budget.md` — "Cross-reference party level
+    difficulty (`combat-generator/xp-budget.md` — "Cross-reference party level
     with difficulty on the table below"). The band must be Low/Moderate/High — a
     stray band (`Hard`) has no column and is itself the defect."""
     location = "> [!encounter-meta] block, `Budget:` line"
@@ -482,7 +481,7 @@ def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
     if band not in _BUDGET_BANDS:
         return [
             Finding(
-                check_id="build-session/per-char-matches-budget-table",
+                check_id="combat-generator/per-char-matches-budget-table",
                 expected=f"difficulty ∈ {{{', '.join(_BUDGET_BANDS)}}} (budget bands)",
                 actual=f"difficulty {raw_band!r} names no column in the budget table",
                 output_location=location,
@@ -495,7 +494,7 @@ def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="build-session/per-char-matches-budget-table",
+            check_id="combat-generator/per-char-matches-budget-table",
             expected=f"per-char {expected} ({band}, level {level})",
             actual=f"stated per-char {perchar}",
             output_location=location,
@@ -503,10 +502,10 @@ def check_per_char_matches_budget_table(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("build-session/distinct-stat-block-cap", "build-session")
+@register_check("combat-generator/distinct-stat-block-cap", "combat-generator")
 def check_distinct_stat_block_cap(artifact: str) -> List[Finding]:
     """Never more than three distinct stat blocks in one encounter — the
-    hard rule (`build-session/xp-budget.md` — "Never put more than **three
+    hard rule (`combat-generator/xp-budget.md` — "Never put more than **three
     distinct stat blocks** in one encounter"). Copies of a type are fine; it's
     the number
     of *kinds* that is capped."""
@@ -526,7 +525,7 @@ def check_distinct_stat_block_cap(artifact: str) -> List[Finding]:
     names = ", ".join(sorted({c.name for c in creatures}))
     return [
         Finding(
-            check_id="build-session/distinct-stat-block-cap",
+            check_id="combat-generator/distinct-stat-block-cap",
             expected="≤ 3 distinct stat blocks (hard rule)",
             actual=f"{len(distinct)} distinct stat blocks: {names}",
             output_location=location,
@@ -534,11 +533,11 @@ def check_distinct_stat_block_cap(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("build-session/stat-block-refs-on-enemies-line", "build-session")
+@register_check("combat-generator/stat-block-refs-on-enemies-line", "combat-generator")
 def check_enemies_carry_stat_block_reference(artifact: str) -> List[Finding]:
     """Every creature on the `Enemies:` line carries a `{monster:Name}` token
     or a stat-block link; a bare name is a filing defect
-    (`build-session/combat.md` — "a bare creature name is a filing defect")."""
+    (`combat-generator/SKILL.md` — "a bare creature name is a filing defect")."""
     location = "> [!encounter-meta] block, `Enemies:` line"
     block = _extract_encounter_meta_block(artifact)
     if block is None:
@@ -551,7 +550,7 @@ def check_enemies_carry_stat_block_reference(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="build-session/stat-block-refs-on-enemies-line",
+            check_id="combat-generator/stat-block-refs-on-enemies-line",
             expected="every creature carries `{monster:Name}` or a stat-block link",
             actual="bare creature name(s): " + ", ".join(bare),
             output_location=location,
@@ -575,10 +574,10 @@ def _spotlight_texture(block: str):
     return line, (m.group(1).lower() if m else None)
 
 
-@register_check("build-session/spotlight-texture-in-palette", "build-session")
+@register_check("combat-generator/spotlight-texture-in-palette", "combat-generator")
 def check_spotlight_texture_in_palette(artifact: str) -> List[Finding]:
     """The `Spotlight:` line names a texture from the palette — aimed /
-    puzzle / steamroll / plain / curveball (`build-session/combat.md` —
+    puzzle / steamroll / plain / curveball (`combat-generator/SKILL.md` —
     "aimed / puzzle / steamroll / plain / curveball")."""
     location = "> [!encounter-meta] block, `Spotlight:` line"
     block = _extract_encounter_meta_block(artifact)
@@ -591,7 +590,7 @@ def check_spotlight_texture_in_palette(artifact: str) -> List[Finding]:
         return []
     return [
         Finding(
-            check_id="build-session/spotlight-texture-in-palette",
+            check_id="combat-generator/spotlight-texture-in-palette",
             expected="a texture from {" + ", ".join(_SPOTLIGHT_PALETTE) + "}",
             actual=f"leading texture {texture!r}" if texture else "no texture word",
             output_location=location,
@@ -599,10 +598,10 @@ def check_spotlight_texture_in_palette(artifact: str) -> List[Finding]:
     ]
 
 
-@register_check("build-session/targeted-spotlight-names-target-and-staging", "build-session")
+@register_check("combat-generator/targeted-spotlight-names-target-and-staging", "combat-generator")
 def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Finding]:
     """An aimed or puzzle fight names *whom* it shoots at and carries a
-    staging clause (`build-session/combat.md` — "if aimed or puzzle, who it
+    staging clause (`combat-generator/SKILL.md` — "if aimed or puzzle, who it
     shoots at and the staging that fires their ability"). Structural presence
     only — that
     the staging actually *fires* the ability is a judgement facet, not checked
@@ -624,7 +623,7 @@ def check_targeted_spotlight_names_target_and_staging(artifact: str) -> List[Fin
         return []
     return [
         Finding(
-            check_id="build-session/targeted-spotlight-names-target-and-staging",
+            check_id="combat-generator/targeted-spotlight-names-target-and-staging",
             expected=f"an {texture} spotlight names a target and a staging clause",
             actual="missing " + " and ".join(missing),
             output_location=location,
