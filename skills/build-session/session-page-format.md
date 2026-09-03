@@ -143,8 +143,8 @@ page — a named gap is prep information; a silent one is a defect.
   positions start from the layout's room centers but are verified
   against the drawn render — rooms drift in generation.
 - **A keyed site carries its map.** A session page with keyed areas
-  **embeds its rendered map** — required, not polish. The per-key exits
-  enumeration is abolished (*Connections, not an edge table*, below) and
+  **embeds its rendered map** — required, not polish. A keyed area
+  carries no exits list (*Connections, not an edge table*, below) and
   the edge table itself is machine state no DM ever sees, so **the room
   prose and the map are the only human-readable topology the site has**.
   A keyed page with no map is therefore **silent data loss — a keyed
@@ -252,7 +252,7 @@ page — a named gap is prep information; a silent one is a defect.
   terrain line. A page that says `E7` points the DM at an identifier the page
   will not resolve. **Keyed-area IDs are unaffected** — `T1`, `N3` and their
   kin stay in prose, because they resolve visually against the hotspot map.
-  **The per-key exits enumeration is abolished, not de-coded.**
+  **A keyed area carries no exits list.**
   Connections appear in the room's own prose, and only where the connection is
   narratively relevant — never as an inventory of every way out. The
   connection's type (open, door, locked,
@@ -387,8 +387,8 @@ Walk every box; each points at the authority it checks against:
       keyed map — a superseded site illustration alongside it is the
       same defect.
 - [ ] The page has keyed areas only if it also embeds their rendered map
-      (see *A keyed site carries its map*) — with the exits enumeration
-      gone, a keyed site with no map leaves the DM no topology to read.
+      (see *A keyed site carries its map*) — with no exits list, a keyed
+      site with no map leaves the DM no topology to read.
 - [ ] The keyed site's edge table is on the page and concealed inside an
       HTML comment, and no edge ID survives anywhere a DM reads — exits,
       body prose, sidebars, encounter-meta blocks. No per-key exits list

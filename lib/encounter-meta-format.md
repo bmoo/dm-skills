@@ -39,5 +39,4 @@ above is what the code reads: build-session's parser
 (`scripts/session_parser.py`) reads the callout, the mechanical checker
 (`lib/mechanical-checker/`) asserts its six labels, and campaign repos may
 build tooling that parses it. Changing the shape is a breaking change, and
-every reader is held to this file rather than to a copy of it (library sync
-obligations: `docs/campaign-contract.md`).
+every reader is held to this file rather than to a copy of it.

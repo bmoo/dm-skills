@@ -22,8 +22,7 @@ site need not share a scale.
   session page — offer the render the same way Step 8 offers filing.
   Never before filing: the render consumes the *filed* edge list.
 - **Standalone:** against a **session page** that already carries an
-  `## Edges (render-ready)` section — the accepted edge case for sites
-  filed before this step existed. Invoked directly — "render the map for
+  `## Edges (render-ready)` section. Invoked directly — "render the map for
   \<site\>" — with no other step of this skill in play. No node page need
   exist: a site built out on an unplayed session page renders from that page
   alone.
@@ -52,15 +51,14 @@ The render consumes two sections of the page carrying the filed edge list:
 The edge section is filed **concealed** — the whole section, heading
 included, inside an HTML comment — because it is machine state and never
 DM-visible. This render reads raw markdown, so the concealment is invisible
-to it and the section parses exactly as it always did.
+to it and the section parses unchanged.
 
 **Token strictness:** everything before the first em-dash in the Type column
 MUST be typed tokens from the vocabulary above — the em-dash is the boundary;
 after it is annotation, free prose. The slate is derived mechanically from
 the tokens, so an attribute that lives only in prose is invisible to
-verification — how a secret chute got silently dropped once. If a page's
-edge list predates this contract, tighten the Type column first and show the
-DM the diff.
+verification. If a page's Type column carries an attribute only in prose,
+tighten it first and show the DM the diff.
 
 Endpoint notation: `—` is an interior edge, `→` marks an edge crossing the
 site boundary (an entrance), written whichever direction reads naturally —
@@ -68,12 +66,12 @@ it is **not** a one-way marker. Only the `one-way` modifier restricts travel.
 
 ## Step R1 — Draw the wireframe anchor
 
-**The model preserves what it is handed and ignores what it is told** — so
-hand it *everything*. The anchor is not a blank grid but a **programmatic
+**The image model preserves what it is handed far more reliably than what it
+is told** — so hand it *everything*. The anchor is a **programmatic
 wireframe** — grey room floors, walls derived from the edge list, room-ID
-labels — so the topology rides the preserved channel too. With a wireframe
-anchor the blank-grid failure classes (merged junctions, corridors landing on
-the nearer room, invented shortcuts) stopped occurring.
+labels — so the topology rides the preserved channel too; that is what keeps
+junctions from merging, corridors from landing on the nearer room, and
+shortcuts from being invented.
 
 Author a layout JSON from the edge list and keyed areas, then draw it:
 
@@ -124,7 +122,7 @@ fix the layout, never fudge it.
   (Shared-wall openings between touching rooms are fine; the crossing
   step opens the wall.)
 
-**Residual risk:** topology errors now concentrate at *tight geometry* —
+**Residual risk:** topology errors concentrate at *tight geometry* —
 long hugging crawls and mid-corridor junctions. Expect that edge class to
 need a re-roll, a targeted edit pass, or a conscious amendment.
 
@@ -219,14 +217,16 @@ with a bold red S beside it, labeled '↑ ⟨destination⟩'".
 
 ## Step R3 — Generate
 
-Reuse the `campaign-art` generator, wireframe attached as the reference
-(this switches it to the edits endpoint, which is the point):
+Reuse the `campaign-art` skill's generator — if that skill is installed;
+without it, name the render as a gap and stop — wireframe attached as the
+reference (this switches it to the edits endpoint, which is the point).
+Save into the repo's media directory, the same one campaign-art discovers:
 
 ```bash
-python3 .claude/skills/campaign-art/scripts/generate_image.py \
+python3 <the campaign-art skill's folder>/scripts/generate_image.py \
   --prompt "<the Step R2 prompt>" \
   --reference <scratch>/wireframe.png \
-  --output Media/images/<site-basename>-map.png \
+  --output <media-dir>/<site-basename>-map.png \
   --size <same WIDTHxHEIGHT> --quality high
 ```
 
@@ -310,7 +310,7 @@ DM enters the loop; amendments never escalate.
 
 On a fully passing (or amend-resolved) slate:
 
-1. Image is already at `Media/images/<site-basename>-map.png` (match the
+1. Image is already at `<media-dir>/<site-basename>-map.png` (match the
    basename of the page the site is built out on; `-map` suffix).
 2. Embed on the **session page** the site is built out on — session-scoped
    output by the same test that keeps the edge table off a node page. It

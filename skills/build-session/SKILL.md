@@ -113,9 +113,8 @@ weak ones, and nothing downstream would notice.
 
 **Where the brief is silent — here and at every step below — take it in
 this order: derive it from the record · draw on the wider corpus · invent
-where both are silent.** Silence never stops the run; deriving is the
-read this step has always made — what did the last session's ending make
-likely?
+where both are silent.** Silence never stops the run; deriving means asking
+what the last session's ending made likely.
 
 **A subject a Locked line names is not silence.** On that subject the page
 asserts nothing the brief or the campaign record does not already supply —
@@ -357,7 +356,7 @@ shared verification protocol in [`verification.md`](verification.md),
 which owns the self-heal loop, the unhealable escalation, and the
 file-nothing rule: the DM's yes in Step 8 stays the sole trigger that
 writes to a page. Where a checklist item and the method doc disagree,
-the method doc wins; the brief wins over both, per Step 0.
+the method doc wins; the brief wins over both, per Step 1.
 
 **Inherit, don't re-check.** The fights and keyed sites on the page
 arrived already self-checked by the builds that made them (the

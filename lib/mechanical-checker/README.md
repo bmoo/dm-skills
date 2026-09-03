@@ -178,10 +178,10 @@ log_finding("build-session", "build-session/skeleton-sections-in-order",
             "mechanical", "healed", 1, "the roster table")
 ```
 
-It exists because "it is telemetry" used to mean "it is discarded." A check that heals on
-*every* run is a generator systematically emitting the wrong thing while the
-checker silently corrects it and nobody is told; the deterministic tier is the
-only place with a perfect record of that and, until now, no way to report it.
+A check that heals on *every* run is a generator systematically emitting the
+wrong thing while the checker silently corrects it and nobody is told; the
+deterministic tier is the only place with a perfect record of that, and this
+log is where it reports it.
 
 - **Append-only JSONL**, one record per line, at
   `.claude/validator-findings/findings.jsonl` **relative to the working
@@ -216,8 +216,7 @@ only place with a perfect record of that and, until now, no way to report it.
   prep session. So the write never aborts the loop — the return value reports
   whether it landed — but every failure also **says so on `stderr`, carrying the
   record it lost**, so the line can be re-appended by hand and a lost write stops
-  being indistinguishable from a write nobody attempted
-. A bare `stderr` write
+  being indistinguishable from a write nobody attempted. A bare `stderr` write
   rather than `warnings.warn`, which dedups per call site and would hide the second
   through Nth loss — the ones that say *systematic*. *Caller* mistakes — an unknown
   tier, a disposition that tier cannot produce — still raise `ValueError`.
@@ -227,8 +226,7 @@ only place with a perfect record of that and, until now, no way to report it.
   repo, and the append declines and names the directory it was standing in instead
   of building the tree there and reporting success. Only the default is
   second-guessed — an explicit `path=` is taken at its word.
-- **Reading is out of scope**, tracked separately as
-  **Reading is a separate reporting concern:** recurrence ranking is a
+- **Reading is out of scope.** Recurrence ranking is a
   `GROUP BY inventory_row` over this file, and regression detection additionally
   joins it against *this* repo's git history for when a fix landed.
 
@@ -240,9 +238,7 @@ finding, then a finding record for each — healed and unhealable alike. A calle
 that imports `run_checks`, reads the findings and stops has done the *checking* and
 none of the *recording*, and nothing in the return value hints at it: `run_checks`
 is pure by contract, so its findings are correct, the output is correct, and the
-run leaves no trace. That is exactly how a full prep session's telemetry was
-generated and discarded while
-the absence read as *not enough runs yet*.
+run leaves no trace.
 
 This note is a mitigation, **not a detection**. A run that never enters this
 module cannot be caught from inside it — nothing was called that could notice. What
