@@ -39,8 +39,7 @@ the sized encounter block it produces. Its `xp-budget.md` and
 complication menu. What Step 5 does load is
 [`spotlight-doctrine.md`](spotlight-doctrine.md) and
 [`class-patterns.md`](class-patterns.md) beside this file, for the textures
-you rotate across the site (library sync obligations:
-`docs/campaign-contract.md`).
+you rotate across the site.
 
 ## Inputs
 
@@ -125,7 +124,7 @@ vertical (sub-type: stairs, shaft-chute, ladder, or slope) — plus any
 (vertical edges only, read against the written endpoint order). `grate` is
 anything the players can sense through but not travel through — bars, a
 portcullis, a window. Attributes always ride as typed modifiers, never in
-prose alone: a prose-only "secret" has been silently dropped before. The
+prose alone: a prose-only attribute is invisible to the slate and the render. The
 edge list is the map — keep it complete enough to render from; rendering it
 (ASCII, image) is a separate later job.
 
@@ -368,11 +367,8 @@ the DM says to keep it. On the yes, run this checklist:
   The label is deliberately distinct from a fight's encounter-meta
   `Spotlight:` field — a scene line must never read as a fight in the
   variety ledger — and every line names its target PC. The shape is
-  specified once, and not here: *Spotlight lines* in `build-session`'s
-  [`session-page-format.md`](session-page-format.md#conventions).
-  This is a **citation, not a file to open at run time** — you already know
-  the shape; the pointer is where a shape change lands (library sync
-  obligations: `docs/campaign-contract.md`). The session's plan is
+  *Spotlight lines* in `build-session`'s
+  [`session-page-format.md`](session-page-format.md#conventions). The session's plan is
   transient; these annotations plus the encounter-meta lines are the whole
   record of what was aimed where, and catch-up reconciles from them.
 - [ ] Every planted lead gets **both-ends** bookkeeping, and revelation
@@ -395,5 +391,4 @@ the verification slate (with its re-roll and escalation policy), and filing
 via the `[!map]` callout.
 
 The step also runs **standalone** against a session page that already has an
-`## Edges (render-ready)` section — the way sites filed before this step
-existed get their maps.
+`## Edges (render-ready)` section.

@@ -277,7 +277,7 @@ functional-prose rule as Step 7 states it, under the id
 Then **offer**, but don't assume: to file the encounter into wherever this repo
 keeps session prep or the location page, and to log it if the repo keeps a
 change log. On an exhausted loop this same offer carries the surviving
-findings; with no findings it reads exactly as it always has. A generated fight
+findings; with no findings the offer is unchanged. A generated fight
 stays a chat prep aid until the DM says to keep it. Wait for the yes — and
 when a caller with a wider build embeds the block, the one offer belongs to
 that caller, made once for the whole work.
@@ -303,9 +303,7 @@ encounter without one.**
 **The block's shape is specified once, and not here.** It lives at
 [`encounter-meta-format.md`](encounter-meta-format.md) beside this file —
 the template, its required labels, and the shape both the library's parser
-and the deterministic checker are pinned to. A **citation, not a file to
-open at run time** — you already know the shape; the pointer is where a
-shape change lands (library sync obligations: `docs/campaign-contract.md`).
+and the deterministic checker are pinned to.
 
 What this skill owns is what goes *in* those fields. **Every creature name — on
 the `Enemies:` line and in the surrounding terrain/tactics prose — is written

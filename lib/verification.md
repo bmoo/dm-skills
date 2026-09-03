@@ -84,4 +84,4 @@ where each promise is stated, named by their stable check ids.
   quoted spans, and your outcome ledger: *"N issues I couldn't
   resolve — file anyway, or take over."* — in the same enriched list
   as any unhealed mechanical escalation from Part 1. An `approve`
-  leaves the offer indistinguishable from today's.
+  leaves the offer unchanged.

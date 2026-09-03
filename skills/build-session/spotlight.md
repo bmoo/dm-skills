@@ -23,8 +23,7 @@ materialise here by symlink (`lib/`):
 The keyed-site procedure and the `combat-generator` skill load both files
 for their texturing steps, and `party-sync` loads
 [`spotlight-doctrine.md`](spotlight-doctrine.md) for its sync-time flagging.
-Changing their shape is a breaking change (library sync obligations:
-`docs/campaign-contract.md`).
+Changing their shape is a breaking change.
 
 ## The data ladder
 

@@ -53,7 +53,6 @@ and the two stop being the same thing. Skipping it — or driving `run_checks`
 straight from an import and never opening this file — discards the run silently:
 `run_checks` is pure by contract, so the findings look right, the output looks
 right, and nothing anywhere says the record was lost. That is the failure.
-records, and it cost a full prep session's telemetry.
 
 Four properties are load-bearing and are **decisions, not tuning surfaces**:
 
@@ -65,7 +64,7 @@ re-adds the missing line, re-sources a bare creature name — and then **re-runs
 check** to confirm the fix held. A check that returns no finding is *certain* to
 hold (a compiler does not hedge), so a healed finding is **pure telemetry**:
 appended to the findings log for the maintainer's later analysis, **never surfaced
-to the DM**. The DM is not asked to adjudicate arithmetic (spec user story 2).
+to the DM**. The DM is not asked to adjudicate arithmetic.
 
 Silent to the DM is **not** the same as discarded. A check that heals on *every*
 run is a generator systematically emitting the wrong thing — the defect class no
@@ -91,7 +90,7 @@ Those survivors become the
 — a **list**, one entry per surviving check, each carrying the `Finding`'s four
 fields (`check_id`, `expected`, `actual`, `output_location`) **plus
 `heal-attempts-tried`** (what the generator already tried, so the DM acts without
-re-deriving it; spec user story 3). **No confidence field** — the deterministic
+re-deriving it). **No confidence field** — the deterministic
 tier is certain by construction. This list is surfaced to the DM as part of the
 enriched file-offer, in the same dialect as the judgement tier's surviving findings
 so the DM reads one list, not two.
@@ -104,12 +103,11 @@ findings out, zero I/O. The one thing that touches disk is `log_finding` /
 `log_run`, appending out-of-band telemetry to
 [the findings log](README.md#the-findings-log--where-telemetry-actually-goes)
 **after** a verdict is already settled — it alters no output, feeds nothing back
-into a check, and files nothing ( narrows the guarantee to exactly this).
+into a check, and files nothing.
 The whole loop runs over the
 generator's **drafted output held in context**, before the file-offer forms. A run
-whose checks all pass (or all heal silently) offers to file **exactly as the skill
-does today** — no escalation, no trace of the loop. The DM's yes remains the only
-thing that writes to a page (spec user story 8).
+whose checks all pass (or all heal silently) offers to file with no escalation and no trace of the loop. The DM's yes remains the only
+thing that writes to a page.
 
 ## Where it sits in the generator
 
