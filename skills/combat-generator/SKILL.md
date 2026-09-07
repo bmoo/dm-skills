@@ -57,6 +57,8 @@ restate them, so skip to Step 3 when they all arrive:
 - the party and each PC's Spotlight profile (Step 2's read);
 - the difficulty band — Low / Moderate / High (the caller's pick, not a
   default);
+- the desired enemy-turn count or range, including expected absences and
+  optional independently acting allies;
 - the fight's **allocated spotlight beat** — its texture and, if aimed or
   puzzle, the target PC, when the caller runs a spotlight plan spanning more
   than this fight. Such a plan is the caller's transient state, never read
@@ -144,8 +146,10 @@ via the sourcing chain, and spend toward the budget without going over,
 honoring the **action-economy guardrails** in the budget reference — shape vs.
 party size, the three-monster-type cap, CR spikes.
 
-Show the arithmetic — each creature, its XP, the running total, the remainder.
-The fight is sized when the math is on the page and under budget.
+Set the turn target from `xp-budget.md` before choosing creature CRs. Show
+the arithmetic — each creature, its XP, the running total, the remainder.
+The fight is sized when it fits both the XP ceiling and the stated turn target,
+with any exception explained and the control-resilience check completed.
 
 ## Step 5 — Give the fight a texture (spotlight doctrine)
 
@@ -206,6 +210,10 @@ Present the encounter in chat as a runnable block:
 - **Header** — node, party level & size, difficulty, total XP budget.
 - **Enemies** — each creature with its XP and the budget math; the total vs.
   budget.
+- **Turns** — starting and peak enemy turns, PC and allied turns, total round
+  workload, and expected-absence roster; put the compact summary in `Note:`
+  when filing. State what remains after losing an actor or catching a group
+  in control, per the budget reference.
 - **Terrain & setup** — where they are, elevation/cover/hazards, how the fight
   opens. Multi-level terrain shows which enemies and cover sit on which level,
   not just that the room has levels.
@@ -263,13 +271,15 @@ combat-generator/ qualifier>])`. Each id is one promise:
 | `targeted-spotlight-names-target-and-staging` | an aimed or puzzle spotlight names whom it shoots at and carries its staging clause |
 | `floating-terrain-roles` | **floating form only** — the `Terrain:` line is role-form: `needs:` plus two or more terrain roles |
 
-**The fresh check** (Part 2) grades the two criteria this skill owns, as
+**The fresh check** (Part 2) grades the criteria this skill owns, as
 its own text states them — the prose-reference rule in *Filing format*
 below and the fragile-creatures rule in
 [`xp-budget.md`](xp-budget.md) — named by their stable check ids
 `[combat-generator/stat-block-refs-in-prose,
 combat-generator/swarm-carries-fragile-creatures]`, with the party roster as
-the checker's third input. A **floating** fight adds a third criterion, the
+the checker's third input. Also grade the turn-target, actual-turn counting,
+control-resilience, and participant-pricing criteria in `xp-budget.md` under
+`combat-generator/turn-economy` (judgement, not a registered mechanical check). A **floating** fight also grades the
 functional-prose rule as Step 7 states it, under the id
 `combat-generator/floating-functional-prose` — and drops
 `stat-block-refs-in-prose`, whose prose names no creatures to reference.
