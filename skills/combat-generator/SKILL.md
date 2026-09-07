@@ -35,8 +35,8 @@ Reference files sit beside this one; load each when its step says to:
 
 - [`xp-budget.md`](xp-budget.md) — the SRD 5.2 budget table and the
   action-economy guardrails.
-- [`encounter-design.md`](encounter-design.md) — skill-authored tempo defaults,
-  turn counting, control resilience, and participant accounting; load in Step 4.
+- [`encounter-design.md`](encounter-design.md) — skill-authored encounter-shape guidance,
+  turn counting, control opportunities, and participant accounting; load in Step 4.
 - [`complications.md`](complications.md) — the menu of complications.
 - [`spotlight-doctrine.md`](spotlight-doctrine.md) and
   [`class-patterns.md`](class-patterns.md) — spotlight doctrine: the data
@@ -148,12 +148,12 @@ via the sourcing chain, and spend toward the budget without going over,
 honoring the **action-economy guardrails** in the budget reference — shape vs.
 party size, the three-monster-type cap, CR spikes.
 
-Open [`encounter-design.md`](encounter-design.md) and set the turn target
-before choosing creature CRs. Its pacing defaults are skill guidance, separate
-from the SRD budget method. Show
-the arithmetic — each creature, its XP, the running total, the remainder.
-The fight is sized when it fits both the XP ceiling and the stated turn target,
-with any exception explained and the control-resilience check completed.
+Open [`encounter-design.md`](encounter-design.md) and choose the encounter’s
+shape and intended tempo before choosing creature CRs. Its pacing defaults
+are skill guidance, separate from the SRD budget method. Show the arithmetic —
+each creature, its XP, the running total, the remainder. The fight is sized
+when it fits the XP ceiling, honors the caller’s stated constraints, and its
+turn workload and opportunities for control suit the intended experience.
 
 ## Step 5 — Give the fight a texture (spotlight doctrine)
 
@@ -216,8 +216,8 @@ Present the encounter in chat as a runnable block:
   budget.
 - **Turns** — starting and peak enemy turns, PC and allied turns, total round
   workload, and expected-absence roster; put the compact summary in `Note:`
-  when filing. State what remains after losing an actor or catching a group
-  in control, per `encounter-design.md`.
+  when filing. Describe what control of an actor or group opens up for the
+  party and how it changes the fight, per `encounter-design.md`.
 - **Terrain & setup** — where they are, elevation/cover/hazards, how the fight
   opens. Multi-level terrain shows which enemies and cover sit on which level,
   not just that the room has levels.
@@ -281,8 +281,8 @@ below and the fragile-creatures rule in
 [`xp-budget.md`](xp-budget.md) — named by their stable check ids
 `[combat-generator/stat-block-refs-in-prose,
 combat-generator/swarm-carries-fragile-creatures]`, with the party roster as
-the checker's third input. Also grade the turn-target, actual-turn counting,
-control-resilience, and participant-pricing criteria in
+the checker's third input. Also grade the encounter-shape, actual-turn counting,
+control-opportunity, and participant-accounting criteria in
 [`encounter-design.md`](encounter-design.md) under
 `combat-generator/turn-economy` (judgement, not a registered mechanical check).
 A **floating** fight also grades the
