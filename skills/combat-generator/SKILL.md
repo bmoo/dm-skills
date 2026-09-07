@@ -35,6 +35,8 @@ Reference files sit beside this one; load each when its step says to:
 
 - [`xp-budget.md`](xp-budget.md) — the SRD 5.2 budget table and the
   action-economy guardrails.
+- [`encounter-design.md`](encounter-design.md) — skill-authored tempo defaults,
+  turn counting, control resilience, and participant accounting; load in Step 4.
 - [`complications.md`](complications.md) — the menu of complications.
 - [`spotlight-doctrine.md`](spotlight-doctrine.md) and
   [`class-patterns.md`](class-patterns.md) — spotlight doctrine: the data
@@ -146,7 +148,9 @@ via the sourcing chain, and spend toward the budget without going over,
 honoring the **action-economy guardrails** in the budget reference — shape vs.
 party size, the three-monster-type cap, CR spikes.
 
-Set the turn target from `xp-budget.md` before choosing creature CRs. Show
+Open [`encounter-design.md`](encounter-design.md) and set the turn target
+before choosing creature CRs. Its pacing defaults are skill guidance, separate
+from the SRD budget method. Show
 the arithmetic — each creature, its XP, the running total, the remainder.
 The fight is sized when it fits both the XP ceiling and the stated turn target,
 with any exception explained and the control-resilience check completed.
@@ -213,7 +217,7 @@ Present the encounter in chat as a runnable block:
 - **Turns** — starting and peak enemy turns, PC and allied turns, total round
   workload, and expected-absence roster; put the compact summary in `Note:`
   when filing. State what remains after losing an actor or catching a group
-  in control, per the budget reference.
+  in control, per `encounter-design.md`.
 - **Terrain & setup** — where they are, elevation/cover/hazards, how the fight
   opens. Multi-level terrain shows which enemies and cover sit on which level,
   not just that the room has levels.
@@ -278,8 +282,10 @@ below and the fragile-creatures rule in
 `[combat-generator/stat-block-refs-in-prose,
 combat-generator/swarm-carries-fragile-creatures]`, with the party roster as
 the checker's third input. Also grade the turn-target, actual-turn counting,
-control-resilience, and participant-pricing criteria in `xp-budget.md` under
-`combat-generator/turn-economy` (judgement, not a registered mechanical check). A **floating** fight also grades the
+control-resilience, and participant-pricing criteria in
+[`encounter-design.md`](encounter-design.md) under
+`combat-generator/turn-economy` (judgement, not a registered mechanical check).
+A **floating** fight also grades the
 functional-prose rule as Step 7 states it, under the id
 `combat-generator/floating-functional-prose` — and drops
 `stat-block-refs-in-prose`, whose prose names no creatures to reference.
