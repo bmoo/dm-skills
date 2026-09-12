@@ -1,0 +1,6 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\ntitle: A\ndescription: A campaign concept.\n---\n# A\n\n[Prep](/sessions/prep.md)\n",
+    "sessions/prep.md": "---\ntype: session\ntitle: Prep\ndescription: A campaign concept.\nstatus: stable\n---\n# Prep\n\n\n"
+  }
+}

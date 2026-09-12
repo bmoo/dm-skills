@@ -13,6 +13,7 @@ indexes — regenerate after any batch of wiki changes.
 
 import os
 import sys
+sys.dont_write_bytecode = True
 from urllib.parse import quote
 
 import okf_bundle as wiki
@@ -86,14 +87,20 @@ def root_index():
     return "\n".join(lines).rstrip("\n") + "\n"
 
 
-def main():
-    check = "--check" in sys.argv
-    root = wiki.bundle_root()
+def rendered_targets():
+    """Return bundle-relative output paths and contents without writing."""
     targets = {"index.md": root_index()}
     for directory, _, _ in GROUPS:
         if pages_in(directory) or subdirs_of(directory):
             targets[os.path.join(directory, "index.md")] = dir_index(directory)
 
+    return targets
+
+
+def main():
+    check = "--check" in sys.argv
+    root = wiki.bundle_root()
+    targets = rendered_targets()
     stale = []
     for rel, content in sorted(targets.items()):
         full = os.path.join(root, rel)
@@ -102,6 +109,7 @@ def main():
             continue
         stale.append(rel)
         if not check:
+            os.makedirs(os.path.dirname(full), exist_ok=True)
             with open(full, "w", encoding="utf-8") as fh:
                 fh.write(content)
 
