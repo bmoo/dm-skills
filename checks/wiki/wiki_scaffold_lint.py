@@ -13,8 +13,8 @@ Two assertions with stable check ids
 (``lint/wiki-scaffold-starts-green``, ``lint/wiki-scaffold-preflight-covers-template``):
 
 ``starts_green``
-    copy the template to a scratch directory, run its own ``wiki-index.py``,
-    then its own ``wiki-check.py --warnings``. Both must exit 0. This runs the
+    copy the template to a scratch directory, run its own ``okf-index.py``,
+    then its own ``okf-check.py --strict``. Both must exit 0. This runs the
     shipped scripts rather than reimplementing their rules, so the schema and
     its checker can evolve together without this guard needing to learn them —
     it only pins that they still agree about the seed content.
@@ -25,7 +25,7 @@ Two assertions with stable check ids
     top-level entry the template actually ships must be on that list, or the
     copy step would write over a path the preflight promised to guard. The
     comparison is one-directional — ``index.md`` is named without shipping,
-    since ``wiki-index.py`` generates it on the first run — so an *extra* named
+    since ``okf-index.py`` generates it on the first run — so an *extra* named
     path is fine and a *missing* one is not.
 
 **Deliberately dumb**. It does not read the schema, grade a page, or judge the
@@ -72,7 +72,7 @@ class ScaffoldRun:
 
     def report(self) -> str:
         lines = []
-        for label, proc in (("wiki-index.py", self.index), ("wiki-check.py --warnings", self.check)):
+        for label, proc in (("okf-index.py", self.index), ("okf-check.py --strict", self.check)):
             lines.append(f"  {label} → exit {proc.returncode}")
             for stream in (proc.stdout, proc.stderr):
                 for line in (stream or "").splitlines():
@@ -103,8 +103,8 @@ def starts_green(template: Path = TEMPLATE) -> ScaffoldRun:
         # *contents* and the CLI dereferences the skill's own symlink on install,
         # so what a consumer gets is always real files.
         shutil.copytree(template, root)
-        index = _run("wiki-index.py", root)
-        check = _run("wiki-check.py", root, "--warnings")
+        index = _run("okf-index.py", root)
+        check = _run("okf-check.py", root, "--strict")
     return ScaffoldRun(index=index, check=check)
 
 

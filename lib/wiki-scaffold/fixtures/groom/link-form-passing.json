@@ -1,0 +1,6 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\ntitle: A\ndescription: A campaign concept.\n---\n# A\n\n[B](/nodes/npcs/b.md)\n",
+    "nodes/npcs/b.md": "---\ntype: npc\ntitle: B\ndescription: A campaign concept.\n---\n# B\n\n\n"
+  }
+}

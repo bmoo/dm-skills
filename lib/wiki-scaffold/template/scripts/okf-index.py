@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
-"""Generate the wiki's index layer from page frontmatter.
+"""Generate the bundle's index layer from concept frontmatter.
 
-Writes the repo-root `index.md` (the full catalog) and one `index.md` per
-wiki directory. Every entry's title/description/status comes from the target
-page's own frontmatter, so the catalog cannot drift from the pages it
-indexes — regenerate after any batch of wiki changes.
+Writes the bundle-root `index.md` and the configured directory indexes.
+Concept entries use the target's title and description; regenerate after a
+batch of concept changes.
 
-    python3 scripts/wiki-index.py [--check]
+    python3 scripts/okf-index.py [--check]
 
 --check exits non-zero if the generated output differs from what is on disk.
 """
 
 import os
 import sys
+sys.dont_write_bytecode = True
+from urllib.parse import quote
 
-import wiki_bundle as wiki
-from wiki_config import GROUPS, WIKI_INTRO, WIKI_TITLE
+import okf_bundle as wiki
+from okf_config import GROUPS, WIKI_INTRO, WIKI_TITLE
 
-LABEL = dict(GROUPS)
+LABEL = {directory: label for directory, label, _ in GROUPS}
+DESCRIPTION = {directory: description for directory, _, description in GROUPS}
 
 
 def pages_in(directory):
-    """Wiki pages directly inside `directory` (not its subdirectories)."""
+    """Concepts directly inside directory (not its subdirectories)."""
     out = []
     for path in wiki.page_paths():
         if os.path.dirname(path) == directory:
@@ -33,48 +35,46 @@ def pages_in(directory):
 
 
 def subdirs_of(directory):
-    return [d for d, _ in GROUPS
+    return [d for d, _, _ in GROUPS
             if os.path.dirname(d) == directory and d != directory]
 
 
 def entry(link, fm):
     title = str(fm.get("title") or os.path.basename(link)).strip()
     desc = str(fm.get("description", "")).strip()
-    status = str(fm.get("status", "")).strip()
-    line = f"* [{title}]({link})"
-    if status:
-        line += f" — *{status}*"
-    if desc:
-        line += f" - {desc}"
-    return line
+    return f"* [{title}](/{quote(link, safe='/')}) - {desc}"
 
 
 def dir_index(directory):
-    """Index for one directory: subdirectories first, then its pages."""
+    """Index for one directory: subdirectories first, then its concepts."""
     lines = [f"# {LABEL[directory]}", ""]
     subs = subdirs_of(directory)
     if subs:
         for sub in subs:
-            count = len(pages_in(sub))
             name = os.path.basename(sub)
-            noun = "page" if count == 1 else "pages"
-            lines.append(f"* [{LABEL[sub]}]({name}/) - "
-                         f"{count} {noun} in `{sub}/`.")
+            lines.append(f"* [{LABEL[sub]}]({quote(name, safe='')}/) - "
+                         f"{DESCRIPTION[sub]}")
         lines.append("")
     pages = pages_in(directory)
     if pages:
         if subs:
-            lines += [f"# {LABEL[directory]} — pages", ""]
+            lines += [f"# {LABEL[directory]} — concepts", ""]
         for path, fm in pages:
-            lines.append(entry(os.path.basename(path), fm))
+            lines.append(entry(path, fm))
         lines.append("")
     return "\n".join(lines).rstrip("\n") + "\n"
 
 
 def root_index():
-    """The root catalog — every page, grouped, newest metadata."""
-    lines = [f"# {WIKI_TITLE}", "", WIKI_INTRO, ""]
-    for directory, label in GROUPS:
+    """The root catalog — concepts grouped by configured directory."""
+    lines = ['---', 'okf_version: "0.2"', '---', '',
+             f"# {WIKI_TITLE}", "", WIKI_INTRO, ""]
+    root_pages = pages_in("")
+    for path, fm in root_pages:
+        lines.append(entry(path, fm))
+    if root_pages:
+        lines.append("")
+    for directory, label, _ in GROUPS:
         pages = pages_in(directory)
         if not pages:
             continue
@@ -86,14 +86,20 @@ def root_index():
     return "\n".join(lines).rstrip("\n") + "\n"
 
 
-def main():
-    check = "--check" in sys.argv
-    root = wiki.repo_root()
+def rendered_targets():
+    """Return bundle-relative output paths and contents without writing."""
     targets = {"index.md": root_index()}
-    for directory, _ in GROUPS:
+    for directory, _, _ in GROUPS:
         if pages_in(directory) or subdirs_of(directory):
             targets[os.path.join(directory, "index.md")] = dir_index(directory)
 
+    return targets
+
+
+def main():
+    check = "--check" in sys.argv
+    root = wiki.bundle_root()
+    targets = rendered_targets()
     stale = []
     for rel, content in sorted(targets.items()):
         full = os.path.join(root, rel)
@@ -102,6 +108,7 @@ def main():
             continue
         stale.append(rel)
         if not check:
+            os.makedirs(os.path.dirname(full), exist_ok=True)
             with open(full, "w", encoding="utf-8") as fh:
                 fh.write(content)
 

@@ -126,9 +126,11 @@ After the script prints `saved: …`:
    garbled text or obvious artifacts. If it misses, adjust the prompt and re-run
    (or re-run as-is for a different take — generation is non-deterministic).
 2. **Report the embed snippet** for the DM to paste, in standard Markdown
-   image syntax with alt text and a path relative to the target page —
-   e.g. for a page in `nodes/npcs/`:
-   `![Silver Fox](../../Media/images/silver-fox.png)`.
+   image syntax with alt text and the campaign schema's link form. In an
+   OKF bundle, use a path from the bundle root, for example
+   `![Silver Fox](/Media/images/silver-fox.png)` when that is the image's
+   location in the bundle. Otherwise follow the repo's documented link
+   convention; without one, use a path relative to the target page.
 3. **Offer**, but don't assume: to insert the embed at a sensible spot in the
    page and, if the repo keeps a change log, add an entry. Wait for the DM to
    say yes.

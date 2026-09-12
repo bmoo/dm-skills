@@ -2,9 +2,11 @@
 type: story
 title: Campaign Status
 description: The live layer — what is in motion in the Vale, the open threads, and the canonical progress marker.
-tags: [story, live-layer]
-status: active
-timestamp: 2026-08-09
+tags: ["live-layer"]
+status: "stable"
+generated: {"by": "human:brad", "at": "2026-08-09T00:00:00Z"}
+next_session: "2026-08-16"
+stale_after: "2026-08-17T06:00:00-07:00"
 ---
 
 # Campaign Status
@@ -19,13 +21,25 @@ yet in prep.
 - Maren Tallow has paid the 200 gp reward but not yet opened the sealed
   records; she will stall until the evidence forces her.
 
-## Open threads
+<!-- groom-wiki:contradiction:86e245fcf50bf8cc38dc -->
+> [!contradiction] Unresolved: Maren Tallow
+> Here: "Maren Tallow has paid the 200 gp reward but not yet opened the sealed
+>   records; she will stall until the evidence forces her."
+> Other: [Emberwick](/nodes/locations/emberwick.md) (status: stable): "The mayor's posted reward: 200 gp for the cause, named and proven."
+
+<!-- groom-wiki:loose-ends:start -->
+## Loose ends
+
+No orphan nodes.
+<!-- groom-wiki:loose-ends:end -->
+
+### Campaign threads
 
 - The pale figures on the roofline were never identified — the party saw
   the collectors' work, not the collectors.
 - The hedge-witch's "being collected" line has not been followed up.
 - One favor owed: guild caravan passage, once
-  ([Maren Tallow](../nodes/npcs/maren-tallow.md)).
+  ([Maren Tallow](/nodes/npcs/maren-tallow.md)).
 
 ## Revelations
 

@@ -82,3 +82,37 @@ The one campaign-owned, DM-authored file (`.claude/standing-feedback.md` at the
 campaign repo root) of accumulated corrections a generator loads if present.
 Where the DM's judgement accumulates now that corpora are retired.
 _Avoid_: memory file, feedback log
+
+## Campaign wiki
+
+**Concept**:
+A non-reserved Markdown document with YAML frontmatter in the campaign's
+OKF bundle. Session pages, player pages, node pages, and seed inboxes are
+concepts when they belong to that bundle.
+_Avoid_: page as the generic unit in schema or tooling rules; specific
+document names such as “session page” remain in use.
+
+**Bundle**:
+The campaign wiki tree governed by its OKF schema: concepts, reserved
+catalogs and logs, and supporting files within its boundary.
+_Avoid_: repository when referring specifically to the wiki boundary.
+
+**Bundle root**:
+The directory from which the bundle's `/`-form links and concept ids are
+interpreted; it may be the repository root or a directory beneath it.
+_Avoid_: repo root unless those directories actually coincide.
+
+**Concept id**:
+A concept's path within its bundle without the `.md` suffix, such as
+`nodes/npcs/maren-tallow`. The link to that concept is
+`/nodes/npcs/maren-tallow.md`.
+_Avoid_: title, basename, URL, or heading anchor as synonyms for the id.
+
+**Seed**:
+A topic recorded as a heading section in a seed inbox, before it earns its
+own concept. The inbox is one concept; its seeds are not separate concepts.
+
+**Groomer**:
+The campaign wiki maintenance skill, `groom-wiki`, combining mechanical
+maintenance with a judgement pass that places unresolved findings where
+the next reader will meet them.

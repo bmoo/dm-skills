@@ -1,0 +1,36 @@
+---
+type: npc
+title: "Guard: old friend"
+description: A recurring guard.
+tags: [stub, recurring, prep, canon]
+status: active
+timestamp: 2026-08-09T10:23:45Z
+# Campaign extensions keep their exact representation.
+first_seen: '2026-01-02'
+attending:
+  - "Rook"
+  - 'Fern'
+custom:
+  enabled: true
+  count: 007
+  nested: {source: 'human notes', confidence: 0.80}
+---
+
+# Old Guard
+
+[Scout](scout.md "A title") and [council](../../story/council.md#decision).
+![Map](../../media/Town%20Map.svg?size=2#view "Map title")
+[Self](#history), [angle](<Old Guard.md#history>), [encoded](Old%20Guard.md).
+[Reference][friend]
+
+[friend]: scout.md#friends "Reference title"
+
+## History
+
+`[example](scout.md)`
+
+```md
+[example](scout.md)
+```
+
+<!-- [comment](scout.md) -->

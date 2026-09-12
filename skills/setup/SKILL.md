@@ -48,7 +48,9 @@ a smoke-test lookup — or the DM has said the bundled SRD is enough.
 The offer: this library can scaffold an agent-maintained campaign wiki at the
 repo root — a directory skeleton (`nodes/{locations,factions,npcs,events}`,
 `story/`, `sessions/`, `players/`), a self-contained schema doc
-(`wiki-schema.md`), catalog + conformance scripts (`scripts/`), and a
+(`wiki-schema.md`), catalog, conformance, and maintenance scripts
+(`scripts/okf-index.py`, `scripts/okf-check.py`, `scripts/okf-groom.py`, and
+the migration tool `scripts/okf-migrate.py`), and a
 chronological log (`log.md`). Make the offer in those terms and let the DM
 decline: the skills discover whatever shape a campaign repo already has, so a
 repo without the scaffold loses nothing but the head start. A populated
@@ -71,21 +73,31 @@ On acceptance:
    into the repo root, preserving the directory structure. Every file ships
    as-is; the one edit is the next step.
 3. **Name the campaign.** Ask the DM for the campaign's name and set
-   `WIKI_TITLE` in the copied `scripts/wiki_config.py` to it. Everything else
+   `WIKI_TITLE` in the copied `scripts/okf_config.py` to it. Everything else
    in that file is a documented default the DM can revisit later.
 4. **Offer the CLAUDE.md block.** Show the DM the full text of
    `wiki-scaffold/claude-md-block.md` and ask whether to append it to the
    campaign repo's `CLAUDE.md` — it is the standing behavior that keeps the
-   wiki alive between skill runs (facts → pages, questions → wiki-first, log,
+   wiki alive between skill runs (facts → concepts, questions → wiki-first, log,
    regenerate, check). With consent, append it verbatim, creating `CLAUDE.md`
    if the repo has none. If declined, the scaffold stands anyway —
-   `wiki-schema.md` still governs pages, and the block can be appended on a
+   `wiki-schema.md` still governs concepts, and the block can be appended on a
    rerun.
-5. **Start green.** From the repo root run `python3 scripts/wiki-index.py`,
-   then `python3 scripts/wiki-check.py --warnings`. The phase is done when
+5. **Start green.** From the repo root run `python3 scripts/okf-index.py`,
+   then `python3 scripts/okf-check.py --strict`. The phase is done when
    the check exits clean — zero errors, zero warnings — on the freshly
    generated catalog. Anything it flags on a fresh copy is yours to fix
    before handing over, not the DM's.
+
+For later maintenance, `/groom-wiki` (if installed) runs the mechanical
+fixes and reads the wiki for findings that need judgement. Its
+`--dry-run` mode writes nothing. `python3 scripts/okf-groom.py` is the
+mechanical report-only entry point; add `--fix` to apply its safe fixes.
+Run it after session absorption through catch-up, or on demand; the first
+run after a migration is on demand, starting with `/groom-wiki --dry-run`.
+Setup's start-green gate remains the index generator and strict checker.
+`SESSION_WEEKDAY` stays unset by default; it can later be set in the config
+so catch-up can propose the next date under the schema's session horizon.
 
 Close by pointing the DM at `wiki-schema.md` as the wiki's schema and
 suggesting they commit the scaffold as its own commit, so campaign content

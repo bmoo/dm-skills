@@ -39,7 +39,7 @@ def test_preflight_guards_every_shipped_path_over_the_real_tree():
 
 def test_preflight_list_parses_to_the_paths_the_skill_names():
     named = preflight_paths()
-    # index.md is named but never shipped — wiki-index.py generates it. Its
+    # index.md is named but never shipped — okf-index.py generates it. Its
     # presence is what makes the shipped-subset-of-named direction the right one.
     assert "index.md" in named
     assert {"nodes", "story", "sessions", "players", "scripts"} <= named

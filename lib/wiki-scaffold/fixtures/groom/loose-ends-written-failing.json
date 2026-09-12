@@ -1,0 +1,6 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\ntitle: A\ndescription: A campaign concept.\n---\n# A\n\n\n",
+    "story/campaign-status.md": "---\ntype: story\ntitle: Live\ndescription: A campaign concept.\n---\n# Live\n\nBefore.\n\n<!-- groom-wiki:loose-ends:start -->\nOld stuff.\n<!-- groom-wiki:loose-ends:end -->\n\nAfter.\n"
+  }
+}

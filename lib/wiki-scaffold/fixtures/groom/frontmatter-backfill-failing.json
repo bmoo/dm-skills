@@ -1,0 +1,5 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\n---\n# A\n"
+  }
+}
