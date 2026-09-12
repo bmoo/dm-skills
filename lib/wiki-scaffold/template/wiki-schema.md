@@ -18,10 +18,12 @@ form; section references below (§4.1, §5, …) are the spec's own. Everything
 else in this file is campaign convention layered on top, and where this file
 is stricter than the spec, the stricter rule wins here.
 
-OKF's words are used throughout: a **concept** is any markdown file carrying
-frontmatter (what the skills have called a page), and the **bundle** is this
-directory tree, whose **bundle root** is the repo root. A concept's **id** is
-its path within the bundle without the `.md` suffix.
+OKF's words are used throughout: a **concept** is a non-reserved markdown
+document with YAML frontmatter (what the skills have called a page), and the
+**bundle** is this directory tree, whose **bundle root** is the repo root in
+this scaffold. A concept's **id** is its path within the bundle without the
+`.md` suffix. Reserved indexes and logs belong to the bundle, not its set of
+concepts.
 
 ## Layout
 

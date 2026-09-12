@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the wiki's index layer from page frontmatter.
+"""Generate the bundle's index layer from concept frontmatter.
 
-Writes the repo-root `index.md` (the full catalog) and one `index.md` per
-wiki directory. Every entry's title/description comes from the target
-concept's own frontmatter, so the catalog cannot drift from the concepts it
-indexes — regenerate after any batch of wiki changes.
+Writes the bundle-root `index.md` and the configured directory indexes.
+Concept entries use the target's title and description; regenerate after a
+batch of concept changes.
 
     python3 scripts/okf-index.py [--check]
 
@@ -24,7 +23,7 @@ DESCRIPTION = {directory: description for directory, _, description in GROUPS}
 
 
 def pages_in(directory):
-    """Wiki pages directly inside `directory` (not its subdirectories)."""
+    """Concepts directly inside directory (not its subdirectories)."""
     out = []
     for path in wiki.page_paths():
         if os.path.dirname(path) == directory:
@@ -47,7 +46,7 @@ def entry(link, fm):
 
 
 def dir_index(directory):
-    """Index for one directory: subdirectories first, then its pages."""
+    """Index for one directory: subdirectories first, then its concepts."""
     lines = [f"# {LABEL[directory]}", ""]
     subs = subdirs_of(directory)
     if subs:
@@ -59,7 +58,7 @@ def dir_index(directory):
     pages = pages_in(directory)
     if pages:
         if subs:
-            lines += [f"# {LABEL[directory]} — pages", ""]
+            lines += [f"# {LABEL[directory]} — concepts", ""]
         for path, fm in pages:
             lines.append(entry(path, fm))
         lines.append("")
@@ -67,7 +66,7 @@ def dir_index(directory):
 
 
 def root_index():
-    """The root catalog — every page, grouped, newest metadata."""
+    """The root catalog — concepts grouped by configured directory."""
     lines = ['---', 'okf_version: "0.2"', '---', '',
              f"# {WIKI_TITLE}", "", WIKI_INTRO, ""]
     root_pages = pages_in("")

@@ -78,10 +78,10 @@ On acceptance:
 4. **Offer the CLAUDE.md block.** Show the DM the full text of
    `wiki-scaffold/claude-md-block.md` and ask whether to append it to the
    campaign repo's `CLAUDE.md` — it is the standing behavior that keeps the
-   wiki alive between skill runs (facts → pages, questions → wiki-first, log,
+   wiki alive between skill runs (facts → concepts, questions → wiki-first, log,
    regenerate, check). With consent, append it verbatim, creating `CLAUDE.md`
    if the repo has none. If declined, the scaffold stands anyway —
-   `wiki-schema.md` still governs pages, and the block can be appended on a
+   `wiki-schema.md` still governs concepts, and the block can be appended on a
    rerun.
 5. **Start green.** From the repo root run `python3 scripts/okf-index.py`,
    then `python3 scripts/okf-check.py --strict`. The phase is done when

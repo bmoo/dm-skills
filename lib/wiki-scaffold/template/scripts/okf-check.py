@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only OKF conformance and campaign convention checks.
 
+Every concept has a parseable YAML frontmatter block.
 Only malformed frontmatter, missing type, and reserved-file shape are errors.
 All other findings are warnings; --strict makes warnings fail the exit status.
 Link targets and the meaning of body content belong to the groomer.
