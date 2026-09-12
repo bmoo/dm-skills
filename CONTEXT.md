@@ -20,6 +20,12 @@ text, not a stylistic preference.
 
 ## Verification
 
+**Groomer**:
+The wiki-maintenance skill (`groom-wiki`) and its mechanical script
+(`okf-groom.py`): fix safe drift, place unresolved findings where prep reads
+them, and record one `Lint` log entry. Runs after session absorption or on
+demand; a dry run places and logs nothing, and neither mode commits.
+
 **Promise**:
 A commitment a skill's text makes about its own output, stated so that something
 other than its author can check it.

@@ -43,8 +43,8 @@ checking that your D&D content tools answer lookups, it offers
 to scaffold a planning wiki at the repo root — the `nodes/` skeleton
 (locations, factions, npcs, events), plus `story/`, `sessions/`, `players/`, a
 chronological `log.md`, a self-contained schema doc (`wiki-schema.md`), and
-catalog + conformance scripts — then, with your consent, appends the block to
-your `CLAUDE.md` that points discovery at it. Nothing about it is required:
+catalog, conformance, and maintenance scripts — then, with your consent,
+appends the block to your `CLAUDE.md` that points discovery at it. Nothing about it is required:
 discovery stays the mechanism, and the scaffold is simply the answer discovery
 finds in a bootstrapped repo. Rename or rearrange any of it and you stay in
 contract, so long as your guide says where things went. The offer is skippable
@@ -116,6 +116,10 @@ flowchart TD
   skill's prep flow (`/combat-generator`).
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.
+- **`groom-wiki`** — maintains a scaffolded campaign wiki after absorption or
+  on demand: applies mechanical fixes, places unresolved findings where prep
+  reads them, and writes one `Lint` entry. `--dry-run` places and logs nothing;
+  neither mode commits.
 - **`seed-clues`** — seeds clues toward an under-clued target: a revelation
   short on evidence, or a node short on leads.
 - **`party-sync`** — keeps the party cache JSON and each player page's
