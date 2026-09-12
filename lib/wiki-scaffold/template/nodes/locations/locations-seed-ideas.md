@@ -2,8 +2,9 @@
 type: seed-ideas
 title: Location Seed Ideas
 description: Inbox of location stubs that have not yet earned their own pages.
-tags: [seeds, locations]
-status: stub
+tags: [seeds]
+status: draft
+generated: { by: dm-skills/setup, at: 2026-09-12T00:00:00-07:00 }
 ---
 
 # Location Seed Ideas
