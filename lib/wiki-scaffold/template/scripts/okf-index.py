@@ -6,7 +6,7 @@ wiki directory. Every entry's title/description/status comes from the target
 page's own frontmatter, so the catalog cannot drift from the pages it
 indexes — regenerate after any batch of wiki changes.
 
-    python3 scripts/wiki-index.py [--check]
+    python3 scripts/okf-index.py [--check]
 
 --check exits non-zero if the generated output differs from what is on disk.
 """
@@ -14,10 +14,10 @@ indexes — regenerate after any batch of wiki changes.
 import os
 import sys
 
-import wiki_bundle as wiki
-from wiki_config import GROUPS, WIKI_INTRO, WIKI_TITLE
+import okf_bundle as wiki
+from okf_config import GROUPS, WIKI_INTRO, WIKI_TITLE
 
-LABEL = dict(GROUPS)
+LABEL = {directory: label for directory, label, _ in GROUPS}
 
 
 def pages_in(directory):
@@ -33,7 +33,7 @@ def pages_in(directory):
 
 
 def subdirs_of(directory):
-    return [d for d, _ in GROUPS
+    return [d for d, _, _ in GROUPS
             if os.path.dirname(d) == directory and d != directory]
 
 
@@ -74,7 +74,7 @@ def dir_index(directory):
 def root_index():
     """The root catalog — every page, grouped, newest metadata."""
     lines = [f"# {WIKI_TITLE}", "", WIKI_INTRO, ""]
-    for directory, label in GROUPS:
+    for directory, label, _ in GROUPS:
         pages = pages_in(directory)
         if not pages:
             continue
@@ -88,9 +88,9 @@ def root_index():
 
 def main():
     check = "--check" in sys.argv
-    root = wiki.repo_root()
+    root = wiki.bundle_root()
     targets = {"index.md": root_index()}
-    for directory, _ in GROUPS:
+    for directory, _, _ in GROUPS:
         if pages_in(directory) or subdirs_of(directory):
             targets[os.path.join(directory, "index.md")] = dir_index(directory)
 

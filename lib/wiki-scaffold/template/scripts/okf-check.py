@@ -9,13 +9,13 @@ The wiki passes if:
 Missing recommended fields (`title`, `description`) are reported as warnings,
 never failures.
 
-    python3 scripts/wiki-check.py [--warnings]
+    python3 scripts/okf-check.py [--warnings]
 """
 
 import re
 import sys
 
-import wiki_bundle as wiki
+import okf_bundle as wiki
 
 
 def check_pages():

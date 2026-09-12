@@ -71,7 +71,7 @@ On acceptance:
    into the repo root, preserving the directory structure. Every file ships
    as-is; the one edit is the next step.
 3. **Name the campaign.** Ask the DM for the campaign's name and set
-   `WIKI_TITLE` in the copied `scripts/wiki_config.py` to it. Everything else
+   `WIKI_TITLE` in the copied `scripts/okf_config.py` to it. Everything else
    in that file is a documented default the DM can revisit later.
 4. **Offer the CLAUDE.md block.** Show the DM the full text of
    `wiki-scaffold/claude-md-block.md` and ask whether to append it to the
@@ -81,8 +81,8 @@ On acceptance:
    if the repo has none. If declined, the scaffold stands anyway —
    `wiki-schema.md` still governs pages, and the block can be appended on a
    rerun.
-5. **Start green.** From the repo root run `python3 scripts/wiki-index.py`,
-   then `python3 scripts/wiki-check.py --warnings`. The phase is done when
+5. **Start green.** From the repo root run `python3 scripts/okf-index.py`,
+   then `python3 scripts/okf-check.py --warnings`. The phase is done when
    the check exits clean — zero errors, zero warnings — on the freshly
    generated catalog. Anything it flags on a fresh copy is yours to fix
    before handing over, not the DM's.

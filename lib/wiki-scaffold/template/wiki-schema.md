@@ -56,9 +56,9 @@ Four more are expected on every new page:
 
 A `timestamp:` (ISO 8601) is welcome on pages where recency matters.
 
-Run `python3 scripts/wiki-check.py --warnings` before committing — it fails
+Run `python3 scripts/okf-check.py --warnings` before committing — it fails
 on a missing frontmatter block or an empty `type`, and warns on missing
-recommended fields. Run `python3 scripts/wiki-index.py` after any batch of
+recommended fields. Run `python3 scripts/okf-index.py` after any batch of
 page changes — the catalog is built from frontmatter, so keeping `title`,
 `description`, and `status` current is how the catalog stays true.
 
