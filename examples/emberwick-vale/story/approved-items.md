@@ -2,8 +2,9 @@
 type: story
 title: Approved Items
 description: Magic and notable items that may be placed in prep without asking the DM first.
-tags: [story, rewards]
-status: active
+tags: ["rewards"]
+status: "stable"
+generated: {"by": "human:brad", "at": "2026-08-15T13:17:34-07:00"}
 ---
 
 # Approved Items

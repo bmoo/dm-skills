@@ -2,8 +2,9 @@
 type: faction
 title: The Cinder Court
 description: The ash-cult the chandlers' guild expelled a generation ago, now collecting Emberwick's flames for a relighting of their own.
-tags: [faction, antagonist]
-status: active
+tags: ["antagonist"]
+status: "stable"
+generated: {"by": "human:brad", "at": "2026-08-15T13:17:34-07:00"}
 ---
 
 # The Cinder Court

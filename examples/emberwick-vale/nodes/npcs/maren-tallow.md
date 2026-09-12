@@ -2,13 +2,14 @@
 type: npc
 title: Maren Tallow
 description: Emberwick's chandler-mayor, keeping the lantern failures quiet while the guild's trade depends on it.
-tags: [npc, patron, recurring]
-status: active
+tags: ["patron", "recurring"]
+status: "stable"
+generated: {"by": "human:brad", "at": "2026-08-15T13:17:34-07:00"}
 ---
 
 # Maren Tallow
 
-Mayor of [Emberwick](../locations/emberwick.md) and master of its
+Mayor of [Emberwick](/nodes/locations/emberwick.md) and master of its
 chandlers' guild — the two offices have been one chair for eighty years.
 Sixty, broad-shouldered, wax burns on both forearms; talks like a ledger,
 pays like one too.

@@ -2,8 +2,9 @@
 type: player
 title: Rook Thistlewane
 description: Alex's human Champion fighter, an ex-caravan guard who took the lantern job for the guild credit.
-tags: [player, pc]
-status: active
+tags: ["pc"]
+status: "stable"
+generated: {"by": "human:brad", "at": "2026-08-15T13:17:34-07:00"}
 ---
 
 # Rook Thistlewane

@@ -2,9 +2,10 @@
 type: session
 title: "Session 1: The Unlit Lantern"
 description: Played 2026-08-09 — the party traced the first lantern failures to a warehouse and recovered a reversed wick.
-tags: [session, played]
-status: canon
-timestamp: 2026-08-09
+tags: ["played"]
+status: "stable"
+generated: {"by": "human:brad", "at": "2026-08-09T00:00:00Z"}
+session_date: "2026-08-09"
 ---
 
 # Session 1: The Unlit Lantern
@@ -16,10 +17,10 @@ a full page carries the format's complete section skeleton.)
 
 ## Situation
 
-Lanterns are going out across [Emberwick](../nodes/locations/emberwick.md)'s
+Lanterns are going out across [Emberwick](/nodes/locations/emberwick.md)'s
 warehouse quarter. The night watchman saw pale figures on the roofline of
 the Unlit Lantern — a warehouse dark for a generation — the night the
-first lamp died. [Maren Tallow](../nodes/npcs/maren-tallow.md) has posted
+first lamp died. [Maren Tallow](/nodes/npcs/maren-tallow.md) has posted
 200 gp for the cause, named and proven.
 
 > [!read-aloud]
@@ -53,7 +54,7 @@ them — hold the upper floor.
 
 Rewards owed: the 200 gp posted reward on proof; the guild's quiet favor
 if the broadsheets stay ignorant. Exits: the ledger names the warehouse's
-never-exiled owner (→ [Cinder Court](../nodes/factions/cinder-court.md));
+never-exiled owner (→ [Cinder Court](/nodes/factions/cinder-court.md));
 the spiral hearth matches ash-marks the party may recall over certain
 spared doors (→ tribute households).
 
