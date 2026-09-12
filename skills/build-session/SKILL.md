@@ -58,6 +58,15 @@ session not yet absorbed, hand off to the repo's absorption skill
 (`catch-up`, if installed) and finish that before building anything — prep
 built on a stale record bakes in contradictions.
 
+Discover the live layer's schema through the campaign guide before this
+check. When it defines `next_session` and `stale_after`, also check the
+live-layer horizon: if `now >= stale_after`, ask whether the session on
+`next_session` was played. Yes: finish `catch-up` (if installed) before
+building; if it is absent, ask the DM to bring the record current first.
+No: roll the date forward and rewrite the live-layer horizon per the
+schema's *Session horizon* rule, then use that value for this build's prep.
+This supplements the progress marker, including for a lean-sheet build.
+
 **Then the brief, and in that order** — an unabsorbed session means the
 brief itself was written against a stale record. Take the one the
 invocation names by ticket number; failing that, the open
@@ -88,6 +97,12 @@ order:
    campaign repo root, **if present** (its absence is a no-op, never an
    error). DM-authored corrections from past builds: treat every entry
    as a standing constraint on tonight's page, at method-doc precedence.
+
+Read the live layer's generated loose-ends section, when present, and any
+contradiction callouts on the concepts this build touches. Their shapes
+and ownership live in the campaign schema. Use loose ends as candidates
+within the brief's scope. Carry an unresolved contradiction as a prep gap;
+ask for a ruling if it blocks the build, and leave its callouts intact.
 
 **Done when:** the record's marker and the session history agree on where
 play stands, and you can name the session's number, its likely destination
@@ -265,6 +280,12 @@ prep aid, not canon — only its one durable product (the Key NPCs roster)
 is filed, as above. The spotlight plan is not filed on a lean-sheet run
 either: a sheet with no page behind it simply spends it in chat.
 
+An in-chat sheet creates no file or frontmatter. If this run refreshes the
+roster on an existing unplayed OKF session page, also refresh that page's
+`stale_after` from the live layer per the schema's *Session horizon* rule;
+omit it when the next date is unknown. Record the meaningful edit with
+`generated` per the schema, using `dm-skills/build-session`.
+
 **Done when:** the lean set exists, the spotlight plan covers every PC (a
 beat or named resting), and each extension was either added or ruled
 unnecessary.
@@ -275,6 +296,13 @@ Read [`session-page-format.md`](session-page-format.md) now — skeleton,
 boundaries, conventions — and compile Step 3's material into it, in the
 campaign repo's established link and formatting conventions. The sibling
 session pages are the exemplars for grain and voice.
+
+For an OKF v0.2 page, draft frontmatter per the discovered schema:
+`status: draft`, `generated` using `dm-skills/build-session` and the current
+offset timestamp, and `stale_after` copied from the live layer per its
+*Session horizon* rule (omitted without a known `next_session`). Apply this
+to each session page built or refreshed. Follow the existing filing gate
+for the drafted page.
 
 Decisions the build forces (a concrete pick, a name, an objective) are
 made explicitly and filed where the repo keeps decisions and open
