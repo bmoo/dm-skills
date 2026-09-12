@@ -18,6 +18,11 @@ unresolved — no live layer, no progress marker, no stated home for session
 records — ask the DM inline and offer to record the answer in the campaign's
 own docs so the next run discovers it.
 
+Read the campaign schema the guide points to before changing concept
+metadata or groomer findings. In a scaffolded wiki this is `wiki-schema.md`:
+its *Session horizon* and *Callouts* sections own the field and block shapes.
+Use the discovered campaign conventions where these features are absent.
+
 **Authorship:** consequences are recorded freely, reactions are proposed. A
 *consequence* is mechanical — the thing broke, the NPC died, the clue was
 found, the favor is owed. A *reaction* is the world deciding something — a
@@ -96,6 +101,13 @@ Assemble the reconciled account into the session record's recap section,
 densely linked per the repo's conventions. The recap is the durable record of
 play — the story, written after the fact — and every propagation edit that
 follows should be traceable to it.
+
+For an OKF v0.2 session record, set `status: stable`, add the `played` tag,
+set `session_date` to the actual date of play, and remove `stale_after` per
+the schema. Do the same for any companion sheet for that played session.
+Meaningful edits record `generated` using the schema's last-writer rule
+(`dm-skills/catch-up`); preserve unrelated metadata.
+
 **Done when:** the recap reads as a complete account and neither the
 transcript nor the interview holds anything it omits.
 
@@ -140,10 +152,18 @@ Three rings, then stop:
    courier died hears about it regardless of link distance);
    encounter-changes stay local.
 
-Per the hard rules, new content a consequence demands — a seed now worth
-promoting, a revelation left short because the party burned a clue's source —
-goes on the handoff list as a named handoff to the repo's node-building or
-clue-seeding skill.
+If the reconciled session settles a fact marked by a contradiction callout,
+update the owning prose and clear that callout and its counterpart on the
+linked concept, per the schema. Clear only the settled pair. An unresolved
+discrepancy stays visible on both concepts; absorbing a newer session alone
+does not choose its resolution.
+
+Per the hard rules, new content a consequence demands — a node needing
+enrichment, a revelation left short because the party burned a clue's
+source — goes on the handoff list for the repo's node-building or
+clue-seeding skill. Moving an existing eligible seed into its own concept
+is the groomer's schema-governed maintenance; authoring new content remains
+a handoff.
 **Done when:** all three rings swept and the handoff list written.
 
 ### 6. Advance the clock
@@ -155,14 +175,26 @@ deleted); any standing ledgers the live layer keeps (debts, favors, markers)
 updated with what the session left owed, called, settled, or broken; and
 beats now due or overdue surfaced as flags for the coming prep — not written
 into nodes.
+
+After the last session in this absorption, confirm the next real-world
+session date with the DM, proposing `SESSION_WEEKDAY` from the discovered
+OKF config when set. Write `next_session` and recompute the live layer's
+`stale_after` per the schema's *Session horizon* rule. When the next date is
+unknown, omit both fields. This date is separate from the in-fiction clock.
+
 **Done when:** the live layer describes the world as of the end of the
 absorbed session.
 
 ### 7. Verify prep-ready
 The completion test is operational: the repo's session-prep skill could run
 immediately and find no artifact contradicting what happened at the table.
-Re-walk Steps 5–6 against the actual files, not memory. Close with the
-handoff flags and the log entry, and — if multiple sessions were absorbed or
-the ripple ran wide — offer an integrity-audit pass.
-**Done when:** the re-walk finds nothing stale; handoffs and log entry
-written.
+Re-walk Steps 5–6 against the actual files, not memory. Write the absorption
+log entry and handoff flags. As the final maintenance step, invoke
+`/groom-wiki` if installed, after the session and live layer are current.
+It refreshes loose ends and places any surviving disagreements where prep
+will meet them. If absent, name the skipped grooming in the closing summary;
+absorption still completes. Close with the handoffs and, if multiple
+sessions were absorbed or the ripple ran wide, offer an integrity-audit pass.
+**Done when:** the re-walk finds no unpropagated settled fact, session and
+live-layer horizons follow the schema, and the final groomer run completed
+or its absence was named. Unsettled callouts remain visible.
