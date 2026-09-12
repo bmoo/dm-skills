@@ -1,0 +1,5 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\ntitle: A\ndescription: A campaign concept.\nstale_after: 2026-09-13T00:00:00+00:00\n---\n# A\n\n\n"
+  }
+}

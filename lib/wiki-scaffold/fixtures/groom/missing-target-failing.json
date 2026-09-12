@@ -1,0 +1,7 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\ntitle: A\ndescription: A campaign concept.\n---\n# A\n\n[Missing](/nodes/npcs/missing.md)\n",
+    "log.md": "# Log\n\n[Lost](lost.md)\n",
+    "nodes/log.md": "# Log\n\n[Gone](gone.md)\n"
+  }
+}

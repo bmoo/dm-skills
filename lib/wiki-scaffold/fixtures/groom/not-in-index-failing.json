@@ -1,0 +1,9 @@
+{
+  "files": {
+    "nodes/npcs/a.md": "---\ntype: npc\ntitle: A\ndescription: A campaign concept.\n---\n# A\n\n\n"
+  },
+  "after_index": {
+    "index.md": "# Broken catalog\n",
+    "nodes/npcs/index.md": "# Empty\n"
+  }
+}
