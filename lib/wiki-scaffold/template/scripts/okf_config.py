@@ -12,9 +12,9 @@ WIKI_TITLE = "Campaign Wiki"
 
 # Opening prose in the generated root catalog.
 WIKI_INTRO = (
-    "Every page below is a wiki page with YAML frontmatter and a markdown"
+    "Every concept below carries YAML frontmatter and a markdown"
     " body. This catalog is generated from that frontmatter by"
-    " `scripts/okf-index.py` — edit the pages, not this file."
+    " `scripts/okf-index.py` — edit the concepts, not this file."
 )
 
 # Directories inside the bundle; tooling and working docs stay outside it.

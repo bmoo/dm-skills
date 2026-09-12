@@ -34,9 +34,9 @@ def check_pages():
 
 
 def check_index(path, body, fm):
-    """Index files list their directory's contents, with no frontmatter."""
+    """Indexes allow only the version declaration at the bundle root."""
     errors = []
-    if fm is not None:
+    if fm is not None and not (path == "index.md" and fm == {"okf_version": "0.2"}):
         errors.append(f"{path}: index files carry no frontmatter")
     if not re.search(r"^#+ .+$", body, re.M):
         errors.append(f"{path}: no section headings")

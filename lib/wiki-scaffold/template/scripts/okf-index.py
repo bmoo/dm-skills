@@ -2,8 +2,8 @@
 """Generate the wiki's index layer from page frontmatter.
 
 Writes the repo-root `index.md` (the full catalog) and one `index.md` per
-wiki directory. Every entry's title/description/status comes from the target
-page's own frontmatter, so the catalog cannot drift from the pages it
+wiki directory. Every entry's title/description comes from the target
+concept's own frontmatter, so the catalog cannot drift from the concepts it
 indexes — regenerate after any batch of wiki changes.
 
     python3 scripts/okf-index.py [--check]
@@ -13,11 +13,13 @@ indexes — regenerate after any batch of wiki changes.
 
 import os
 import sys
+from urllib.parse import quote
 
 import okf_bundle as wiki
 from okf_config import GROUPS, WIKI_INTRO, WIKI_TITLE
 
 LABEL = {directory: label for directory, label, _ in GROUPS}
+DESCRIPTION = {directory: description for directory, _, description in GROUPS}
 
 
 def pages_in(directory):
@@ -40,13 +42,7 @@ def subdirs_of(directory):
 def entry(link, fm):
     title = str(fm.get("title") or os.path.basename(link)).strip()
     desc = str(fm.get("description", "")).strip()
-    status = str(fm.get("status", "")).strip()
-    line = f"* [{title}]({link})"
-    if status:
-        line += f" — *{status}*"
-    if desc:
-        line += f" - {desc}"
-    return line
+    return f"* [{title}](/{quote(link, safe='/')}) - {desc}"
 
 
 def dir_index(directory):
@@ -55,25 +51,29 @@ def dir_index(directory):
     subs = subdirs_of(directory)
     if subs:
         for sub in subs:
-            count = len(pages_in(sub))
             name = os.path.basename(sub)
-            noun = "page" if count == 1 else "pages"
-            lines.append(f"* [{LABEL[sub]}]({name}/) - "
-                         f"{count} {noun} in `{sub}/`.")
+            lines.append(f"* [{LABEL[sub]}]({quote(name, safe='')}/) - "
+                         f"{DESCRIPTION[sub]}")
         lines.append("")
     pages = pages_in(directory)
     if pages:
         if subs:
             lines += [f"# {LABEL[directory]} — pages", ""]
         for path, fm in pages:
-            lines.append(entry(os.path.basename(path), fm))
+            lines.append(entry(path, fm))
         lines.append("")
     return "\n".join(lines).rstrip("\n") + "\n"
 
 
 def root_index():
     """The root catalog — every page, grouped, newest metadata."""
-    lines = [f"# {WIKI_TITLE}", "", WIKI_INTRO, ""]
+    lines = ['---', 'okf_version: "0.2"', '---', '',
+             f"# {WIKI_TITLE}", "", WIKI_INTRO, ""]
+    root_pages = pages_in("")
+    for path, fm in root_pages:
+        lines.append(entry(path, fm))
+    if root_pages:
+        lines.append("")
     for directory, label, _ in GROUPS:
         pages = pages_in(directory)
         if not pages:
