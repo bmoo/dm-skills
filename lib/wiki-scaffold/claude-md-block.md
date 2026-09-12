@@ -13,7 +13,14 @@ restructuring pages.
   chat history.
 - Log meaningful operations in `log.md` per the schema's Log conventions.
 - Regenerate the catalog after every batch of wiki changes —
-  `python3 scripts/okf-index.py`. It is built from page frontmatter, so it
-  is never hand-edited; keep each page's `title`/`description`/`status`
-  current instead.
-- Check before committing — `python3 scripts/okf-check.py --warnings`.
+  `python3 scripts/okf-index.py`. It is built from frontmatter, so it is
+  never hand-edited; keep each concept's `title` and `description` current.
+- Check before committing — `python3 scripts/okf-check.py --strict`.
+- Groom after session absorption, or on demand: `/groom-wiki` if installed
+  applies mechanical fixes and places findings per `wiki-schema.md`.
+  `/groom-wiki --dry-run` writes nothing. The script-only entry point is
+  `python3 scripts/okf-groom.py` (reports); `--fix` applies mechanical fixes.
+  Catch-up owns the after-absorption invocation, so do not invoke it twice.
+- For a planned migration of an existing bundle, use `scripts/okf-migrate.py`
+  with the migration plan; it is separate from routine maintenance. The first
+  groom after migration is on demand, starting with `/groom-wiki --dry-run`.

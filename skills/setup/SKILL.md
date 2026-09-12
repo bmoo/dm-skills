@@ -48,7 +48,9 @@ a smoke-test lookup — or the DM has said the bundled SRD is enough.
 The offer: this library can scaffold an agent-maintained campaign wiki at the
 repo root — a directory skeleton (`nodes/{locations,factions,npcs,events}`,
 `story/`, `sessions/`, `players/`), a self-contained schema doc
-(`wiki-schema.md`), catalog + conformance scripts (`scripts/`), and a
+(`wiki-schema.md`), catalog, conformance, and maintenance scripts
+(`scripts/okf-index.py`, `scripts/okf-check.py`, `scripts/okf-groom.py`, and
+the migration tool `scripts/okf-migrate.py`), and a
 chronological log (`log.md`). Make the offer in those terms and let the DM
 decline: the skills discover whatever shape a campaign repo already has, so a
 repo without the scaffold loses nothing but the head start. A populated
@@ -86,6 +88,16 @@ On acceptance:
    the check exits clean — zero errors, zero warnings — on the freshly
    generated catalog. Anything it flags on a fresh copy is yours to fix
    before handing over, not the DM's.
+
+For later maintenance, `/groom-wiki` (if installed) runs the mechanical
+fixes and reads the wiki for findings that need judgement. Its
+`--dry-run` mode writes nothing. `python3 scripts/okf-groom.py` is the
+mechanical report-only entry point; add `--fix` to apply its safe fixes.
+Run it after session absorption through catch-up, or on demand; the first
+run after a migration is on demand, starting with `/groom-wiki --dry-run`.
+Setup's start-green gate remains the index generator and strict checker.
+`SESSION_WEEKDAY` stays unset by default; it can later be set in the config
+so catch-up can propose the next date under the schema's session horizon.
 
 Close by pointing the DM at `wiki-schema.md` as the wiki's schema and
 suggesting they commit the scaffold as its own commit, so campaign content
