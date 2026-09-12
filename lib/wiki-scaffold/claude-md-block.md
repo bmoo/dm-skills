@@ -13,7 +13,7 @@ restructuring pages.
   chat history.
 - Log meaningful operations in `log.md` per the schema's Log conventions.
 - Regenerate the catalog after every batch of wiki changes —
-  `python3 scripts/wiki-index.py`. It is built from page frontmatter, so it
+  `python3 scripts/okf-index.py`. It is built from page frontmatter, so it
   is never hand-edited; keep each page's `title`/`description`/`status`
   current instead.
-- Check before committing — `python3 scripts/wiki-check.py --warnings`.
+- Check before committing — `python3 scripts/okf-check.py --warnings`.
