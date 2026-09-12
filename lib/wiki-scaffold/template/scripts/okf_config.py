@@ -12,15 +12,14 @@ WIKI_TITLE = "Campaign Wiki"
 
 # Opening prose in the generated root catalog.
 WIKI_INTRO = (
-    "Every concept below carries YAML frontmatter and a markdown"
-    " body. This catalog is generated from that frontmatter by"
-    " `scripts/okf-index.py` — edit the concepts, not this file."
+    "This catalog lists the bundle's concepts and is generated from their"
+    " frontmatter by `scripts/okf-index.py` — edit the concepts, not this file."
 )
 
-# Directories inside the bundle; tooling and working docs stay outside it.
+# Concept directories relative to the bundle root.
 BUNDLE_DIRS = ["nodes", "story", "players", "sessions"]
 
-# Concepts at the bundle root, outside the configured directories.
+# Concepts at the bundle root.
 ROOT_CONCEPTS = ["wiki-schema.md"]
 
 # Directories never walked for concepts, at any depth.

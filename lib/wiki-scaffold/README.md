@@ -5,12 +5,12 @@ starting wiki for planning and running the campaign.
 
 ## Start here
 
-- Put campaign facts in the appropriate page under `nodes/`, and use the
+- Put campaign facts in the appropriate node concept under `nodes/`, and use the
   `story/`, `sessions/`, and `players/` folders for their corresponding notes.
-- Read `wiki-schema.md` for the wiki's page, frontmatter, link, callout, and
+- Read `wiki-schema.md` for the bundle's concept, frontmatter, link, callout, and
   log conventions.
 - Set your campaign name in `scripts/okf_config.py` as `WIKI_TITLE`.
-- Run `python3 scripts/okf-index.py` after adding or reorganising pages to
+- Run `python3 scripts/okf-index.py` after adding or reorganising concepts to
   refresh the generated catalog.
 - Run `python3 scripts/okf-check.py --strict` to check that the wiki follows its
   schema.
@@ -28,5 +28,5 @@ starting wiki for planning and running the campaign.
 - Optionally set `SESSION_WEEKDAY` in `scripts/okf_config.py`; catch-up
   uses it to propose the next date. The schema owns the session horizon.
 
-The seeded `*-seed-ideas.md` pages are inboxes: turn useful ideas into focused
-pages as they become campaign facts.
+The seeded `*-seed-ideas.md` concepts are inboxes: turn useful seeds into
+focused concepts when they meet the schema's promotion rule.

@@ -1,9 +1,9 @@
-"""Shared page discovery and frontmatter parsing for the wiki tooling.
+"""Shared concept discovery and frontmatter parsing for the OKF tooling.
 
-The wiki is the set of directories `okf_config.BUNDLE_DIRS` names, plus the
-root files it lists. Everything else in the repo — tooling, media, working
-docs — sits outside it and is never checked or indexed. Runs with no
-dependencies, using the OKF frontmatter YAML subset below.
+`BUNDLE_DIRS`, `ROOT_CONCEPTS`, and `EXCLUDED` configure the concept inventory
+under `BUNDLE_ROOT`; reserved indexes and logs are traversed separately as
+bundle members. Runs with no dependencies, using the OKF frontmatter YAML
+subset below.
 """
 
 import html
@@ -16,7 +16,7 @@ from urllib.parse import quote, unquote
 
 from okf_config import BUNDLE_DIRS, BUNDLE_ROOT, EXCLUDED, ROOT_CONCEPTS
 
-# Reserved filenames — never wiki pages (see wiki-schema.md — Layout).
+# Reserved filenames — bundle members, never concepts (see wiki-schema.md — Layout).
 RESERVED = {"index.md", "log.md"}
 
 
@@ -30,7 +30,7 @@ def bundle_root():
 
 
 def page_paths():
-    """Every wiki page, bundle-relative, sorted."""
+    """Every candidate concept path in the configured bundle, sorted; reserved files excluded."""
     root = bundle_root()
     out = []
     for d in BUNDLE_DIRS:
@@ -46,7 +46,7 @@ def page_paths():
 
 
 def reserved_paths():
-    """Every index.md / log.md inside the wiki (plus the bundle root's)."""
+    """Every reserved index.md / log.md bundle member, as a bundle-relative path."""
     root = bundle_root()
     out = []
     for f in RESERVED:

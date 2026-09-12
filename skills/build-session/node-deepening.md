@@ -33,10 +33,10 @@ Two directions. **Outbound:** the node's clue-web section indexes its leads to o
 
 ### 5. Bookkeep
 Complete every item, or mark it N/A with the reason:
-- [ ] Frontmatter matches the page's directory and status conventions
+- [ ] Frontmatter follows the campaign's schema and status conventions
 - [ ] Clue-web section present with its glance line (even if leads are few)
 - [ ] *(promote)* Seed section deleted from its seed-ideas file
-- [ ] *(promote)* The repo's page catalog updated
+- [ ] *(promote)* The repo's catalog updated
 - [ ] Macro-outline: node enrolled in its scenario group, and the group's map updated per the repo's drawing rules
 - [ ] Live status layer updated wherever this node changed it (checklist anchors, thread lines)
 - [ ] Operation log entry written
