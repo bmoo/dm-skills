@@ -62,3 +62,24 @@ ROOT_TYPE = "reference"
 # Use a lowercase English weekday, e.g. "tuesday". The campaign guide owns
 # the local timezone; writers use its offset at the next morning's midnight.
 SESSION_WEEKDAY = None
+
+# Legacy metadata migration. Set these before running okf-migrate.py; source
+# timestamps are retained (date-only values become midnight UTC). Existing
+# generated metadata wins over an obsolete source key, which is then removed.
+# Missing source timestamps are left for a provenance-aware hand pass.
+MIGRATION_SOURCE_KEY = "timestamp"  # e.g. "last_updated" in a bot-written bundle
+MIGRATION_ACTOR = "human:brad"
+MIGRATION_STATUS_MAP = {
+    "stub": "draft", "prep": "draft", "active": "stable", "canon": "stable",
+    "inactive": "deprecated", "superseded": "deprecated",
+    "proposed": "draft", "accepted": "stable", "amended": "stable",
+    "accepted (amended)": "stable",
+}
+# ADR lifecycle survives separately from the universal OKF status.
+MIGRATION_DECISION_MAP = {
+    "proposed": "proposed", "accepted": "accepted", "amended": "amended",
+    "accepted (amended)": "amended",
+}
+# Backfill only missing type/title, using DIRECTORY_TYPES / ROOT_TYPE and H1.
+MIGRATION_BACKFILL_TYPE = True
+MIGRATION_BACKFILL_TITLE = True

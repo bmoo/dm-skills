@@ -6,10 +6,13 @@ docs — sits outside it and is never checked or indexed. Runs with no
 dependencies, using the OKF frontmatter YAML subset below.
 """
 
+import html
 import json
 import os
+from pathlib import Path
 import re
 from typing import Any, NamedTuple
+from urllib.parse import quote, unquote
 
 from okf_config import BUNDLE_DIRS, BUNDLE_ROOT, EXCLUDED, ROOT_CONCEPTS
 
@@ -328,3 +331,110 @@ def markdown_links(text):
 def is_relative_link(destination):
     """Local Markdown destinations (including #anchors) that lack leading /."""
     return not destination.startswith("/") and re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", destination) is None
+
+
+# --- Targeted rewrites --------------------------------------------------------
+
+def resolve_local_link(source, destination):
+    """Existing local target as a bundle-relative Path, or None.
+
+    External URLs, broken targets, and paths escaping the bundle are untouched.
+    Media and directories are valid targets even though discovery excludes them.
+    """
+    destination = html.unescape(re.sub(r"\\([!\"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~])", r"\1", destination))
+    if destination.startswith("//") or re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", destination):
+        return None
+    path = unquote(re.split(r"[?#]", destination, maxsplit=1)[0])
+    root = Path(bundle_root()).resolve()
+    target = root / path.lstrip("/") if path.startswith("/") else root / Path(source).parent / path
+    if not path:
+        target = root / source
+    try:
+        relative = target.resolve().relative_to(root)
+        return relative if target.exists() else None
+    except (ValueError, OSError):
+        return None
+
+
+def root_link(source, destination):
+    """Rewrite a resolvable relative destination, retaining its query/anchor."""
+    if not is_relative_link(destination):
+        return destination
+    target = resolve_local_link(source, destination)
+    if target is None:
+        return destination
+    suffix = re.search(r"[?#].*", destination)
+    path_part = re.split(r"[?#]", destination, maxsplit=1)[0]
+    trailing = "/" if path_part.endswith("/") and target.as_posix() != "." else ""
+    target_path = "" if target == Path(".") else quote(target.as_posix(), safe="/")
+    return "/" + target_path + trailing + (suffix[0] if suffix else "")
+
+
+def rewrite_local_links(source, text):
+    """Pure destination-only rewrite; source is relative to the bundle root."""
+    for link in reversed(list(markdown_links(text))):
+        text = text[:link.start] + root_link(source, link.destination) + text[link.end:]
+    return text
+
+
+def first_heading(text):
+    """First actual H1 outside code/comments, without optional closing hashes."""
+    match = re.search(r"^ {0,3}#[ \t]+[^\r\n]*", markdown_prose(text), re.M)
+    if match is None:
+        return None
+    raw = re.sub(r"^ {0,3}#[ \t]+", "", text[match.start():match.end()])
+    return re.sub(r"[ \t]+#+[ \t]*$", "", raw).strip() or None
+
+
+def inferred_type(path):
+    """Configured directory/root type, with the scaffold's file conventions."""
+    from okf_config import DIRECTORY_TYPES, ROOT_TYPE
+    path = Path(path)
+    if path.name == "wiki-schema.md":
+        return "schema"
+    if path.name.lower() == "readme.md":
+        return "readme"
+    if path.stem.endswith("-seed-ideas"):
+        return "seed-ideas"
+    return ROOT_TYPE if path.parent == Path(".") else DIRECTORY_TYPES.get(path.parent.as_posix())
+
+
+def edit_frontmatter(text, updates, remove=()):
+    """Update top-level fields without reserializing unrelated metadata.
+
+    Values supplied in updates are serialized as JSON-compatible YAML. Unknown
+    fields, their scalar spellings, comments, and body bytes remain intact.
+    Invalid or unterminated frontmatter raises ValueError before any mutation.
+    """
+    match = re.match(r"\A---\r?\n(?P<fields>.*?)(?m:^---(?:\r?\n|\Z))", text, re.S)
+    newline = "\r\n" if "\r\n" in text else "\n"
+    def field(key, value):
+        return key + ": " + json.dumps(value, ensure_ascii=False) + newline
+    if match is None:
+        if text.startswith(("---\n", "---\r\n")):
+            raise ValueError("unterminated frontmatter")
+        if not updates:
+            return text
+        return "---" + newline + "".join(field(k, v) for k, v in updates.items()) + "---" + newline + text
+    raw = match["fields"]
+    parsed = parse_frontmatter(raw)
+    if parsed is None:
+        raise ValueError("unparseable frontmatter")
+    keys = list(re.finditer(r"^([A-Za-z_][\w.-]*):[^\r\n]*(?:\r?\n|$)", raw, re.M))
+    replacements = []
+    for index, key in enumerate(keys):
+        name = key[1]
+        if name not in updates and name not in remove:
+            continue
+        end = keys[index + 1].start() if index + 1 < len(keys) else len(raw)
+        lines = raw[key.start():end].splitlines(keepends=True)
+        # Preserve blank/comment lines, including comments around nested values.
+        comments = "".join(line for line in lines[1:] if not line.strip() or line.lstrip().startswith("#"))
+        replacement = field(name, updates[name]) if name in updates else ""
+        replacements.append((key.start(), end, replacement + comments))
+    for start, end, replacement in reversed(replacements):
+        raw = raw[:start] + replacement + raw[end:]
+    raw += "".join(field(k, v) for k, v in updates.items() if k not in parsed)
+    if parse_frontmatter(raw) is None:
+        raise ValueError("rewrite produced unparseable frontmatter")
+    return text[:match.start("fields")] + raw + text[match.end("fields"):]
