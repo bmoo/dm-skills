@@ -123,3 +123,22 @@ def test_markdown_destination_offsets_preserve_surrounding_syntax(monkeypatch):
 [Example](do-not-rewrite.md)
 ```
 '''
+
+
+def test_discovery_deduplicates_overlapping_configured_directories(monkeypatch, tmp_path):
+    scripts = TEMPLATE / 'scripts'
+    monkeypatch.syspath_prepend(str(scripts))
+    bundle = runpy.run_path(str(scripts / 'okf_bundle.py'))
+    globals_ = bundle['page_paths'].__globals__
+    globals_['bundle_root'] = lambda: str(tmp_path)
+    globals_['BUNDLE_DIRS'] = ['nodes', 'nodes/npcs']
+    globals_['ROOT_CONCEPTS'] = ['readme.md', 'nodes/npcs/a.md']
+    globals_['EXCLUDED'] = {'hidden'}
+    for path in ('readme.md', 'index.md', 'log.md', 'unlisted.md', 'outside/a.md',
+                 'nodes/npcs/a.md', 'nodes/npcs/index.md', 'nodes/npcs/log.md',
+                 'nodes/npcs/map.png', 'nodes/npcs/hidden/a.md', 'nodes/npcs/hidden/log.md'):
+        file = tmp_path / path
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text('Fixture')
+    assert bundle['page_paths']() == ['nodes/npcs/a.md', 'readme.md']
+    assert bundle['reserved_paths']() == ['index.md', 'log.md', 'nodes/npcs/index.md', 'nodes/npcs/log.md']

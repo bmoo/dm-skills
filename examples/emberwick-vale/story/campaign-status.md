@@ -21,6 +21,12 @@ yet in prep.
 - Maren Tallow has paid the 200 gp reward but not yet opened the sealed
   records; she will stall until the evidence forces her.
 
+<!-- groom-wiki:contradiction:86e245fcf50bf8cc38dc -->
+> [!contradiction] Unresolved: Maren Tallow
+> Here: "Maren Tallow has paid the 200 gp reward but not yet opened the sealed
+>   records; she will stall until the evidence forces her."
+> Other: [Emberwick](/nodes/locations/emberwick.md) (status: stable): "The mayor's posted reward: 200 gp for the cause, named and proven."
+
 <!-- groom-wiki:loose-ends:start -->
 ## Loose ends
 

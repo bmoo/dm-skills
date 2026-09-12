@@ -16,7 +16,7 @@ on the Vale road buys them. The town's seal is a lit lantern; its motto,
 
 Three weeks ago, lanterns across town began going out — not guttering,
 *going out*, flame pinched as if between wet fingers. The chandlers'
-guild is quietly frantic. Mayor [Maren Tallow](/nodes/npcs/maren-tallow.md)
+[guild](/nodes/factions/chandlers-guild.md) is quietly frantic. Mayor [Maren Tallow](/nodes/npcs/maren-tallow.md)
 has posted a reward for anyone who can find the cause.
 
 ## What the town knows
@@ -31,6 +31,12 @@ has posted a reward for anyone who can find the cause.
 ## On offer
 
 - The mayor's posted reward: 200 gp for the cause, named and proven.
+
+<!-- groom-wiki:contradiction:86e245fcf50bf8cc38dc -->
+> [!contradiction] Unresolved: Maren Tallow
+> Here: "The mayor's posted reward: 200 gp for the cause, named and proven."
+> Other: [Campaign Status](/story/campaign-status.md) (status: stable): "Maren Tallow has paid the 200 gp reward but not yet opened the sealed
+>   records; she will stall until the evidence forces her."
 - The guild quietly offers lifetime lantern credit to anyone who keeps the
   matter out of the broadsheets — a favor worth more than it sounds on the
   Vale road.
