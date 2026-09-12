@@ -1,3 +1,3 @@
 # Events
 
-* [Event Seed Ideas](events-seed-ideas.md) — *stub* - Inbox of event stubs that have not yet earned their own pages.
+* [Event Seed Ideas](/nodes/events/events-seed-ideas.md) - Inbox of event stubs that have not yet earned their own concepts.
