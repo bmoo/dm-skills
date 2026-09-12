@@ -10,7 +10,7 @@ generated: {"by": "human:brad", "at": "2026-08-15T13:17:34-07:00"}
 # The Cinder Court
 
 An ember-venerating order that once shared the guildhall with the
-chandlers: the guild kept the light, the Court kept the *ash*, and each
+[chandlers](/nodes/factions/chandlers-guild.md): the guild kept the light, the Court kept the *ash*, and each
 thought the other the junior partner. The expulsion — over a doctrinal
 point the sealed records won't name — scattered the Court into the Vale's
 hills a generation ago.

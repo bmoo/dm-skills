@@ -10,7 +10,7 @@ generated: {"by": "human:brad", "at": "2026-08-15T13:17:34-07:00"}
 # Maren Tallow
 
 Mayor of [Emberwick](/nodes/locations/emberwick.md) and master of its
-chandlers' guild — the two offices have been one chair for eighty years.
+[chandlers' guild](/nodes/factions/chandlers-guild.md) — the two offices have been one chair for eighty years.
 Sixty, broad-shouldered, wax burns on both forearms; talks like a ledger,
 pays like one too.
 

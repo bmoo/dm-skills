@@ -124,7 +124,7 @@ def contradiction_candidates(pages):
 
 
 def place_contradiction(pages, evidence, fix=False):
-    """Validate a scoped, exact evidence pair, then write paired callouts once."""
+    """Validate exact evidence and place or refresh its paired callouts."""
     entity, left, right, a, b = (evidence[k] for k in
                                 ('entity', 'left', 'right', 'left_claim', 'right_claim'))
     scope = {c['entity']: c['referrers'] for c in contradiction_candidates(pages)}
@@ -140,8 +140,6 @@ def place_contradiction(pages, evidence, fix=False):
         visible = prose(pages[here]['body'])
         if not claim or visible.count(claim) != 1:
             raise ValueError(f'{here}: claim must occur exactly once outside generated evidence/code')
-        if marker in text:
-            continue
         title = (pages[other]['fm'] or {}).get('title') or other
         status = (pages[other]['fm'] or {}).get('status') or 'stable'
         entity_title = (pages[entity]['fm'] or {}).get('title') or entity
@@ -149,6 +147,14 @@ def place_contradiction(pages, evidence, fix=False):
                  f'> Here: "{claim}"\n'
                  f'> Other: [{title}](/{quote(other, safe="/")}) (status: {status}): "{peer}"')
         block = re.sub(r'\n(?!>|<!--)', '\n> ', block)
+        existing = re.search(re.escape(marker) + r'\r?\n> \[!contradiction\][^\n]*(?:\n>[^\n]*)*', text)
+        if existing:
+            updated = text[:existing.start()] + block + text[existing.end():]
+            if updated != text:
+                updates[here] = updated
+            continue
+        if marker in text:
+            raise ValueError(f'{here}: generated contradiction marker has no callout')
         if block.split('\n', 1)[1] in text:
             continue
         body_offset = len(text) - len(pages[here]['body'])
@@ -184,14 +190,27 @@ def backfill(path, page):
     return wiki.edit_frontmatter(page['text'], updates) if updates else page['text']
 
 
+def heading_anchors(text):
+    """ATX heading offsets and fragments, including repeated-heading suffixes."""
+    used = set()
+    for heading in re.finditer(r'^ {0,3}#{1,6}[ \t]+(.+?)[ \t]*#*[ \t]*$', prose(text), re.M):
+        slug = re.sub(r'[^\w\s-]', '', heading[1].lower()).replace(' ', '-')
+        anchor, suffix = slug, 0
+        while anchor in used:
+            suffix += 1
+            anchor = f'{slug}-{suffix}'
+        used.add(anchor)
+        yield heading.start(), anchor
+
+
 def seed_sections(page):
     visible = prose(page['body'])
     headers = list(re.finditer(r'^## ([^\n]+)\n', visible, re.M))
+    anchors = dict(heading_anchors(page['body']))
     for i, header in enumerate(headers):
         end = headers[i + 1].start() if i + 1 < len(headers) else len(visible)
         title = header[1].strip()
-        slug = re.sub(r'[^\w\s-]', '', title.lower()).replace(' ', '-')
-        yield title, slug, header.start(), end, page['body'][header.end():end]
+        yield title, anchors[header.start()], header.start(), end, page['body'][header.end():end]
 
 
 def seed_plans(pages):
@@ -215,7 +234,8 @@ def seed_plans(pages):
                 r'\b(?:boxed text|encounter budget|session.only|session.bound|only (?:in|for) (?:this |the )?session)\b',
                 prose(body), re.I)) or (refs and all((pages[r]['fm'] or {}).get('type') == 'session' for r in refs)))
             safe = (not bound and wiki.inferred_type(Path(target)) not in (None, 'seed-ideas')
-                    and bool(anchor) and not (Path(wiki.bundle_root()) / target).exists())
+                    and bool(anchor) and Path(target).name not in wiki.RESERVED
+                    and not (Path(wiki.bundle_root()) / target).exists())
             plans.append(dict(source=path, target=target, title=title, anchor=anchor,
                               start=start, end=end, body=body, safe=safe))
     return plans
@@ -229,10 +249,18 @@ def promote(plans, pages):
         if plan['safe'] and plan['target'] not in targets:
             safe.append(plan)
             targets.add(plan['target'])
+    mapping = {}
+    for plan in safe:
+        old = [anchor for start, anchor in heading_anchors(pages[plan['source']]['body'])
+               if plan['start'] <= start < plan['end']]
+        new = [anchor for _, anchor in heading_anchors('# ' + plan['title'] + '\n' + plan['body'])]
+        for index, (before, after) in enumerate(zip(old, new)):
+            mapping[(plan['source'], before)] = (plan['target'], after if index else '')
     for source in sorted({p['source'] for p in safe}):
         text = pages[source]['text']
         offset = len(text) - len(pages[source]['body'])
-        for plan in sorted((p for p in safe if p['source'] == source), key=lambda p: -p['start']):
+        moving = [p for p in safe if p['source'] == source]
+        for plan in sorted(moving, key=lambda p: -p['start']):
             text = text[:offset + plan['start']] + text[offset + plan['end']:]
             new = wiki.edit_frontmatter('# ' + plan['title'] + '\n' + plan['body'],
                                         {'type': wiki.inferred_type(Path(plan['target'])),
@@ -241,8 +269,14 @@ def promote(plans, pages):
             # Same directory, so every relative target retains its original meaning.
             new = wiki.rewrite_local_links(Path(source), new)
             (root / plan['target']).write_text(new, encoding='utf-8')
+        # Removing repeated headings can renumber fragments still in the inbox.
+        retained = [anchor for start, anchor in heading_anchors(pages[source]['body'])
+                    if not any(p['start'] <= start < p['end'] for p in moving)]
+        remaining = [anchor for _, anchor in heading_anchors(text[offset:])]
+        for before, after in zip(retained, remaining):
+            if before != after:
+                mapping[(source, before)] = (source, after)
         (root / source).write_text(text, encoding='utf-8')
-    mapping = {(p['source'], p['anchor']): p['target'] for p in safe}
     for path in wiki.page_paths() + wiki.reserved_paths():
         file = root / path
         text = read_text(file)
@@ -252,7 +286,10 @@ def promote(plans, pages):
             parts = urlsplit(link.destination)
             replacement = mapping.get((str(target), unquote(parts.fragment)))
             if replacement:
-                dest = '/' + quote(replacement, safe='/') + ('?' + parts.query if parts.query else '')
+                destination, anchor = replacement
+                dest = ('/' + quote(destination, safe='/')
+                        + ('?' + parts.query if parts.query else '')
+                        + ('#' + quote(anchor) if anchor else ''))
                 updated = updated[:link.start] + dest + updated[link.end:]
         if updated != text:
             file.write_text(updated, encoding='utf-8')

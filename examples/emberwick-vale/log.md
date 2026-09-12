@@ -9,7 +9,7 @@ Labels: Creation, Update, Deprecation, Session, Lint.
 
 ## 2026-09-12
 
-* **Update**: Migrated the example to the [OKF v0.2 campaign schema](/wiki-schema.md), refreshed the scaffold and catalogs, and recorded the frozen live layer’s next session and stale horizon.
+* **Update**: Migrated the example to the [OKF v0.2 campaign schema](/wiki-schema.md), refreshed the scaffold and catalogs, recorded the frozen live layer’s next session and stale horizon, paired the unresolved reward claims, and collected existing guild facts in [The Chandlers' Guild](/nodes/factions/chandlers-guild.md).
 
 ## 2026-08-09
 

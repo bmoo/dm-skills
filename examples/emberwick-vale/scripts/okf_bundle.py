@@ -29,36 +29,33 @@ def bundle_root():
     return os.path.abspath(os.path.join(repo_root(), BUNDLE_ROOT))
 
 
+def _configured_paths():
+    """Files under configured directories, with exclusions and overlaps handled once."""
+    root = bundle_root()
+    paths = set()
+    for directory in BUNDLE_DIRS:
+        for dirpath, dirnames, filenames in os.walk(os.path.join(root, directory)):
+            dirnames[:] = [name for name in dirnames if name not in EXCLUDED]
+            paths.update(os.path.relpath(os.path.join(dirpath, name), root)
+                         for name in filenames)
+    return paths
+
+
 def page_paths():
     """Every candidate concept path in the configured bundle, sorted; reserved files excluded."""
     root = bundle_root()
-    out = []
-    for d in BUNDLE_DIRS:
-        for dirpath, dirnames, filenames in os.walk(os.path.join(root, d)):
-            dirnames[:] = [n for n in dirnames if n not in EXCLUDED]
-            for f in filenames:
-                if f.endswith(".md") and f not in RESERVED:
-                    out.append(os.path.relpath(os.path.join(dirpath, f), root))
-    for f in ROOT_CONCEPTS:
-        if os.path.exists(os.path.join(root, f)):
-            out.append(f)
-    return sorted(out)
+    paths = _configured_paths()
+    paths.update(path for path in ROOT_CONCEPTS if os.path.exists(os.path.join(root, path)))
+    return sorted(path for path in paths
+                  if path.endswith(".md") and Path(path).name not in RESERVED)
 
 
 def reserved_paths():
     """Every reserved index.md / log.md bundle member, as a bundle-relative path."""
     root = bundle_root()
-    out = []
-    for f in RESERVED:
-        if os.path.exists(os.path.join(root, f)):
-            out.append(f)
-    for d in BUNDLE_DIRS:
-        for dirpath, dirnames, filenames in os.walk(os.path.join(root, d)):
-            dirnames[:] = [n for n in dirnames if n not in EXCLUDED]
-            for f in filenames:
-                if f in RESERVED:
-                    out.append(os.path.relpath(os.path.join(dirpath, f), root))
-    return sorted(out)
+    paths = _configured_paths()
+    paths.update(path for path in RESERVED if os.path.exists(os.path.join(root, path)))
+    return sorted(path for path in paths if Path(path).name in RESERVED)
 
 
 def split_frontmatter(text):

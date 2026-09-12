@@ -339,3 +339,95 @@ def test_loose_region_preserves_crlf_surroundings(tmp_path):
     start, end = b'<!-- groom-wiki:loose-ends:start -->', b'<!-- groom-wiki:loose-ends:end -->'
     assert updated.split(start)[0] == original.split(start)[0]
     assert updated.split(end)[1] == original.split(end)[1]
+
+
+def test_seed_move_retargets_nested_headings_and_preserves_remaining_anchors(tmp_path):
+    inbox = 'nodes/npcs/ideas.md'
+    root = campaign(tmp_path, {
+        inbox: page('Ideas', kind='seed-ideas', body=(
+            '## Keep\n\n### Gear\n\nTiny.\n\n'
+            '## Clock House\n\n' + 'durable ' * 151 + '\n'
+            '[Details](#gear-1) and [Kept](#gear) and [After](#gear-2).\n\n'
+            '### Gear\n\n[Back](#clock-house)\n\n#### Wheels\n\nMore details.\n\n'
+            '## After\n\n### Gear\n\n[Self](#gear-2).\n')),
+        'nodes/npcs/b.md': page('B', body=(
+            '[Details](ideas.md?view=full#gear-1) and [Wheels](ideas.md#wheels).\n'
+            '[Kept](ideas.md#gear) and [Keep](ideas.md#keep) and [After](ideas.md#gear-2).')),
+        'nodes/log.md': '# Log\n\n[Details](/nodes/npcs/ideas.md#gear-1)\n',
+    })
+    before = snapshot(root)
+    assert run(root, '--dry-run').returncode == 0
+    assert snapshot(root) == before
+    result = run(root, '--fix')
+    assert result.returncode == 0, result.stderr
+    promoted = (root / 'nodes/npcs/clock-house.md').read_text()
+    assert '[Details](/nodes/npcs/clock-house.md#gear)' in promoted
+    assert '[Kept](/nodes/npcs/ideas.md#gear)' in promoted
+    assert '[Back](/nodes/npcs/clock-house.md)' in promoted
+    assert '[After](/nodes/npcs/ideas.md#gear-1)' in promoted
+    incoming = (root / 'nodes/npcs/b.md').read_text()
+    assert '[Details](/nodes/npcs/clock-house.md?view=full#gear)' in incoming
+    assert '[Wheels](/nodes/npcs/clock-house.md#wheels)' in incoming
+    assert '[Kept](/nodes/npcs/ideas.md#gear)' in incoming
+    assert '[Keep](/nodes/npcs/ideas.md#keep)' in incoming
+    assert '[After](/nodes/npcs/ideas.md#gear-1)' in incoming
+    assert '[Self](/nodes/npcs/ideas.md#gear-1)' in (root / inbox).read_text()
+    assert '[Details](/nodes/npcs/clock-house.md#gear)' in (root / 'nodes/log.md').read_text()
+    assert '## Keep\n\n### Gear\n\nTiny.' in (root / inbox).read_text()
+    assert 'Clock House' not in (root / inbox).read_text()
+    after = snapshot(root)
+    assert run(root, '--fix').returncode == 0
+    assert snapshot(root) == after
+
+
+@pytest.mark.parametrize('title', ['Log', 'Index'])
+def test_seed_cannot_promote_to_reserved_filename(tmp_path, title):
+    inbox = 'nodes/npcs/ideas.md'
+    root = campaign(tmp_path, {inbox: page('Ideas', kind='seed-ideas',
+                                         body=f'## {title}\n\n' + 'durable ' * 151)})
+    # A missing reserved target must be rejected before any section is removed.
+    (root / f'nodes/npcs/{title.lower()}.md').unlink(missing_ok=True)
+    original = (root / inbox).read_bytes()
+    result = run(root, '--fix')
+    assert result.returncode == 0, result.stderr
+    assert 'review required' in result.stdout
+    assert (root / inbox).read_bytes() == original
+    if title == 'Index':
+        assert '## Index' not in (root / 'nodes/npcs/index.md').read_text()
+    else:
+        assert not (root / 'nodes/npcs/log.md').exists()
+
+
+def test_existing_contradiction_refreshes_peer_metadata_without_resolving(tmp_path):
+    entity, left, right = ('nodes/npcs/bell.md', 'nodes/npcs/left.md', 'nodes/npcs/right.md')
+    claim_a = 'The [bell](/nodes/npcs/bell.md) is red.'
+    claim_b = 'The [bell](/nodes/npcs/bell.md) is blue.'
+    unrelated = '> [!contradiction] Unresolved: Another matter\n> Keep this evidence.\n'
+    root = campaign(tmp_path, {
+        entity: page('Bell'),
+        left: page('Left', fm='status: draft\n', body=claim_a + '\n\n' + unrelated),
+        right: page('Right', fm='status: draft\n', body=claim_b),
+    })
+    data = tmp_path / 'evidence.json'
+    data.write_text(json.dumps(dict(entity=entity, left=left, right=right,
+                                   left_claim=claim_a, right_claim=claim_b)))
+    assert run(root, '--place-contradiction', str(data), '--fix').returncode == 0
+    right_file = root / right
+    right_file.write_text(right_file.read_text().replace('title: Right', 'title: Renamed')
+                          .replace('status: draft', 'status: stable'))
+    before = snapshot(root)
+    result = run(root, '--place-contradiction', str(data), '--dry-run')
+    assert result.returncode == 0, result.stderr
+    assert left in result.stdout
+    assert snapshot(root) == before
+    result = run(root, '--place-contradiction', str(data), '--fix')
+    assert result.returncode == 0, result.stderr
+    a, b = (root / left).read_text(), right_file.read_text()
+    assert f'> Other: [Renamed](/{right}) (status: stable): "{claim_b}"' in a
+    assert f'> Other: [Left](/{left}) (status: draft): "{claim_a}"' in b
+    assert unrelated in a
+    assert a.count('<!-- groom-wiki:contradiction:') == b.count('<!-- groom-wiki:contradiction:') == 1
+    assert a.count(claim_a) == b.count(claim_b) == 2  # Original prose plus unresolved evidence.
+    after = snapshot(root)
+    assert run(root, '--place-contradiction', str(data), '--fix').returncode == 0
+    assert snapshot(root) == after
