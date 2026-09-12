@@ -14,7 +14,7 @@ Two assertions with stable check ids
 
 ``starts_green``
     copy the template to a scratch directory, run its own ``okf-index.py``,
-    then its own ``okf-check.py --warnings``. Both must exit 0. This runs the
+    then its own ``okf-check.py --strict``. Both must exit 0. This runs the
     shipped scripts rather than reimplementing their rules, so the schema and
     its checker can evolve together without this guard needing to learn them —
     it only pins that they still agree about the seed content.
@@ -72,7 +72,7 @@ class ScaffoldRun:
 
     def report(self) -> str:
         lines = []
-        for label, proc in (("okf-index.py", self.index), ("okf-check.py --warnings", self.check)):
+        for label, proc in (("okf-index.py", self.index), ("okf-check.py --strict", self.check)):
             lines.append(f"  {label} → exit {proc.returncode}")
             for stream in (proc.stdout, proc.stderr):
                 for line in (stream or "").splitlines():
@@ -104,7 +104,7 @@ def starts_green(template: Path = TEMPLATE) -> ScaffoldRun:
         # so what a consumer gets is always real files.
         shutil.copytree(template, root)
         index = _run("okf-index.py", root)
-        check = _run("okf-check.py", root, "--warnings")
+        check = _run("okf-check.py", root, "--strict")
     return ScaffoldRun(index=index, check=check)
 
 
