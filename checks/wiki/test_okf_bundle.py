@@ -74,3 +74,52 @@ title: "A colon: and a \\backslash"
         "aliases": ['The "Warden": ally', "Warden's friend"],
         "title": "A colon: and a \\backslash",
     }
+
+
+@pytest.mark.parametrize('text,expected', [
+    ('---\n---\nBody', ('', 'Body')),
+    ('---\ntype: npc\n---', ('type: npc', '')),
+    ('---\r\ntype: npc\r\n---\r\nBody', ('type: npc', 'Body')),
+    ('---\ntype: npc\nNo delimiter', (None, '---\ntype: npc\nNo delimiter')),
+])
+def test_frontmatter_delimiter_boundaries(monkeypatch, text, expected):
+    scripts = TEMPLATE / 'scripts'
+    monkeypatch.syspath_prepend(str(scripts))
+    split = runpy.run_path(str(scripts / 'okf_bundle.py'))['split_frontmatter']
+    assert split(text) == expected
+
+
+def test_markdown_destination_offsets_preserve_surrounding_syntax(monkeypatch):
+    scripts = TEMPLATE / 'scripts'
+    monkeypatch.syspath_prepend(str(scripts))
+    links = runpy.run_path(str(scripts / 'okf_bundle.py'))['markdown_links']
+    text = '''[Person](../people/the-warden.md#history "Title")
+![Map](<../media/a map.png> "Map")
+[Parenthesis](a(b).md)
+[Reference][r]
+[r]: ../notes.md "Notes"
+`[Example](do-not-rewrite.md)`
+
+```markdown
+[Example](do-not-rewrite.md)
+```
+'''
+    destinations = list(links(text))
+    assert [link.destination for link in destinations] == [
+        '../people/the-warden.md#history', '../media/a map.png', 'a(b).md', '../notes.md',
+    ]
+    rewritten = text
+    for link in reversed(destinations):
+        assert text[link.start:link.end] == link.destination
+        rewritten = rewritten[:link.start] + '/replacement.md' + rewritten[link.end:]
+    assert rewritten == '''[Person](/replacement.md "Title")
+![Map](</replacement.md> "Map")
+[Parenthesis](/replacement.md)
+[Reference][r]
+[r]: /replacement.md "Notes"
+`[Example](do-not-rewrite.md)`
+
+```markdown
+[Example](do-not-rewrite.md)
+```
+'''

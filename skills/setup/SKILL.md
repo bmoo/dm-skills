@@ -82,7 +82,7 @@ On acceptance:
    `wiki-schema.md` still governs pages, and the block can be appended on a
    rerun.
 5. **Start green.** From the repo root run `python3 scripts/okf-index.py`,
-   then `python3 scripts/okf-check.py --warnings`. The phase is done when
+   then `python3 scripts/okf-check.py --strict`. The phase is done when
    the check exits clean — zero errors, zero warnings — on the freshly
    generated catalog. Anything it flags on a fresh copy is yours to fix
    before handing over, not the DM's.

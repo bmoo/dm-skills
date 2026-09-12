@@ -9,7 +9,7 @@ dependencies, using the OKF frontmatter YAML subset below.
 import json
 import os
 import re
-from typing import Any
+from typing import Any, NamedTuple
 
 from okf_config import BUNDLE_DIRS, BUNDLE_ROOT, EXCLUDED, ROOT_CONCEPTS
 
@@ -60,12 +60,10 @@ def reserved_paths():
 
 def split_frontmatter(text):
     """Return (frontmatter_text, body) or (None, text) when absent."""
-    if not text.startswith("---\n"):
+    match = re.match(r"\A---\r?\n(?P<fields>.*?)(?m:^---(?:\r?\n|\Z))", text, re.S)
+    if match is None:
         return None, text
-    parts = text[4:].split("\n---\n", 1)
-    if len(parts) != 2:
-        return None, text
-    return parts[0], parts[1]
+    return match["fields"].rstrip("\r\n"), text[match.end():]
 
 
 # --- YAML subset -------------------------------------------------------------
@@ -239,3 +237,94 @@ def load(path):
         text = fh.read()
     fm, body = split_frontmatter(text)
     return (parse_frontmatter(fm) if fm is not None else None), body
+
+
+# --- Markdown destinations ---------------------------------------------------
+# Keep offsets into the original text so callers can rewrite only destinations.
+# These are Markdown links/images and reference definitions, not wikilinks or HTML.
+
+class MarkdownLink(NamedTuple):
+    destination: str
+    start: int
+    end: int
+
+
+def markdown_prose(text):
+    """Mask code and HTML comments with spaces, preserving source offsets."""
+    def blank(match):
+        value = match.group() if hasattr(match, "group") else match
+        return re.sub(r"[^\r\n]", " ", value)
+
+    text = re.sub(r"<!--.*?(?:-->|\Z)", blank, text, flags=re.S)
+    lines, fence = [], None
+    for line in text.splitlines(keepends=True):
+        marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+        if fence:
+            lines.append(blank(line))
+            if marker and marker[1][0] == fence[0] and len(marker[1]) >= len(fence) and not marker[2].strip():
+                fence = None
+        elif marker:
+            fence = marker[1]
+            lines.append(blank(line))
+        elif line.startswith(("    ", "\t")):
+            lines.append(blank(line))
+        else:
+            lines.append(line)
+    text = "".join(lines)
+    return re.sub(r"(?<!`)(`+)(?!`)(.*?)(?<!`)\1(?!`)", blank, text, flags=re.S)
+
+
+def _link_destination(text, start):
+    """Parse a Markdown destination, allowing angle brackets and balanced ()."""
+    if start >= len(text):
+        return None
+    if text[start] == "<":
+        match = re.match(r"<((?:\\.|[^<>\n])*)>", text[start:])
+        return (start + 1, start + 1 + len(match[1])) if match else None
+    depth, end = 0, start
+    while end < len(text):
+        char = text[end]
+        if char == "\\" and end + 1 < len(text):
+            end += 2
+            continue
+        if char.isspace():
+            break
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            if depth == 0:
+                break
+            depth -= 1
+        end += 1
+    return (start, end) if depth == 0 else None
+
+
+def markdown_links(text):
+    """Yield MarkdownLink(destination, start, end) outside code/examples.
+
+    Offsets cover just the destination (inside <> when present), allowing
+    reverse-order replacements while preserving titles and surrounding prose.
+    Reference definitions are yielded once, including image definitions.
+    """
+    visible = markdown_prose(text)
+    spans = set()
+    # Inline links/images, including escaped or nested brackets in the label.
+    for match in re.finditer(r"(?<!\\)\[(?:\\.|[^\]\\\n]|\[[^\]\n]*\])*\]\(\s*", visible):
+        span = _link_destination(visible, match.end())
+        if span is None:
+            continue
+        end = span[1] + (1 if visible[match.end():].startswith("<") else 0)
+        # A link may include a quoted title between its destination and closing ).
+        if re.match(r'''\s*(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\([^()]*\))?\s*\)''', visible[end:]):
+            spans.add(span)
+    for match in re.finditer(r"^ {0,3}\[(?!\^)[^\]\n]+\]:[ \t]*", visible, re.M):
+        span = _link_destination(visible, match.end())
+        if span:
+            spans.add(span)
+    for start, end in sorted(spans):
+        yield MarkdownLink(text[start:end], start, end)
+
+
+def is_relative_link(destination):
+    """Local Markdown destinations (including #anchors) that lack leading /."""
+    return not destination.startswith("/") and re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", destination) is None
