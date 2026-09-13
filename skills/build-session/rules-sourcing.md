@@ -1,1 +1,0 @@
-../../lib/rules-sourcing.md

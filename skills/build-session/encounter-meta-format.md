@@ -1,1 +1,0 @@
-../../lib/encounter-meta-format.md

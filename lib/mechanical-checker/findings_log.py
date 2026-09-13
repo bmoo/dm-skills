@@ -206,10 +206,9 @@ def log_finding(
     terminal mechanical escalations, and judgement findings — because the silent
     class is precisely the one worth recording.
 
-    - ``skill`` — which generator produced the output (``"build-session"``,
-      ``"build-session"``, ``"build-session"``). One prep session emits
-      findings from up to three skills, interleaved, because delegation is a
-      chain.
+    - ``skill`` — which generator produced the output (``"combat-generator"``
+      today). A prep session can emit findings from more than one skill,
+      interleaved, when delegation is a chain.
     - ``inventory_row`` — the serialized promise-pointer field: the stable check
       id this finding broke, which for a mechanical finding is the ``Finding``'s
       ``check_id`` verbatim. **The grouping key**, using a stable id rather than
