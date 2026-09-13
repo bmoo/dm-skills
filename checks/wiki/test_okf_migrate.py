@@ -92,19 +92,51 @@ ROOT_CONCEPTS.append("overview.md")
 
 @pytest.mark.parametrize(("status", "mapped", "decision"), [
     ("stub", "draft", None), ("prep", "draft", None),
-    ("active", "stable", None), ("canon", "stable", None),
+    ("active", "stable", "accepted"), ("canon", "stable", None),
     ("inactive", "deprecated", None), ("superseded", "deprecated", None),
     ("proposed", "draft", "proposed"), ("accepted", "stable", "accepted"),
     ("amended", "stable", "amended"), ("accepted (amended)", "stable", "amended"),
 ])
 def test_status_and_adr_decision_maps(tmp_path, status, mapped, decision):
     repo, bundle = install(tmp_path)
-    path = bundle / "story/council.md"
-    path.write_text(path.read_text().replace("accepted (amended)", status))
+    charter = bundle / "story/decisions/charter.md"
+    charter.write_text(charter.read_text().replace("status: active", f"status: {status}"))
+    council = bundle / "story/council.md"
+    council.write_text(council.read_text().replace("accepted (amended)", status))
     assert run(repo).returncode == 0
-    result = path.read_text()
+    result = charter.read_text()
     assert f'status: "{mapped}"' in result
     assert (f'decision: "{decision}"' in result) if decision else "decision:" not in result
+    # The ADR lifecycle never lands on a concept that is not a design decision.
+    assert f'status: "{mapped}"' in council.read_text()
+    assert "decision:" not in council.read_text()
+
+
+def test_shipped_decision_map_covers_legacy_active():
+    namespace = {}
+    exec((TEMPLATE / "scripts/okf_config.py").read_text(), namespace)
+    assert namespace["MIGRATION_DECISION_TYPE"] == "design-decision"
+    assert namespace["MIGRATION_DECISION_MAP"]["active"] == "accepted"
+
+
+def test_unmapped_decision_status_warns_naming_the_concept(tmp_path):
+    repo, bundle = install(tmp_path)
+    charter = bundle / "story/decisions/charter.md"
+    charter.write_text(charter.read_text().replace("status: active", "status: ratified"))
+    # A non-decision concept with the same unknown status stays silent, as does
+    # a design decision whose `decision:` is already set.
+    scout = bundle / "nodes/npcs/scout.md"
+    scout.write_text(scout.read_text().replace("status: prep", "status: ratified"))
+    (bundle / "story/decisions/settled.md").write_text(
+        '---\ntype: design-decision\nstatus: ratified\ndecision: accepted\n---\n# Settled\n')
+    result = run(repo)
+    assert result.returncode == 0, result.stderr
+    warnings = [line for line in result.stderr.splitlines() if line.startswith("warning:")]
+    assert len(warnings) == 1
+    assert "story/decisions/charter.md" in warnings[0]
+    assert "'ratified'" in warnings[0] and "MIGRATION_DECISION_MAP" in warnings[0]
+    assert "decision:" not in charter.read_text()
+    assert 'status: ratified' in charter.read_text()
 
 
 def test_preserves_extensions_existing_provenance_and_unknown_values(tmp_path):
@@ -135,7 +167,7 @@ def test_preserves_extensions_existing_provenance_and_unknown_values(tmp_path):
     '---\ntimestamp: 2026-09-12T12:00:00\n---\n# Bad\n',
     '---\ntimestamp: 2026-08-01\n# Unclosed\n',
     '---\ntags: canon, prep\n---\n# Bad\n',
-    '---\nstatus: accepted\ndecision: proposed\n---\n# Conflict\n',
+    '---\ntype: design-decision\nstatus: accepted\ndecision: proposed\n---\n# Conflict\n',
 ])
 def test_invalid_metadata_aborts_all_writes(tmp_path, bad):
     repo, bundle = install(tmp_path)
