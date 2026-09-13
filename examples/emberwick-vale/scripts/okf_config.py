@@ -43,7 +43,14 @@ SUGGESTED_TAGS = {
     "live-layer", "prep-sheet", "seeds", "dungeon", "rewards",
 }
 
+# Filler words inside hyphenated concept basenames that never stand alone as a
+# setting tag: `the-trust` exempts `trust`, not `the`.
+TAG_STOPWORDS = {"the", "of", "and", "a"}
+
 # Expected type by immediate bundle-relative directory; extend for local layouts.
+# Root concepts (ROOT_CONCEPTS) live under the "." key; without one their type
+# is neither checked nor backfilled. Schema, readme, and seed-ideas concepts
+# keep their own types regardless.
 DIRECTORY_TYPES = {
     "nodes/locations": "location",
     "nodes/factions": "faction",
@@ -53,9 +60,6 @@ DIRECTORY_TYPES = {
     "players": "player",
     "sessions": "session",
 }
-
-# Expected type for root concepts; schema and readme concepts keep their own types.
-ROOT_TYPE = "reference"
 
 # Default real-world game night proposed by catch-up; None means ask.
 # Use a lowercase English weekday, e.g. "tuesday". The campaign guide owns
@@ -74,11 +78,16 @@ MIGRATION_STATUS_MAP = {
     "proposed": "draft", "accepted": "stable", "amended": "stable",
     "accepted (amended)": "stable",
 }
-# ADR lifecycle survives separately from the universal OKF status.
+# ADR lifecycle survives separately from the universal OKF status. Only
+# concepts of MIGRATION_DECISION_TYPE (by frontmatter or directory) receive a
+# `decision:`; a legacy status missing from this map is reported at migrate
+# time so the gap is not first seen at the strict gate. `active` is the common
+# v0.1 spelling of an ADR that is in force.
+MIGRATION_DECISION_TYPE = "design-decision"
 MIGRATION_DECISION_MAP = {
-    "proposed": "proposed", "accepted": "accepted", "amended": "amended",
-    "accepted (amended)": "amended",
+    "proposed": "proposed", "accepted": "accepted", "active": "accepted",
+    "amended": "amended", "accepted (amended)": "amended",
 }
-# Backfill only missing type/title, using DIRECTORY_TYPES / ROOT_TYPE and H1.
+# Backfill only missing type/title, using DIRECTORY_TYPES and H1.
 MIGRATION_BACKFILL_TYPE = True
 MIGRATION_BACKFILL_TITLE = True

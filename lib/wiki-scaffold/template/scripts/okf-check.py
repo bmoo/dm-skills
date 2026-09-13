@@ -18,7 +18,7 @@ import sys
 # The checker does not create __pycache__ in a consumer's bundle.
 sys.dont_write_bytecode = True
 import okf_bundle as wiki
-from okf_config import DIRECTORY_TYPES, ROOT_TYPE, SUGGESTED_TAGS
+from okf_config import DIRECTORY_TYPES, SUGGESTED_TAGS, TAG_STOPWORDS
 
 
 def finding(check_id, path, message):
@@ -42,10 +42,21 @@ def actor_has_shape(value):
     ) is not None
 
 
+def setting_tags(paths):
+    """Tags a concept basename exempts: the whole stem, each hyphen-delimited
+    word, and each hyphen-delimited prefix, skipping bare stopwords."""
+    tags = set()
+    for path in paths:
+        words = PurePosixPath(path).stem.split("-")
+        candidates = set(words) | {"-".join(words[:n]) for n in range(1, len(words) + 1)}
+        tags.update(candidate for candidate in candidates if candidate not in TAG_STOPWORDS)
+    return tags
+
+
 def check_pages():
     errors, warnings = [], []
     paths = sorted(set(wiki.page_paths()))
-    slugs = {PurePosixPath(path).stem for path in paths}
+    slugs = setting_tags(paths)
     for path in paths:
         try:
             fm, body = wiki.load(path)
@@ -93,8 +104,7 @@ def check_pages():
             warnings.append(finding("okf/status-enum", path, "`status` should be draft, stable, or deprecated"))
         if "timestamp" in fm:
             warnings.append(finding("okf/legacy-timestamp", path, "legacy `timestamp`; use `generated.at`"))
-        directory = str(PurePosixPath(path).parent)
-        expected = ROOT_TYPE if directory == "." else DIRECTORY_TYPES.get(directory)
+        expected = DIRECTORY_TYPES.get(str(PurePosixPath(path).parent))
         if kind and kind not in ("schema", "readme", "seed-ideas") and expected and kind != expected:
             warnings.append(finding("wiki/type-matches-directory", path, f"directory convention expects type `{expected}`"))
         if "tags" in fm:
@@ -102,7 +112,7 @@ def check_pages():
             if not isinstance(tags, list) or any(
                 not isinstance(tag, str) or tag not in SUGGESTED_TAGS and tag not in slugs for tag in tags
             ):
-                warnings.append(finding("wiki/tags-suggested", path, "tags should be a list from SUGGESTED_TAGS or existing concept basename slugs"))
+                warnings.append(finding("wiki/tags-suggested", path, "tags should be a list from SUGGESTED_TAGS or words of existing concept basenames"))
         description = fm.get("description", "")
         if isinstance(description, str) and any(wiki.markdown_links(description)):
             warnings.append(finding("wiki/description-plain", path, "description should use plain text without Markdown links"))

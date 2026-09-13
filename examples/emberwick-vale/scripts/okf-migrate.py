@@ -3,7 +3,9 @@
 
 Configure the source key, actor, mappings, and backfills in okf_config.py.
 All rewrites are planned before writing; malformed metadata leaves the bundle
-untouched. Missing provenance and unknown statuses remain for checker review.
+untouched. Missing provenance and unknown statuses remain for checker review;
+a design-decision concept whose legacy status has no decision mapping is
+warned about on stderr so it can be set by hand before the strict gate.
 """
 
 import argparse
@@ -42,7 +44,8 @@ def source_datetime(value):
     return value
 
 
-def migrate_metadata(path, text):
+def migrate_metadata(path, text, warnings=None):
+    """Rewrite one concept's frontmatter; non-fatal gaps are appended to `warnings`."""
     block, body = split_frontmatter(text)
     if block is None and text.startswith(("---\n", "---\r\n")):
         raise ValueError("unterminated frontmatter")
@@ -57,15 +60,21 @@ def migrate_metadata(path, text):
             updates["generated"] = {"by": config.MIGRATION_ACTOR, "at": source_datetime(fields[source_key])}
         remove.append(source_key)
     status = fields.get("status")
+    is_decision = (fields.get("type") or inferred_type(path)) == config.MIGRATION_DECISION_TYPE
     if isinstance(status, str):
         if status in config.MIGRATION_STATUS_MAP:
             updates["status"] = config.MIGRATION_STATUS_MAP[status]
-        if status in config.MIGRATION_DECISION_MAP:
+        if is_decision and status in config.MIGRATION_DECISION_MAP:
             decision = config.MIGRATION_DECISION_MAP[status]
             if "decision" in fields and fields["decision"] != decision:
                 raise ValueError("existing decision conflicts with the legacy ADR status")
             if "decision" not in fields:
                 updates["decision"] = decision
+        elif is_decision and "decision" not in fields and warnings is not None:
+            warnings.append(
+                f"{path}: legacy status {status!r} has no MIGRATION_DECISION_MAP entry;"
+                " no `decision:` written, set it by hand"
+            )
     if "tags" in fields:
         if not isinstance(fields["tags"], list) or not all(isinstance(tag, str) for tag in fields["tags"]):
             raise ValueError("tags must be a list of strings")
@@ -83,10 +92,10 @@ def migrate_metadata(path, text):
     return edit_frontmatter(text, updates, remove)
 
 
-def migrate_text(path, text, *, reserved=False):
+def migrate_text(path, text, *, reserved=False, warnings=None):
     """Pure per-file migration; target existence is read from the configured bundle."""
     if not reserved:
-        text = migrate_metadata(path, text)
+        text = migrate_metadata(path, text, warnings)
     if Path(path).name == "log.md":
         header = re.match(r"\A<!--\s*Format:.*?-->", text, re.S)
         if header:
@@ -102,13 +111,13 @@ def main():
     argparse.ArgumentParser(description=__doc__).parse_args()
     root = Path(bundle_root())
     reserved = set(reserved_paths())
-    plan, errors = [], []
+    plan, errors, warnings = [], [], []
     for relative in sorted(set(page_paths()) | reserved):
         path = root / relative
         try:
             path.resolve().relative_to(root.resolve())
             old = path.read_bytes().decode("utf-8")
-            new = migrate_text(relative, old, reserved=relative in reserved)
+            new = migrate_text(relative, old, reserved=relative in reserved, warnings=warnings)
             if new != old:
                 plan.append((path, new))
         except (ValueError, OSError) as exc:
@@ -120,6 +129,8 @@ def main():
     for path, text in plan:
         path.write_bytes(text.encode("utf-8"))
         print(f"migrated  {path.relative_to(root)}")
+    for warning in warnings:
+        print(f"warning: {warning}", file=sys.stderr)
     print(f"Migrated {len(plan)} file(s). Run okf-index.py, then okf-check.py --strict.")
     return 0
 

@@ -97,6 +97,18 @@ def test_wiki_type_matches_directory(campaign):
     assert_fixture(campaign, "wiki/type-matches-directory")
 
 
+@pytest.mark.parametrize("root_types,expected", [
+    ("", set()),
+    ('DIRECTORY_TYPES["."] = "reference"', set()),
+    ('DIRECTORY_TYPES["."] = "hub"', {"wiki/type-matches-directory"}),
+])
+def test_root_concept_type_is_checked_only_when_configured(campaign, root_types, expected):
+    with (campaign / "scripts/okf_config.py").open("a") as stream:
+        stream.write(f'\nROOT_CONCEPTS.append("overview.md")\n{root_types}\n')
+    (campaign / "overview.md").write_text(baseline().replace("type: npc", "type: reference"))
+    assert ids(run_check(campaign, "--warnings")) == expected
+
+
 def test_wiki_tags_suggested(campaign):
     assert_fixture(campaign, "wiki/tags-suggested")
 
@@ -151,6 +163,26 @@ def test_tag_may_equal_an_existing_concept_basename(campaign):
     concept(campaign, baseline().replace('[recurring]', '[the-warden]'))
     (campaign / "nodes/npcs/the-warden.md").write_text(baseline())
     assert run_check(campaign, "--strict").returncode == 0
+
+
+@pytest.mark.parametrize("tag,expected", [
+    ("wardens", set()),                 # a word of the basename
+    ("canyons", set()),                 # the last word, not a prefix
+    ("wardens-of-the-canyons", set()),  # the whole basename
+    ("wardens-of", set()),              # a hyphen-delimited prefix
+    ("trust", set()),                   # a word after a leading stopword
+    ("the", {"wiki/tags-suggested"}),   # a bare stopword segment
+    ("of", {"wiki/tags-suggested"}),
+    ("marsh", {"wiki/tags-suggested"}), # no concept mentions it
+    ("of-the", {"wiki/tags-suggested"}),  # neither a word nor a prefix
+])
+def test_tag_may_equal_a_word_or_prefix_of_an_existing_concept_basename(campaign, tag, expected):
+    concept(campaign, baseline().replace('[recurring]', f'[{tag}]'))
+    for name in ("wardens-of-the-canyons", "the-trust"):
+        (campaign / f"nodes/npcs/{name}.md").write_text(baseline())
+    result = run_check(campaign, "--warnings")
+    assert result.returncode == 0
+    assert ids(result) == expected, result.stdout
 
 
 @pytest.mark.parametrize('link', [
@@ -215,7 +247,6 @@ BUNDLE_ROOT = "wiki"
 BUNDLE_DIRS = ["party", "analysis"]
 ROOT_CONCEPTS = ["hub.md"]
 DIRECTORY_TYPES = {"party": "player", "analysis": "analysis"}
-ROOT_TYPE = "reference"
 ''')
     bundle = campaign / 'wiki'
     (bundle / 'party').mkdir(parents=True)
