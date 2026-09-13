@@ -153,6 +153,26 @@ def test_tag_may_equal_an_existing_concept_basename(campaign):
     assert run_check(campaign, "--strict").returncode == 0
 
 
+@pytest.mark.parametrize("tag,expected", [
+    ("wardens", set()),                 # a word of the basename
+    ("canyons", set()),                 # the last word, not a prefix
+    ("wardens-of-the-canyons", set()),  # the whole basename
+    ("wardens-of", set()),              # a hyphen-delimited prefix
+    ("trust", set()),                   # a word after a leading stopword
+    ("the", {"wiki/tags-suggested"}),   # a bare stopword segment
+    ("of", {"wiki/tags-suggested"}),
+    ("marsh", {"wiki/tags-suggested"}), # no concept mentions it
+    ("of-the", {"wiki/tags-suggested"}),  # neither a word nor a prefix
+])
+def test_tag_may_equal_a_word_or_prefix_of_an_existing_concept_basename(campaign, tag, expected):
+    concept(campaign, baseline().replace('[recurring]', f'[{tag}]'))
+    for name in ("wardens-of-the-canyons", "the-trust"):
+        (campaign / f"nodes/npcs/{name}.md").write_text(baseline())
+    result = run_check(campaign, "--warnings")
+    assert result.returncode == 0
+    assert ids(result) == expected, result.stdout
+
+
 @pytest.mark.parametrize('link', [
     '[Missing](unwritten.md)', '![Map](../media/map.png)', '[Section](#details)',
     '[Name](<a spaced file.md> "A title")', '[Name](folder/a(b).md)',

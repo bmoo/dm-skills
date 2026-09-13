@@ -171,9 +171,13 @@ with the checker warning on tags outside it:
 | `rewards`    | a treasure or reward pool                                     |
 
 Setting tags — region, district, faction, and person names — are free-form and
-exempt from the warning when they match the slug of an existing concept's
-basename (`old-town`, `wardens`). Lifecycle words (`stub`, `prep`, `canon`)
-are not tags any more; `status` carries them.
+exempt from the warning when they match an existing concept's basename, any
+hyphen-delimited word of it, or a hyphen-delimited prefix of it: `old-town.md`
+exempts `old-town`, `old`, and `town`; `wardens-of-the-canyons.md` exempts
+`wardens`, `canyons`, and `wardens-of-the-canyons`. Bare filler words (`the`,
+`of`, `and`, `a`) never qualify, so `the-trust.md` exempts `trust` but not
+`the`. Lifecycle words (`stub`, `prep`, `canon`) are not tags any more;
+`status` carries them.
 
 ## Granularity and seed promotion
 

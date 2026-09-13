@@ -43,6 +43,10 @@ SUGGESTED_TAGS = {
     "live-layer", "prep-sheet", "seeds", "dungeon", "rewards",
 }
 
+# Filler words inside hyphenated concept basenames that never stand alone as a
+# setting tag: `the-trust` exempts `trust`, not `the`.
+TAG_STOPWORDS = {"the", "of", "and", "a"}
+
 # Expected type by immediate bundle-relative directory; extend for local layouts.
 DIRECTORY_TYPES = {
     "nodes/locations": "location",
