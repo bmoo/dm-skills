@@ -157,10 +157,10 @@ campaign repo's docs should answer — is indexed in
 Everything below `docs/` and `lib/` beyond the two files linked above is
 maintainer machinery, not consumer surface:
 
-- The runtime verifier lives at `lib/mechanical-checker/` and materialises
-  into combat-generator by symlink (`scripts/mechanical_checker`); its README
-  describes the checks, test gate, and extension procedure.
-- **`pytest checks/ lib/mechanical-checker skills/prep-session/scripts/
+- The runtime verifier lives inside combat-generator at
+  `skills/combat-generator/scripts/mechanical_checker/`, the only skill that
+  runs it; its README describes the checks, test gate, and extension procedure.
+- **`pytest checks/ skills/combat-generator/scripts/ skills/prep-session/scripts/
   skills/review-rewards/scripts/` is the gate on every content commit** — it
   runs checks over shipped content and the units that ship with the skills.
 - Maintainer tooling in `.claude/skills/` never ships.

@@ -17,8 +17,8 @@ Each rule has a stable `<skill>/<rule>` check id, such as
 [`checker.py`](checker.py) is the rule's executable specification; a failure is
 reported with that id in `Finding.check_id`. The checker deliberately does not
 make judgement calls: subjective completion criteria are evaluated by the
-separate fresh check described in the shared verification protocol
-(`lib/verification.md`).
+separate fresh check described in the skill's verification protocol
+([`verification.md`](../../verification.md)).
 
 ## Public interface — the sole test seam
 
@@ -156,30 +156,29 @@ context here, and test the missing-context failure.
 
 ## How this ships
 
-There is **one copy**, this directory:
+There is **one copy**, this directory, inside the only skill that runs it:
 
 ```
-lib/mechanical-checker/
+skills/combat-generator/scripts/mechanical_checker/
 ```
 
-It materialises into combat-generator by a relative symlink from that skill's
-own `scripts/` (`skills/combat-generator/scripts/mechanical_checker`) — the same
-arrangement as `lib/rules-sourcing.md` and `lib/srd/`. At install time the
-symlink dereferences, so the installed skill carries its own materialised copy
-and stays selective-install-safe.
+It ships with combat-generator like any other file under the skill, so the
+installed skill carries the checker beside its other scripts and stays
+selective-install-safe. It used to live in the library's `lib/` and reach the
+skill by symlink; with combat-generator as the sole consumer, that indirection
+was dropped.
 
 ## Running the tests
 
 Flat module layout — no package, no `__init__.py`. pytest inserts the test
 file's own directory on `sys.path`, so `from checker import ...` resolves when
-tests run from within this dir; at the consumer the materialised copy sits
-beside the skill's other scripts and imports the same flat way.
+tests run from within this dir; at the consumer the copy sits beside the
+skill's other scripts and imports the same flat way.
 
 ```
 # The gate — checks over shipped content, this checker, then the script
-# tests that ship with prep-session and review-rewards (pytest.ini keeps the
-# skill-side symlink from being collected a second time).
-python -m pytest checks/ lib/mechanical-checker skills/prep-session/scripts/ skills/review-rewards/scripts/
+# tests that ship with prep-session and review-rewards.
+python -m pytest checks/ skills/combat-generator/scripts/ skills/prep-session/scripts/ skills/review-rewards/scripts/
 
-python -m pytest lib/mechanical-checker/  # this dir only
+python -m pytest skills/combat-generator/scripts/mechanical_checker/  # this dir only
 ```
