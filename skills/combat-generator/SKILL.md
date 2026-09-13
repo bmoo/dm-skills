@@ -45,8 +45,8 @@ Reference files sit beside this one; load each when its step says to:
 
 ## Inputs
 
-A caller — the DM mid-prep, or another skill invoking this one with a wider
-prep plan of its own — may hand any of these in already settled; Steps 1–2
+A caller — the DM mid-prep, or a prep skill invoking this one for a fight
+on its sheet — may hand any of these in already settled; Steps 1–2
 restate them, so skip to Step 3 when they all arrive:
 
 - the fight's **form** — pinned or floating. Floating is the caller's
@@ -60,13 +60,7 @@ restate them, so skip to Step 3 when they all arrive:
 - the difficulty band — Low / Moderate / High (the caller's pick, not a
   default);
 - the desired enemy-turn count or range, including expected absences and
-  optional independently acting allies;
-- the fight's **allocated spotlight beat** — its texture and, if aimed or
-  puzzle, the target PC, when the caller runs a spotlight plan spanning more
-  than this fight. Such a plan is the caller's transient state, never read
-  off a page: spend a handed beat via Step 5's *Handed beat first* path
-  rather than aiming independently, and with no beat handed Step 5
-  self-serves.
+  optional independently acting allies.
 
 Anything not handed in, Steps 1–2 pin from the campaign record and the DM's
 ask.
@@ -161,15 +155,14 @@ Open [`spotlight-doctrine.md`](spotlight-doctrine.md), and
 [`class-patterns.md`](class-patterns.md) if the fight ends up
 aimed:
 
-- **Handed beat first.** A caller running a wider spotlight plan has already
-  allocated this fight's texture and target — take them from the handed
-  beat. Where the fight can't honor it, say so in the hand-back: the plan is
-  the caller's, and reconciling it against the finished work is the
-  caller's job.
-- **No beat → self-serve.** Run the doctrine's variety check against the
-  campaign record's structured combat data (fallback: recent encounter-meta
-  `Spotlight:` lines), then pick a texture from the palette. No fight must aim
-  at anyone — plain is a legitimate result.
+- **Read the history, then pick.** Run the doctrine's variety check against
+  the campaign record's structured combat data (fallback: recent
+  encounter-meta `Spotlight:` lines and catch-up's fired/denied marks beside
+  them), then pick a texture from the palette. No fight must aim at anyone —
+  plain is a legitimate result.
+- **Stage an opportunity, not an outcome.** An aimed or puzzle texture names
+  an intended beneficiary and the conditions that make their ability
+  available; it never assigns who acts or whether it works.
 - **Texturing stages the roster Step 4 already bought** — adding creatures is
   Step 4's job, finished before this step.
 - **Floating form: stage in roles.** The staging speaks in the fight's
@@ -222,8 +215,8 @@ Present the encounter in chat as a runnable block:
   opens. Multi-level terrain shows which enemies and cover sit on which level,
   not just that the room has levels.
 - **The spotlight** — the fight's texture (aimed / puzzle / steamroll / plain /
-  curveball); if aimed or puzzle, who it shoots at and the staging that fires
-  their ability; for a curveball, whose tricks it denies.
+  curveball); if aimed or puzzle, whom the opportunity is staged for and the
+  conditions that make it available; for a curveball, whose tricks it denies.
 - **The complication** — named, with one line on how to run it.
 - **Tactics** — what the enemies do round one and how they react (flee, parley,
   call reinforcements), tied to their objective.
@@ -304,17 +297,15 @@ On the yes, the encounter's vitals land on the page as an **encounter-meta
 callout** (the prose — terrain, tactics, the complication's staging — lives
 around it as normal page text). **Where it lands follows the form**: a
 pinned fight files where its scene lives — the node/location page, or the
-session page's keyed area; a floating fight files into the session page's
-**Relevant Monsters** section (the session-page format's optional section),
-never onto a node — it has no node until play gives it one. A floating
-fight's `Terrain:` line carries its terrain roles (`needs: …`), and its
-creature names appear on the `Enemies:` line only. This is the machine-findable summary other
-tooling greps for: the `Spotlight:` line is the variety check's fallback
-ledger before played sessions exist
-([`spotlight-doctrine.md`](spotlight-doctrine.md)) and half of what
-play-absorption tooling reconciles afterward — a spotlight plan is transient,
-so an aimed or puzzle fight names the PC it shoots at. **Never file an
-encounter without one.**
+scene on the prep sheet that is the fight; a floating fight files under the
+prep sheet's **Relevant Monsters** heading, never onto a node — it has no
+node until play gives it one. A floating fight's `Terrain:` line carries its
+terrain roles (`needs: …`), and its creature names appear on the `Enemies:`
+line only. This is the machine-findable summary other tooling greps for: the
+`Spotlight:` line is the variety check's fallback ledger
+([`spotlight-doctrine.md`](spotlight-doctrine.md)) and what catch-up marks
+fired or denied after play — so an aimed or puzzle fight names the PC the
+opportunity is staged for. **Never file an encounter without one.**
 
 **The block's shape is specified once, and not here.** It lives at
 [`encounter-meta-format.md`](encounter-meta-format.md) beside this file —
@@ -330,4 +321,4 @@ creature references its stat block's page in the campaign record instead — a
 bare creature name is a filing defect, never a valid entry. The `Objective:`
 line carries the win condition, and the complication usually lives there; the
 `Spotlight:` line names the fight's texture, and an aimed or puzzle fight names
-whom it shoots at and the staging that fires their ability.
+whom the opportunity is staged for and the conditions that make it available.
