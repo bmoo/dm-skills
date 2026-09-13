@@ -18,7 +18,7 @@ import sys
 # The checker does not create __pycache__ in a consumer's bundle.
 sys.dont_write_bytecode = True
 import okf_bundle as wiki
-from okf_config import DIRECTORY_TYPES, ROOT_TYPE, SUGGESTED_TAGS, TAG_STOPWORDS
+from okf_config import DIRECTORY_TYPES, SUGGESTED_TAGS, TAG_STOPWORDS
 
 
 def finding(check_id, path, message):
@@ -104,8 +104,7 @@ def check_pages():
             warnings.append(finding("okf/status-enum", path, "`status` should be draft, stable, or deprecated"))
         if "timestamp" in fm:
             warnings.append(finding("okf/legacy-timestamp", path, "legacy `timestamp`; use `generated.at`"))
-        directory = str(PurePosixPath(path).parent)
-        expected = ROOT_TYPE if directory == "." else DIRECTORY_TYPES.get(directory)
+        expected = DIRECTORY_TYPES.get(str(PurePosixPath(path).parent))
         if kind and kind not in ("schema", "readme", "seed-ideas") and expected and kind != expected:
             warnings.append(finding("wiki/type-matches-directory", path, f"directory convention expects type `{expected}`"))
         if "tags" in fm:

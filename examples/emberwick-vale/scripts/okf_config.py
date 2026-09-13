@@ -48,6 +48,9 @@ SUGGESTED_TAGS = {
 TAG_STOPWORDS = {"the", "of", "and", "a"}
 
 # Expected type by immediate bundle-relative directory; extend for local layouts.
+# Root concepts (ROOT_CONCEPTS) live under the "." key; without one their type
+# is neither checked nor backfilled. Schema, readme, and seed-ideas concepts
+# keep their own types regardless.
 DIRECTORY_TYPES = {
     "nodes/locations": "location",
     "nodes/factions": "faction",
@@ -57,9 +60,6 @@ DIRECTORY_TYPES = {
     "players": "player",
     "sessions": "session",
 }
-
-# Expected type for root concepts; schema and readme concepts keep their own types.
-ROOT_TYPE = "reference"
 
 # Default real-world game night proposed by catch-up; None means ask.
 # Use a lowercase English weekday, e.g. "tuesday". The campaign guide owns
@@ -83,6 +83,6 @@ MIGRATION_DECISION_MAP = {
     "proposed": "proposed", "accepted": "accepted", "amended": "amended",
     "accepted (amended)": "amended",
 }
-# Backfill only missing type/title, using DIRECTORY_TYPES / ROOT_TYPE and H1.
+# Backfill only missing type/title, using DIRECTORY_TYPES and H1.
 MIGRATION_BACKFILL_TYPE = True
 MIGRATION_BACKFILL_TITLE = True
