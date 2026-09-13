@@ -2,66 +2,86 @@
 type: session
 title: "Session 1: The Unlit Lantern"
 description: Played 2026-08-09 — the party traced the first lantern failures to a warehouse and recovered a reversed wick.
-tags: ["played"]
+tags: ["prep-sheet", "played"]
 status: "stable"
-generated: {"by": "human:brad", "at": "2026-08-09T00:00:00Z"}
+generated: {"by": "dm-skills/catch-up", "at": "2026-08-09T22:30:00-07:00"}
 session_date: "2026-08-09"
 ---
 
 # Session 1: The Unlit Lantern
 
-**Played 2026-08-09.** This page was the prep; the *What happened* section
-at the bottom was filed after play. (In this example campaign it stands as
-a worked sample of the library's session-page format at rough fidelity —
-a full page carries the format's complete section skeleton.)
+*Contents: [Strong Start](#strong-start) · [Potential Scenes](#potential-scenes) · [Secrets and Clues](#secrets-and-clues) · [Fantastic Locations](#fantastic-locations) · [Important NPCs](#important-npcs) · [Relevant Monsters](#relevant-monsters) · [Rewards](#rewards) · [What happened](#what-happened)*
 
-## Situation
+## Strong Start
 
-Lanterns are going out across [Emberwick](/nodes/locations/emberwick.md)'s
-warehouse quarter. The night watchman saw pale figures on the roofline of
-the Unlit Lantern — a warehouse dark for a generation — the night the
-first lamp died. [Maren Tallow](/nodes/npcs/maren-tallow.md) has posted
-200 gp for the cause, named and proven.
+Halfway down Wick Row a lamplighter stands under a dead lantern, striking
+flint after flint; the sparks catch, the wick will not. The night watchman
+at his elbow points across the fog at the roofline of the Unlit Lantern —
+pale figures stood there the night the first lamp died.
 
-> [!read-aloud]
-> The warehouse quarter smells of tallow and river fog. Halfway down
-> Wick Row, a lamplighter stands under a dead lantern, striking flint
-> after flint. The sparks catch. The wick will not.
+## Potential Scenes
 
-## The warehouse
+- Wick Row: the watchman's account, the lamplighter's fear · pale figures, roofline
+- [Maren Tallow](/nodes/npcs/maren-tallow.md) at the guildhall: 200 gp for the cause, named and proven; keep it out of the broadsheets
+- Ground floor of the warehouse: squatters' nests, all abandoned in a hurry; the stair up, the rope-hoist beside it
+- Workroom false floorboard, scuffed at its edge: {skill:Sleight of Hand} to lift it quietly
 
-Squatters' nests on the ground floor, all abandoned in a hurry. Upstairs,
-a workroom nobody abandoned: racks of lantern wicks, each wound
-*backward*, and a cold hearth swept into a spiral.
+> [!scene] The workroom
+> Goblinoid caretakers hold the upper floor; they do not know who pays them.
+> > [!encounter-meta]
+> > **Party:** 4 PCs, Level 3
+> > **Enemies:** 4 × {monster:Goblin Warrior} (50 XP) + 2 × {monster:Hobgoblin Warrior} (100 XP) → **400 XP**
+> > **Budget:** Moderate, level 3, 4 PCs = 150 × 4 = **600** (400 spent, 200 under)
+> > **Terrain:** two floors; rope-hoist between them; wick racks give half cover
+> > **Spotlight:** aimed at Rook — the hoist is an {skill:Athletics} shortcut past the stair chokepoint, open while the caretakers are busy on the stair
+> > **Objective:** take the workroom before the caretakers burn the ledger in the hearth
+> > Tactics: the hobgoblins hold the stairhead behind the racks; two goblins run for the hearth with the ledger the moment the party is seen.
+>
+> Fired: the hoist (Rook), one round to spare on the ledger.
 
-> [!dm-sidebar]
-> **Spotlight (scene):** Pip Underbough — exploration; the workroom's
-> false floorboard is a {skill:Sleight of Hand} find, and the scuffing
-> at its edge is the tell.
+## Secrets and Clues
 
-The Court's caretakers — goblinoid hirelings who do not know who pays
-them — hold the upper floor.
+- The failures are deliberate: every dead lantern's wick was wound backward.
+- The warehouse's owner was a Cinder Court lay-brother who was never exiled with the rest.
+- The caretakers are hired hands; none of them knows who pays them.
+- A spiral swept into cold ash matches marks over the doors of houses whose lanterns still burn.
+- The failures are spreading uphill, toward the guildhall.
+- The flames are not dying; they are being collected.
+- The guild's records of the Court's expulsion are sealed in the guildhall basement.
 
-> [!encounter-meta]
-> **Party:** 4 PCs, Level 3
-> **Enemies:** 4 × {monster:Goblin Warrior} (50 XP) + 2 × {monster:Hobgoblin Warrior} (100 XP) → **400 XP**
-> **Budget:** Moderate, level 3, 4 PCs = 150 × 4 = **600** (400 spent, 200 under)
-> **Terrain:** two floors; rope-hoist between them; wick racks give half cover
-> **Spotlight:** Rook Thistlewane — the hoist is an {skill:Athletics} shortcut past the stair chokepoint
-> **Objective:** take the workroom before the caretakers burn the ledger in the hearth
+## Fantastic Locations
 
-## Conclusion
+- **The Unlit Lantern** — a warehouse dark for a generation; upstairs, racks of wicks each wound backward; a cold hearth swept into a spiral.
+- **Wick Row** — tallow and river fog; dead lanterns in a line that points uphill.
 
-Rewards owed: the 200 gp posted reward on proof; the guild's quiet favor
-if the broadsheets stay ignorant. Exits: the ledger names the warehouse's
-never-exiled owner (→ [Cinder Court](/nodes/factions/cinder-court.md));
-the spiral hearth matches ash-marks the party may recall over certain
-spared doors (→ tribute households).
+## Important NPCs
+
+| NPC | Tonight | Archetype |
+|---|---|---|
+| [Maren Tallow](/nodes/npcs/maren-tallow.md) | posts the reward; wants the cause before the caravan season and out of the broadsheets | *the ledger-keeper mayor* |
+| The night watchman | saw the pale figures; frightened, exact, wants to be believed | *the witness nobody listens to* |
+
+## Relevant Monsters
+
+- {monster:Goblin Warrior}
+- {monster:Hobgoblin Warrior}
+
+## Rewards
+
+No items — the payout is gold and a favor.
+
+| Reward | Anchored at | Their last reward |
+|---|---|---|
+| 200 gp, on proof of the cause | the party | — |
+| Guild caravan passage, once, if the broadsheets stay ignorant | the party | — |
 
 ## What happened
 
 Played straight through. The party took the hoist (Rook), found the false
 floor (Pip), and saved the ledger with one round to spare. Reversed wick
 recovered — the **failures are deliberate** revelation landed at the
-table. Reward paid; favor promised. The pale figures were never
-identified: the party saw the collectors' work, not the collectors.
+table. Reward paid; favor promised
+([Maren Tallow](/nodes/npcs/maren-tallow.md)). The ledger names the
+warehouse's never-exiled owner
+(→ [Cinder Court](/nodes/factions/cinder-court.md)). The pale figures were
+never identified: the party saw the collectors' work, not the collectors.

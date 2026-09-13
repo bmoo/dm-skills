@@ -43,8 +43,8 @@ probe for, answered:
 - **Live layer + progress marker** — `story/campaign-status.md`. Its
   **Progress marker** line is the canonical marker of how far the campaign
   has advanced.
-- **Session records / prep home** — `sessions/`, one page per session,
-  played or in prep.
+- **Session records / prep home** — `sessions/`, one prep sheet per
+  session, played or in prep.
 - **Player pages / party cache** — pages under `players/`; the synced party
   cache is `players/party.json`.
 - **Session transcripts** — not kept.
@@ -53,6 +53,7 @@ probe for, answered:
 - **Approved-items list** — `story/approved-items.md`. Items on it may be
   placed silently; anything else needs the DM's yes first.
 - **Combat evidence** — no structured combat log; use the encounter-meta
-  `Spotlight:` lines on played session pages.
+  `Spotlight:` lines on played prep sheets, with catch-up's fired/denied
+  marks beside them.
 - **Media dir + style anchor** — `media/`; no style anchor image yet.
 - **Sync camp** — direct to main. No PR flow.

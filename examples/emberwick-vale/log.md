@@ -7,6 +7,10 @@ Labels: Creation, Update, Deprecation, Session, Lint.
 
 # Campaign Log
 
+## 2026-09-13
+
+* **Update**: Refiled [Session 1: The Unlit Lantern](/sessions/session-01-the-unlit-lantern.md) in the prep-sheet shape the prep skill writes, keeping its recap and encounter block.
+
 ## 2026-09-12
 
 * **Update**: Migrated the example to the [OKF v0.2 campaign schema](/wiki-schema.md), refreshed the scaffold and catalogs, recorded the frozen live layer’s next session and stale horizon, paired the unresolved reward claims, and collected existing guild facts in [The Chandlers' Guild](/nodes/factions/chandlers-guild.md).

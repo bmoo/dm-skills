@@ -266,8 +266,9 @@ def promote(plans, pages):
                                         {'type': wiki.inferred_type(Path(plan['target'])),
                                          'title': plan['title'], 'description': '',
                                          'tags': [], 'status': 'draft'})
-            # Same directory, so every relative target retains its original meaning.
-            new = wiki.rewrite_local_links(Path(source), new)
+            # Same directory, so every relative target retains its original
+            # meaning; same-file fragments are qualified because the text moves.
+            new = wiki.rewrite_local_links(Path(source), new, fragments=True)
             (root / plan['target']).write_text(new, encoding='utf-8')
         # Removing repeated headings can renumber fragments still in the inbox.
         retained = [anchor for start, anchor in heading_anchors(pages[source]['body'])
