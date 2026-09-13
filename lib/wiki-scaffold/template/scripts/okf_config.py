@@ -74,10 +74,15 @@ MIGRATION_STATUS_MAP = {
     "proposed": "draft", "accepted": "stable", "amended": "stable",
     "accepted (amended)": "stable",
 }
-# ADR lifecycle survives separately from the universal OKF status.
+# ADR lifecycle survives separately from the universal OKF status. Only
+# concepts of MIGRATION_DECISION_TYPE (by frontmatter or directory) receive a
+# `decision:`; a legacy status missing from this map is reported at migrate
+# time so the gap is not first seen at the strict gate. `active` is the common
+# v0.1 spelling of an ADR that is in force.
+MIGRATION_DECISION_TYPE = "design-decision"
 MIGRATION_DECISION_MAP = {
-    "proposed": "proposed", "accepted": "accepted", "amended": "amended",
-    "accepted (amended)": "amended",
+    "proposed": "proposed", "accepted": "accepted", "active": "accepted",
+    "amended": "amended", "accepted (amended)": "amended",
 }
 # Backfill only missing type/title, using DIRECTORY_TYPES / ROOT_TYPE and H1.
 MIGRATION_BACKFILL_TYPE = True
