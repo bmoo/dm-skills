@@ -32,8 +32,8 @@ This work includes material taken from the Lazy GM's Resource Document by
 Michael E. Shea of SlyFlourish.com, available under a Creative Commons
 Attribution 4.0 International License.
 
-The Eight Steps of the Lazy Dungeon Master traversed by
-`skills/build-session/` are drawn from that document.
+The eight steps of lazy prep traversed by `skills/prep-session/` are drawn
+from that document.
 
 ## Other credits
 
@@ -41,10 +41,6 @@ These are credits for ideas and methods, given as scholarship rather than as
 license conditions — the underlying techniques are not copyrighted material,
 and the prose here is independently written:
 
-- **Justin Alexander (The Alexandrian)** — originated the dungeon-connectivity
-  technique taxonomy ("xandering") that `skills/build-session/xandering.md`
-  teaches in its own words:
-  https://thealexandrian.net/wordpress/13085/roleplaying-games/xandering-the-dungeon
 - **Dungeon Dudes** — the spotlight doctrine in
   `lib/spotlight-doctrine.md`
   distills advice from their "Shoot Your Monks" episode.

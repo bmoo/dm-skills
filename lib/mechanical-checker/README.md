@@ -2,23 +2,15 @@
 
 The **deterministic tier** of the runtime output-verification loop. A model-free library a
 generator runs on its *own* output to catch mechanical promise-breaks —
-arithmetic, counts, format, graph properties — before it offers the output to
-file. A generator cannot cheat a compiler, so no external grader is needed.
+arithmetic, counts, format — before it offers the output to file. A generator
+cannot cheat a compiler, so no external grader is needed.
 
 ## What it checks
 
-This checker verifies the mechanical parts of combat-generator and
-build-session output. Its registered checks cover:
-
-- encounter-meta structure, XP and budget arithmetic, stat-block references,
-  spotlight fields, encounter constraints, and the floating form's
-  role-terrain line;
-- keyed-site topology, typed edges, routes, entrances, guarded approaches,
-  dungeon scale, mechanics, and roster staging;
-- session-page skeleton and Key NPC table structure, links, annotations,
-  canon and brief-derived fields; and
-- context-sensitive facts that require a supplied roster, session brief, canon
-  extract, or scale override rather than filesystem access.
+This checker verifies the mechanical parts of combat-generator's output — the
+`> [!encounter-meta]` block: its structure, XP and budget arithmetic,
+stat-block references, spotlight fields, encounter constraints, and the
+floating form's role-terrain line.
 
 Each rule has a stable `<skill>/<rule>` check id, such as
 `combat-generator/enemies-line-arithmetic`. The decorated function in
@@ -40,129 +32,24 @@ findings = run_checks(artifact, producing_skill, checks)
   - `artifact` — the generated output **as a string**. The generator has its
     output text in context and hands it in. `run_checks` performs **no I/O**: it
     never reads a file, never calls a model. String in, findings out.
-  - `producing_skill` — `"combat-generator"` or `"build-session"`, whichever
-    skill produced the artifact. Only checks owned by this skill may be
-    requested, so a caller applies **only its own skill's check subset**.
+  - `producing_skill` — the skill that produced the artifact
+    (`"combat-generator"`). Only checks owned by this skill may be requested,
+    so a caller applies **only its own skill's check subset**.
   - `checks` — the list of check ids to apply.
-  - `context` *(optional)* — external data a roster-dependent check needs and the
-    artifact text cannot carry. See **Context** below. Defaults to `None`, so
-    every pre-existing 3-arg call is unchanged.
+  - `context` *(optional)* — external data a check needs and the artifact
+    text cannot carry, handed only to checks registered with
+    `takes_context=True`. No shipped check takes context today; the seam is
+    pure (data in, never I/O) and defaults to `None`, so every 3-arg call is
+    unchanged.
 - `Finding` — a frozen dataclass with exactly four string fields:
   `check_id`, `expected`, `actual`, `output_location`. A **passing check
   contributes no finding** — the list is failures only.
 
-## The one non-check export: `spotlight_coverage` (the spotlight-coverage pre-pass)
-
-```python
-from checker import spotlight_coverage
-
-cov = spotlight_coverage(session_page, roster)
-cov.uncovered      # roster PCs named in NO Spotlight annotation
-cov.covered        # the rest
-cov.beats_per_pc   # how many annotations name each PC
-```
-
-This is **not a registered check** and is deliberately unreachable through
-`run_checks`. It computes build-session's **spotlight-coverage** fact — `roster −
-PCs named in Spotlight annotations`, over both annotation shapes — and returns
-**data, never a `Finding`**, because an uncovered PC is *legal*: "absence is the
-record: a PC named nowhere on the page was planned as resting"
-(`build-session/session-page-format.md` — "**Absence is the record:**"). Whether
-a given absence is a deliberate rest
-or a dropped beat is the judgement tier's call, and the
-`build-session/spotlight-coverage` judgement criterion makes it; the pre-pass only
-supplies the arithmetic. A PC named **anywhere** in an annotation's
-value counts as covered, including as a secondary inside another PC's beat.
-
-Contrast dungeon's **every-flagged-pc-staged**, which is the same set-cover over
-`_spotlight_lines` and *is* a registered check returning a `Finding` — because an
-unstaged flagged
-ability inside a single site is a defect outright. Same arithmetic, opposite
-default, which is exactly why one is mechanical and the other is judgement.
-
 `run_checks` **raises `ValueError`** when a requested id is unregistered, or is
 registered but owned by a different skill. Silently skipping an unknown or
 mis-scoped check is the same failure class as a broken symlink — this loop
-refuses to skip silently.
-
-## The Spec axis — checks parameterised by tonight's session brief
-
-Every other check here grades an artifact against a **library** promise. The
-`build-session/brief-*` checks grade it against **tonight's contract** — the
-session brief the DM agreed before the build — handed in verbatim on the context
-dict beside the artifact:
-
-```python
-from checker import brief_checks, run_checks
-
-ids = brief_checks(brief)                     # derived BEFORE drafting
-run_checks(page, "build-session", ids,
-           context={"brief": brief, "canon_record": record_extract})
-```
-
-`brief_checks` is the axis's **second non-check export**, and it is the reason
-the derivation is safe. Ruling the brief in as a checker input left one soft
-edge: a generator deriving its own acceptance criteria can derive weak ones and
-nothing downstream would notice. So the derivation is not the generator's — it is
-**fill-in from an enumerated field set**, done here: brief in, one check id per
-**filled** field out, in template order. The generator may not drop a check for a
-field the brief filled, nor add one the brief did not license
-(`skills/build-session/SKILL.md` — "add one the brief did not license"). `brief_fields`
-is the same parse exposed as a dict, for a caller that wants the values.
-
-Two rules that look like implementation detail and are neither:
-
-- **A blank field produces no finding.** Every `brief-*` check returns `[]` when its
-  field is absent from the brief, so default-to-disapprove is scoped to a rule and
-  **silence is never a constraint** — the axis grades only what the brief locks.
-- **A missing brief raises.** A blank *field* is the DM saying nothing; a missing
-  *brief* is a caller error, and a check asked to grade a contract it never
-  received cannot reach a verdict. Same refusal
-  **spotlight-annotations-name-pc** makes without a roster.
-  **brief-introduced-canon** raises again without `canon_record`, because a diff
-  against the campaign canon record is that rule's whole definition and the
-  checker has no filesystem reach into the record.
-
-`canon_record` is a **durable record extract handed in as its own named input**,
-on the party roster's precedent — not a pre-pass. It is not derivable from the
-artifact, so it could never qualify under the pre-pass test, and the judgement
-tier's fresh check is handed it beside the roster on the same terms
-(`skills/build-session/SKILL.md` — "campaign canon record extract").
-
-## Context — the backward-compatible extension for roster-dependent checks
-
-Most checks are pure `str -> list[Finding]`: the artifact carries everything they
-need. A few cannot see their promise in the output alone — dungeon's
-**every-flagged-pc-staged** and **aimed-slots-balanced** need the **party's
-flagged-ability roster**, and **default-scale** needs to know whether the DM
-**overrode** the default. That external data rides in an optional `context` dict:
-
-```python
-run_checks(output, "build-session", ["build-session/default-scale",
-            "build-session/every-flagged-pc-staged",
-            "build-session/aimed-slots-balanced"], context={
-    "roster": [
-        {"pc": "Vex",  "flagged": ["Sentinel reach"]},
-        {"pc": "Bram", "flagged": ["Grapple"]},
-        {"pc": "Sera", "flagged": ["Counterspell"]},
-    ],
-    "scale_overridden": False,
-})
-```
-
-The extension is **pure** — `context` is data handed in, never I/O — and
-**backward-compatible**: `context` defaults to `None`, so combat's 3-arg calls
-(`run_checks(output, "build-session", [...])`) are untouched.
-
-How it flows: a check declares its shape at registration. `register_check(id,
-skill)` registers a context-free `str -> list[Finding]` check (the default —
-every combat check, most dungeon checks); `register_check(id, skill,
-takes_context=True)` registers a `(str, dict | None) -> list[Finding]` check.
-`run_checks` reads that flag and hands the context **only** to the checks that
-asked for it. A context-taking check handed no roster **raises `ValueError`**
-(same loud-failure philosophy as an unknown id) — it refuses to fake a verdict it
-cannot reach; the generator's Definition of done always supplies the roster.
-`build-session` reuses this same seam for its own cross-piece checks.
+refuses to skip silently. A context-taking check run without the context it
+needs raises the same way: it refuses to fake a verdict it cannot reach.
 
 ## The findings log — where telemetry actually goes
 
@@ -173,9 +60,9 @@ after a verdict is settled — never from inside a check:
 ```python
 from findings_log import log_finding, log_run
 
-log_run("build-session", checks, "mechanical")    # once per pass — unconditionally
-log_finding("build-session", "build-session/skeleton-sections-in-order",
-            "mechanical", "healed", 1, "the roster table")
+log_run("combat-generator", checks, "mechanical")    # once per pass — unconditionally
+log_finding("combat-generator", "combat-generator/enemies-line-arithmetic",
+            "mechanical", "healed", 1, "the Enemies line")
 ```
 
 A check that heals on *every* run is a generator systematically emitting the
@@ -264,8 +151,8 @@ and producing skill, and `run_checks` selects it whenever a caller requests that
 id. Add a labeled fixture pair under `fixtures/` (one that passes → zero
 findings, one that breaks → the expected finding) and a `test_*.py` case,
 mirroring the encounter-meta required-lines reference check. If the rule needs
-external input, set `takes_context=True`, document the required context here,
-and test the missing-context failure.
+external input, register it with `takes_context=True`, document the required
+context here, and test the missing-context failure.
 
 ## How this ships
 
@@ -275,26 +162,24 @@ There is **one copy**, this directory:
 lib/mechanical-checker/
 ```
 
-It materialises into each consumer by a relative symlink from that skill's
-own `scripts/` (`skills/combat-generator/scripts/mechanical_checker`,
-`skills/build-session/scripts/mechanical_checker`), because two skills share
-it — the same arrangement as `lib/rules-sourcing.md` and `lib/srd/`. At
-install time the symlink dereferences, so each installed skill carries its
-own materialised copy and stays selective-install-safe.
+It materialises into combat-generator by a relative symlink from that skill's
+own `scripts/` (`skills/combat-generator/scripts/mechanical_checker`) — the same
+arrangement as `lib/rules-sourcing.md` and `lib/srd/`. At install time the
+symlink dereferences, so the installed skill carries its own materialised copy
+and stays selective-install-safe.
 
 ## Running the tests
 
-Flat module layout, mirroring `skills/build-session/scripts/` prior art — no
-package, no `__init__.py`. pytest inserts the test file's own directory on
-`sys.path`, so `from checker import ...` resolves when tests run from within this
-dir; at the consumer the materialised copy sits beside the skill's other
-scripts and imports the same flat way.
+Flat module layout — no package, no `__init__.py`. pytest inserts the test
+file's own directory on `sys.path`, so `from checker import ...` resolves when
+tests run from within this dir; at the consumer the materialised copy sits
+beside the skill's other scripts and imports the same flat way.
 
 ```
-# The gate — checks over shipped content, this checker, then build-session's
-# other script tests (pytest.ini keeps the skill-side symlink from being
-# collected a second time).
-python -m pytest checks/ lib/mechanical-checker skills/build-session/scripts/
+# The gate — checks over shipped content, this checker, then the script
+# tests that ship with prep-session and review-rewards (pytest.ini keeps the
+# skill-side symlink from being collected a second time).
+python -m pytest checks/ lib/mechanical-checker skills/prep-session/scripts/ skills/review-rewards/scripts/
 
 python -m pytest lib/mechanical-checker/  # this dir only
 ```

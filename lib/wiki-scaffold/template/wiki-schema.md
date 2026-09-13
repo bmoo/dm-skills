@@ -94,7 +94,7 @@ Two format rules apply to every timestamp and every actor:
   not timestamps. The legacy `timestamp:` key is retired (§13.1); migrate it
   to `generated.at`.
 - **Actors** (§7): a skill writes `dm-skills/<skill-name>` (a locally
-  maintained skill writes `<repo>/<skill-name>`, e.g. `sd-campaign/lazy-dm`);
+  maintained skill writes `<repo>/<skill-name>`, e.g. `dm-skills/prep-session`);
   the DM writing by hand is `human:<id>`. The `human:` prefix is what
   consumers key trust off, so never put it on machine-written content.
 
@@ -145,9 +145,8 @@ before the midnight boundary.
 | Live-layer `stale_after` | the same writer, using the date rule above | the same writer when `next_session` is unknown | prep skill; groomer |
 | Session/prep-sheet `stale_after` | prep skill, copied from the live layer | catch-up on absorption; prep skill when rebuilding without a known next date | groomer |
 
-Here the prep skill is `build-session`, or a campaign-local skill such as
-sd-campaign's `lazy-dm`. These are field ownership rules, not requirements
-to install every skill. A bundle without a live layer uses neither field.
+Here the prep skill is `prep-session`, or a campaign-local equivalent.
+These are field ownership rules, not requirements to install every skill. A bundle without a live layer uses neither field.
 
 ## Tags
 
@@ -165,7 +164,7 @@ with the checker warning on tags outside it:
 | `historical` | a concept about the past rather than the present situation    |
 | `played`     | a session page that has been run                              |
 | `live-layer` | the campaign-status concept and its companions                |
-| `prep-sheet` | a one-page prep condensation                                  |
+| `prep-sheet` | a session's prep sheet                                        |
 | `seeds`      | a seed-ideas inbox                                            |
 | `dungeon`    | a site with keyed areas and a map                             |
 | `rewards`    | a treasure or reward pool                                     |

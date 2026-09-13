@@ -2,8 +2,8 @@
 
 Agent skills for prepping and running TTRPG sessions — compatible with fifth
 edition. A campaign-agnostic library of D&D DM-craft skills: session prep on
-Mike Shea's Eight Steps, non-linear dungeons, XP-budgeted combats, clue webs
-and node maps, spotlight doctrine, and the record-keeping around them.
+Mike Shea's eight steps, XP-budgeted combats, clue webs and node maps,
+spotlight doctrine for fights, and the record-keeping around them.
 
 The library is laid out to the
 [`skills` CLI](https://github.com/vercel-labs/skills) conventions: each skill
@@ -16,7 +16,7 @@ any reference files its skill text points at.
 
 ```bash
 npx skills add bmoo/dm-skills          # everything
-npx skills add bmoo/dm-skills --skill build-session
+npx skills add bmoo/dm-skills --skill prep-session
 npx skills update
 ```
 
@@ -49,7 +49,7 @@ To see a wired campaign, browse
 [`examples/emberwick-vale/`](examples/emberwick-vale/) — a small invented
 campaign frozen just after its first session. Its `CLAUDE.md` answers every
 contract slot (including the "we don't keep that" ones), and its played
-session page shows the formats the skills read and write.
+session record shows the formats the skills read and write.
 
 Starting from an empty repo instead? Ask your agent to run `setup`. After
 checking that your D&D content tools answer lookups, it offers
@@ -71,10 +71,9 @@ not a prerequisite — and fall back to the bundled SRD 5.2 dataset
 (`lib/srd/`, CC-BY-4.0 with attribution).
 
 Then start prepping: ask your agent to prep the next session
-(`build-session` — keyed sites are built in-flow, each fight via the
-`combat-generator` skill), vet the magic
-items prep may hand out (`review-rewards`), or absorb what happened last time
-(`catch-up`).
+(`prep-session` — a short Lazy DM sheet, each costed fight via the
+`combat-generator` skill), vet the magic items prep may hand out
+(`review-rewards`), or absorb what happened last time (`catch-up`).
 
 **Every skill installs alone.** No skill has a hard dependency on another:
 every optional cross-skill step is offered only when its companion is installed,
@@ -82,18 +81,18 @@ and the rest of the skill degrades gracefully without it.
 
 ## How the skills fit together
 
-The library runs a loop around your campaign repo: prep writes pages into the
-record, play happens at the table, and what happened gets absorbed back in
-before the next prep. Dotted arrows degrade gracefully when the target skill
-isn't installed.
+The library runs a loop around your campaign repo: prep writes a sheet into
+the record, play happens at the table, and what happened gets absorbed back
+in before the next prep.
 
 ```mermaid
 flowchart TD
     repo[("Campaign repo<br/>(the record)")]
 
-    brief["to-session-brief"] -- "session brief" --> build["build-session<br/>(keyed sites in-flow)"]
-    repo -- "Eight Steps over the record" --> build
-    build -- "session page" --> repo
+    repo -- "eight steps over the record" --> prep["prep-session"]
+    prep -- "costed fights" --> combat["combat-generator"]
+    combat -- "encounter blocks" --> prep
+    prep -- "prep sheet" --> repo
     repo --> play(["Play the session"])
     play -- "transcript or DM recounting" --> catchup["catch-up"]
     catchup -- "absorbed sessions" --> repo
@@ -111,22 +110,21 @@ flowchart TD
   scaffold described above, leaving you a repo whose catalog and conformance
   check pass from the first commit. Every phase is offered, skippable, and
   safe to rerun.
-- **`build-session`** — the one skill that owns session pages: traverses the
-  Eight Steps of Lazy DM Prep against the campaign record and compiles the
-  result into a durable session page (or stops at a lean sheet). Builds the
-  session's keyed sites (complete, runnable non-linear dungeons with a
-  dungeon-wide mechanic and setting-true rewards) and its session spotlight
-  plan ("shoot your monks": every PC gets a beat somewhere) with its own
-  bundled procedures, and hands each fight to `combat-generator`. Carries
-  the library's single statement of the session-page format and an optional
-  PDF renderer.
+- **`prep-session`** — the one prep skill: traverses Mike Shea's eight
+  steps of lazy prep against the campaign record and writes a short prep
+  sheet (`sessions/<slug>.md`) the DM reads in a few minutes before play —
+  strong start, potential scenes, secrets and clues, fantastic locations,
+  important NPCs, relevant monsters, PC-anchored rewards. Lists monsters by
+  default and hands only the fights the DM wants costed to
+  `combat-generator`. Ships a format lint and nothing heavier.
 - **`combat-generator`** — builds one fight as a situation, not a script:
   sized to the party's action economy with the SRD 5.2 XP-budget table,
   grounded in the campaign's own setting, carrying at least one
-  complication and a spotlight texture, delivered with its machine-readable
-  encounter-meta filing block — **pinned** to its scene, or **floating**:
-  scene-free, written in roles, bound to a scene at the table. Runs standalone or invoked by another
-  skill's prep flow (`/combat-generator`).
+  complication and a spotlight texture ("shoot your monks"), delivered with
+  its machine-readable encounter-meta filing block — **pinned** to its
+  scene, or **floating**: scene-free, written in roles, bound to a scene at
+  the table. Runs standalone or invoked by `prep-session`
+  (`/combat-generator`).
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.
 - **`groom-wiki`** — maintains a scaffolded campaign wiki after absorption or
@@ -139,10 +137,6 @@ flowchart TD
   Character section current so other skills work from current sheets.
 - **`campaign-art`** — campaign illustrations (portraits, locations, items,
   scenes) via an image-generation model, anchored to the campaign's own style.
-- **`to-session-brief`** — turns a planning conversation into a **session
-  brief** — the contract of hard-to-reverse decisions a session build is held
-  to — and publishes it to the campaign's tracker. Explicitly invoked
-  (`/to-session-brief`), never model-routed.
 
 The campaign-agnostic contract the skills follow — the discovery slots a
 campaign repo's docs should answer — is indexed in
@@ -164,12 +158,11 @@ Everything below `docs/` and `lib/` beyond the two files linked above is
 maintainer machinery, not consumer surface:
 
 - The runtime verifier lives at `lib/mechanical-checker/` and materialises
-  into build-session and combat-generator by symlink
-  (`scripts/mechanical_checker`); its README describes the checks, test
-  gate, and extension procedure.
-- **`pytest checks/ lib/mechanical-checker skills/build-session/scripts/` is
-  the gate on every content commit** — it runs checks over shipped content
-  and the units that ship with the skills.
+  into combat-generator by symlink (`scripts/mechanical_checker`); its README
+  describes the checks, test gate, and extension procedure.
+- **`pytest checks/ lib/mechanical-checker skills/prep-session/scripts/
+  skills/review-rewards/scripts/` is the gate on every content commit** — it
+  runs checks over shipped content and the units that ship with the skills.
 - Maintainer tooling in `.claude/skills/` never ships.
 
 ## License and attribution

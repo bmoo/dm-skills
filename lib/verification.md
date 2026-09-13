@@ -1,8 +1,7 @@
 # Definition of done — the shared verification protocol
 
 The two-part gate a library skill's procedure runs over its drafted
-artifact — the session page, a fight's encounter block, a keyed-site
-package — before its report or offer forms. The caller's own text names
+artifact — a fight's encounter block — before its report or offer forms. The caller's own text names
 what varies: the check ids and their context, the criteria and the
 inputs the checker gets, and which promises arrived already checked from
 a delegated build (its *inheritance split*). Everything below is

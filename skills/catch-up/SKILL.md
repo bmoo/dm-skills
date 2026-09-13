@@ -97,7 +97,8 @@ Work through the docket; no divergence is silently absorbed. Three kinds:
 correction, filed, or handed off.
 
 ### 4. File the recap
-Assemble the reconciled account into the session record's recap section,
+Assemble the reconciled account into a recap section on the played
+session's prep sheet — or wherever the campaign keeps session records —
 densely linked per the repo's conventions. The recap is the durable record of
 play — the story, written after the fact — and every propagation edit that
 follows should be traceable to it.
@@ -121,28 +122,19 @@ Three rings, then stop:
      for again, an ability they built around finally firing (or conspicuously
      still waiting to) — fold the observation into their profile, creating
      the section on first observation.
-   - *The staged beats* on the session page: the session's spotlight plan is
-     transient — it died with the prep run — so the ledger is the session
-     page itself: every encounter-meta `Spotlight:` field and every
-     `Spotlight (scene):` sidebar line, each naming its target PC (the format
-     lives in `build-session/session-page-format.md`). Record which of those
-     staged beats **fired** and which were **denied or skipped** — a beat
-     staged but never fired should get louder in future prep; one that fired
-     big can rest. A **floating** fight (a Relevant Monsters entry —
-     combat-generator's scene-free form) that fired records where play
-     bound it: the node or scene, one line beside its block. One that
-     never fired needs no note — unplaced is its normal state, not a
-     denied beat. A PC the page never names was planned as resting, so there
-     is nothing to reconcile — but note a PC who has now rested across
-     consecutive sessions.
-   - *The loot ledger* rides here too: the recap names which PC received
+   - *Fight opportunities* on the played prep sheet: every
+     `> [!encounter-meta]` block's `Spotlight:` field (combat-generator's
+     block, including blocks nested inside scene cards) names an
+     opportunity the fight staged. Record from actual play, one line beside
+     the block, which opportunities **fired** and which were **denied or
+     skipped** — prep alone is not evidence of an outcome. An opportunity
+     staged but never taken should get louder in future fights; one that
+     fired big can rest. A **floating** fight that fired also records where
+     play bound it: the node or scene. One that never fired needs no note —
+     unplaced is its normal state.
+   - *Reward receipts* ride here too: the recap names which PC received
      each item the session handed out — those receipts are what the next
-     prep's loot-parity read depends on. And where the played page
-     leaves prepped-but-unreached material still holding aimed item
-     rewards, re-aim any item whose named PC banked items this session
-     toward a PC lighter on recent loot — changing the name on an
-     existing reward line is presentation, not new content, so it is
-     propagation, not building. A promised item keeps its PC.
+     prep's rewards step reads when it anchors overdue PCs first.
 2. **One link-hop out** — follow each impacted page's links and clue-web
    entries outward once, checking neighbors for *contradiction only*: update
    what now misstates the world, don't enrich what doesn't.
