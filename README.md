@@ -23,6 +23,19 @@ npx skills update
 Or skip the CLI and copy `skills/<name>/` folders straight into your agent's
 skills directory — each folder ships everything its skill text points at.
 
+**Pinning a version.** Releases are tagged; `v0.2` is the first, cut at the
+commit that closed the OKF v0.2 scaffold work. The `skills-lock.json` the CLI
+writes records only each skill's source, skill path and a content hash, not
+the tag or commit it came from, so a campaign repo should record that itself.
+One convention that works: whenever you vendor or re-vendor, add a one-line
+entry to the campaign's log such as `vendored dm-skills v0.2 (commit abc1234)`.
+Find the commit a tag points at with either of:
+
+```bash
+git ls-remote https://github.com/bmoo/dm-skills refs/tags/v0.2
+gh api repos/bmoo/dm-skills/git/refs/tags/v0.2
+```
+
 **2. Point them at a campaign repo.** The skills learn a campaign by
 **discovery**: they read the campaign repo's own guide (`CLAUDE.md` or
 equivalent) and the docs it points to — no required directories, page types,
