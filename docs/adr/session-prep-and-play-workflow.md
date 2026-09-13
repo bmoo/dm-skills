@@ -1,140 +1,125 @@
 # Session prep-and-play workflow
 
-Status: recorded from a design sketch, not yet ratified against shipped skill text.
+Status: accepted. Ratified against shipped skill text at `b7bf0df` (the
+`prep-session` swap, PR #95). Supersedes the 2026-07 OmniGraffle transcription,
+which lives in git history.
 
-## Context
+## Decision
 
-The owner drew this workflow in OmniGraffle 8 on iPad (`D&D Planning Workflow.graffle`,
-last modified 2026-07-27, synced through iCloud). It is the first end-to-end picture
-of how the library's skills compose across a full cycle — from an ambiguous campaign
-question, through session prep, into play, and back out as recorded results.
-
-This document is a faithful transcription of that diagram plus the two discrepancies
-transcription surfaced. It is **not** a record of alternatives weighed: the sketch
-shows one design and does not argue against others, so no such argument is invented here.
-
-`CONTEXT.md` was the first-considered home and is the wrong one by its own charter —
-it is a glossary that excludes specs and decisions. A workflow design belongs here.
-
-## The workflow
-
-Eleven nodes and seventeen directed edges. Directions below are read from each
-connector's stored arrowhead, not from the visual rendering. Exactly one edge is
-bidirectional; the other sixteen are single-headed.
+The library runs **one loop** around the campaign record: `prep-session` writes
+a prep sheet, the session is played, `catch-up` absorbs what happened, and
+`groom-wiki` maintains the record. One prep artifact, one record, one absorber.
+There is no brief, no session issue, no validator, and no candidate/published
+distinction: the sheet is checked by a format lint and nothing heavier, and a
+premise that needs confirming is asked in chat.
 
 ```mermaid
-flowchart TD
-    wayfinder["/wayfinder"]
+flowchart LR
+    conv["DM conversation"]
+    record[("Campaign record<br/>nodes · players · live layer")]
+    prep["/prep-session"]
+    combat["/combat-generator"]
+    sheet["Prep sheet<br/>sessions/&lt;slug&gt;.md"]
+    played(["Session is played"])
+    transcript["Transcript<br/>(if the campaign keeps one)"]
     catchup["/catch-up"]
-    tosession["/to-session-brief"]
-    buildsession["/build-session"]
-    issue["github session issue"]
-    candidate["candidate session page"]
-    validator["session validator"]
-    published["validated/published session page"]
-    canon["node page cannon"]
-    played["game is played"]
-    transcript["actual session transcript"]
+    groom["/groom-wiki"]
 
-    catchup -->|grounding| wayfinder
-    catchup -->|grounding| canon
-    catchup -->|results recorded| published
-    wayfinder -->|this workflow resolves ambiguity| tosession
-    wayfinder <-->|reads and writes| canon
-    tosession --> issue
-    issue -->|input| buildsession
-    issue --> validator
-    canon -->|input| buildsession
-    buildsession --> candidate
-    candidate --> validator
-    validator --> buildsession
-    validator --> published
-    published --> canon
-    published --> played
-    played --> transcript
-    transcript --> catchup
+    conv --> prep
+    record -- "player pages, live layer,<br/>loose ends, callouts" --> prep
+    sheet -. "previous played sheet:<br/>carry forward or discard" .-> prep
+    prep <-- "costed fights only" --> combat
+    prep -- "format lint" --> sheet
+    sheet -- "read cold at the table" --> played
+    played --> transcript --> catchup
+    played -- "DM interview when<br/>there is no transcript" --> catchup
+    catchup -- "recap filed, flipped to played" --> sheet
+    catchup -- "propagate, advance the clock" --> record
+    catchup --> groom -- "loose ends, contradiction callouts" --> record
 ```
 
-### Nodes
+`/wayfinder` sits outside the loop. It is an external skill
+(`mattpocock-skills` plugin, human-invoked) that resolves campaign-scale
+ambiguity into the record; nothing in this repo declares or requires it.
+Campaign-scale decisions — the hook, the truths, the fronts, the next horizon —
+live in the record and are made there, with or without it.
 
-Skill-shaped nodes are written with a leading slash in the diagram; the rest are
-artifacts or events.
+## What the loop asserts
 
-| Node | Kind |
-| --- | --- |
-| `/wayfinder` | skill, external — `mattpocock-skills` plugin, see below |
-| `/catch-up` | skill (`skills/catch-up/`) |
-| `/to-session-brief` | skill (`skills/to-session-brief/`) |
-| `/build-session` | skill (`skills/build-session/`) |
-| github session issue | artifact |
-| candidate session page | artifact |
-| session validator | process |
-| validated/published session page | artifact |
-| node page cannon | artifact — see the discrepancy below |
-| game is played | event |
-| actual session transcript | artifact |
+**The record is the memory, not the sheet.** This is the library's departure
+from Shea, whose memory is last session's one-page sheet and whose durable
+pages refresh every few sessions. The sheet is throw-away prep: the record's
+answer to "what does tonight need", read in minutes, abandonable at the
+table without loss (`prep-session`, *Read the campaign first*).
 
-### Edges
+**Current before prep is our rule, not Shea's.** Every planning artifact
+reaches current before prep starts, because prep against a stale record is
+prep against a false world (`catch-up`, opening). The live layer's progress
+marker is how prep detects a played session not yet absorbed; `prep-session`
+finishes absorbing it first, and asks the DM to bring the record current when
+`catch-up` is not installed.
 
-| From | To | Label |
-| --- | --- | --- |
-| `/catch-up` | `/wayfinder` | grounding |
-| `/catch-up` | node page cannon | grounding |
-| `/catch-up` | validated/published session page | results recorded |
-| `/wayfinder` | `/to-session-brief` | this workflow resolves ambiguity |
-| `/wayfinder` | node page cannon | reads and writes (bidirectional) |
-| `/to-session-brief` | github session issue | — |
-| github session issue | `/build-session` | input |
-| github session issue | session validator | — |
-| node page cannon | `/build-session` | input |
-| `/build-session` | candidate session page | — |
-| candidate session page | session validator | — |
-| session validator | `/build-session` | — |
-| session validator | validated/published session page | — |
-| validated/published session page | node page cannon | — |
-| validated/published session page | game is played | — |
-| game is played | actual session transcript | — |
-| actual session transcript | `/catch-up` | — |
+**Catch-up records; prep selects; nothing carried is owed.** `catch-up`
+writes consequences freely, proposes reactions, and surfaces overdue beats,
+loose ends, and re-clueing handoffs as flags. `prep-session` reads all of it
+and the previous played sheet, carries forward what is still relevant and not
+yet revealed, and discards the rest. Loose ends are candidates, never
+obligations (`prep-session`, *Read the campaign first*). This asymmetry is
+what keeps the live layer from becoming the stockpile Shea warns against.
 
-### Shape of it
+**The sheet is written after play by catch-up alone.** `prep-session` files
+it as `status: draft`. `catch-up` files the recap onto it, marks each fight's
+staged opportunities fired or denied, records reward receipts, and flips it
+to played history: `status: stable`, the `played` tag, the actual
+`session_date`, and no `stale_after` (`catch-up`, steps 4 and 5; the schema's
+*Session horizon*). Unplayed prep never flows onto node pages — the schema's
+rebuild test — so the only edge from the sheet back into the record is
+catch-up's propagate step after play.
 
-Three loops close:
+**Transcripts are optional evidence, never canon.** A transcript is the
+library's written form of Shea's oral, player-owned recap. When one exists,
+`catch-up` reads it against the played sheet and the live layer, dockets every
+divergence, and interviews only the gaps; when none exists, the played sheet is
+the questionnaire. Either way nothing from the account lands on a page until
+its divergences pass reconciliation, and catch-up never picks how a
+discrepancy resolves (`catch-up`, hard rules and step 2). Where transcripts
+land is a campaign slot (`docs/campaign-contract.md`), not a loop requirement.
 
-- **Prep loop.** `/build-session` emits a candidate page, the session validator
-  judges it against the github session issue, and rejection returns to
-  `/build-session`. Nothing reaches publication without passing the validator.
-- **Play loop.** A published page is played, play produces a transcript, the
-  transcript re-enters through `/catch-up`, and `/catch-up` records results back
-  onto the published page.
-- **Canon loop.** The node page cannon is written by both `/wayfinder` and the
-  published page, and read as grounding by `/catch-up` and as input by
-  `/build-session`. It is the shared state the other two loops turn around.
+**`stale_after` is the loop's clock, not a gate.** With no brief and no
+validator between prep and play, the session horizon is the one thing that
+tells the next prep a session night has passed. The live layer owns
+`next_session`; `catch-up` writes it and the derived `stale_after` at the end
+of an absorption; a sheet copies the value at build and loses it at
+absorption; `prep-session` rolls the date forward when a night was cancelled;
+`groom-wiki` only reports staleness (schema, *Session horizon* and its
+ownership table). A bundle without a live layer uses neither field, and the
+loop still runs — the progress-marker check catches unabsorbed play on its
+own.
 
-`/wayfinder` sits ahead of everything: it resolves ambiguity, then hands off to
-`/to-session-brief`, which files the github session issue that becomes prep's
-specification.
+**Contradictions stay visible until settled.** The groomer places paired
+callouts and never resolves them; `catch-up` clears only a pair the absorbed
+session actually settled; `prep-session` carries an unresolved pair as a prep
+gap in chat and leaves the callouts intact. This is the written form of
+"let the world and the NPCs react to the characters' actions", and it adds no
+doctrine Shea contradicts.
 
-## Notes on the sketch
+## Considered and rejected
 
-**`/wayfinder` is external, and deliberately so.** Unlike the other three
-slash-commands, it has no directory under `skills/` — it comes from the
-`mattpocock-skills` plugin (`skills/engineering/wayfinder/`, version 1.2.0), which
-plans work too big for one agent session as a shared map of decision tickets on the
-repo's issue tracker. Its frontmatter sets `disable-model-invocation: true`, so it is
-invoked by the human and never picked up autonomously — which is precisely the role
-the diagram gives it, sitting ahead of the workflow and handing off once ambiguity
-is resolved.
+- **A brief or session issue as prep's specification.** The eight steps are
+  the specification; the sheet's inputs are the record and the conversation.
+- **A validator judging sheet content.** Prep is thrown away after play; a
+  content gate on it costs more than the sheet. The format lint checks shape
+  only.
+- **Fresh secrets every session.** Shea's original doctrine, which he revised
+  in 2023 to carry forward; the loop draws the previous-sheet edge instead.
+- **Rewriting the sheet as a living document after play.** Only catch-up
+  writes to a played sheet, and only the recap and lifecycle. What the DM
+  scribbles at the table is theirs.
 
-This is also the skill behind the planning maps this library was built from:
-work too big for one agent session — the evaluation gate, the map-render design —
-was mapped as decision tickets before being built. Those issue maps are not a
-separate planning concept that happens to share the name — they *are* what
-`/wayfinder` produces.
+## Sources
 
-The library therefore depends on a skill it does not vendor. That dependency is
-invisible to anything in this repo: nothing declares it, and nothing fails if the
-plugin is absent.
-
-**"node page cannon" is transcribed verbatim and reads as "canon."** The label is
-kept as drawn. The since-removed `node-map` skill was the plausible owner of this
-node; the diagram does not name one.
+The method is Mike Shea's, from the CC-BY-4.0 *Lazy GM's Resource Document*
+and freely published Sly Flourish articles; the comparison that shaped this
+document is `docs/research/lazy-gm-campaign-loop.md` on branch
+`research/lazy-gm-campaign-loop` (`aa95667`). The departures named above are
+the library's own.
