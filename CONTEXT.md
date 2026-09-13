@@ -27,7 +27,7 @@ _Avoid_: assertion, guarantee, requirement
 
 **Row**:
 One registered check or completion criterion, carrying a stable id
-(`build-session/npc-rows-named`) that outlives any rewording of its promise.
+(`combat-generator/enemies-line-arithmetic`) that outlives any rewording of its promise.
 _Avoid_: entry, check id, rule
 
 **Completion criterion**:
@@ -77,20 +77,14 @@ The deterministic tier's own repair attempts against mechanical failures, before
 any checker runs.
 _Avoid_: auto-fix, retry
 
-**Standing feedback**:
-The one campaign-owned, DM-authored file (`.claude/standing-feedback.md` at the
-campaign repo root) of accumulated corrections a generator loads if present.
-Where the DM's judgement accumulates now that corpora are retired.
-_Avoid_: memory file, feedback log
-
 ## Campaign wiki
 
 **Concept**:
 A non-reserved Markdown document with YAML frontmatter in the campaign's
-OKF bundle. Session pages, player pages, node pages, and seed inboxes are
+OKF bundle. Prep sheets, player pages, node pages, and seed inboxes are
 concepts when they belong to that bundle.
 _Avoid_: page as the generic unit in schema or tooling rules; specific
-document names such as “session page” remain in use.
+document names such as “prep sheet” remain in use.
 
 **Bundle**:
 The campaign wiki tree governed by its OKF schema: concepts, reserved

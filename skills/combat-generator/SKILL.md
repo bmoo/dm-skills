@@ -50,8 +50,8 @@ on its sheet — may hand any of these in already settled; Steps 1–2
 restate them, so skip to Step 3 when they all arrive:
 
 - the fight's **form** — pinned or floating. Floating is the caller's
-  call for a fight riding a potential scene; a keyed site's fights are
-  always pinned;
+  call for a fight riding a potential scene; a fight filed on a node page
+  is always pinned;
 - the fight situation — for a pinned fight the node/location, the
   enemies-or-faction and their objective, the terrain potential (Step 1's
   five pins; don't re-pin what arrives settled); for a floating fight the

@@ -31,40 +31,36 @@ each skill carries its own probes and absent-behaviors inline in its SKILL.md �
 and this file never ships in an install payload.
 
 Installing a skill accepts its foundational assumptions: the Don't Prep Plots
-method vocabulary (nodes, clue webs, revelations, live layer) and the skill's
-output formats — notably the session-page format with its PDF renderer
-(build-session's `session-page-format.md` plus `render.md`) and the
-`> [!encounter-meta]` block that files onto those pages
-(`lib/encounter-meta-format.md`, shipped by symlink into each skill that
-composes or reads the block; the combat-generator skill's *Filing format*
-section cites the spec rather than restating it, and owns what goes in its
-fields), all library-owned;
+method vocabulary (nodes, clue webs, revelations, live layer), Shea's eight
+steps as the prep procedure, and the skill's output formats — the prep
+sheet's shape (prep-session's *Sheet format and filing*, held by its format
+lint) and the `> [!encounter-meta]` block that files onto sheets and node
+pages (`lib/encounter-meta-format.md`, shipped by symlink into
+combat-generator, whose *Filing format* section cites the spec rather than
+restating it and owns what goes in its fields), all library-owned;
 campaign-side tooling that parses them adapts when the library updates. Those
-are install-time decisions, not per-campaign negotiations. The session page's
-*skeleton* is likewise library-owned (the WotC 2024 adventure-chapter
-convention); campaigns own where session pages live and the method rules
-layered on top. Which skills have to be installed *together* for those
-assumptions to hold is never an install-time decision: every skill installs
-alone and degrades gracefully when an optional companion is absent.
+are install-time decisions, not per-campaign negotiations. Campaigns own where
+sheets live and the house rules layered on top of the steps, in their method
+handbook. Which skills have to be installed *together* for those assumptions
+to hold is never an install-time decision: every skill installs alone and
+degrades gracefully when an optional companion is absent.
 
 | Slot | What the campaign's docs should answer | Read by |
 |---|---|---|
 | Method handbook | Where the repo's planning-method conventions live (the guide should point at it) | all planning skills |
-| Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress; next session date, session horizon, and groomer loose ends / contradictions when the campaign schema defines them | catch-up, build-session, groom-wiki |
-| Session records / prep home | Where played-session records and prep pages live (the page format itself is library-owned) | catch-up, build-session, review-rewards |
-| Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, build-session, combat-generator, catch-up, review-rewards |
+| Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress; next session date, session horizon, and groomer loose ends / contradictions when the campaign schema defines them | catch-up, prep-session, groom-wiki |
+| Session records / prep home | Where played-session records and prep sheets live (the sheet's shape itself is library-owned) | catch-up, prep-session, review-rewards |
+| Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, prep-session, combat-generator, catch-up, review-rewards |
 | Session transcripts | Where recordings/transcripts of play land, if the campaign keeps them | catch-up |
-| Reward economy | What treasure and payment run on (gold? favors?) | build-session (the keyed-site procedure) |
-| Approved-items list | Which magic/notable items may be placed silently, and where the list lives (review-rewards rewrites it as the Approved Reward Pool) | build-session (the keyed-site procedure), review-rewards |
+| Reward economy | What treasure and payment run on (gold? favors?) | prep-session (the rewards step) |
+| Approved-items list | Which magic/notable items may be placed silently, and where the list lives (review-rewards rewrites it as the Approved Reward Pool) | prep-session (the rewards step), review-rewards |
 | Reward review state | Where the review-rewards app's tracked JSON state lives — versioned, outside the wiki/site bundle (fallback: `rewards-review/` at the campaign root) | review-rewards |
-| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines) | build-session, combat-generator |
+| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines with catch-up's fired/denied marks) | combat-generator |
 | Media dir + style anchor | Where images live; optionally an existing image that anchors the house style | campaign-art |
 | Sync camp | How changes land — direct to main, or PR flow | party-sync (and any skill that commits) |
 
-Skills with no rows of their own (seed-clues, to-session-brief) resolve
-everything through the method handbook and the repo guide. `to-session-brief`
-reads that record and publishes to the campaign repo's **tracker**, so it lands
-nothing in the record and claims no slot. See the per-skill SKILL.md for the
+A skill with no rows of its own (seed-clues) resolves everything through the
+method handbook and the repo guide. See the per-skill SKILL.md for the
 authoritative probe text on every slot.
 
 ## Sync obligations — maintainers only
@@ -77,29 +73,18 @@ live here, out of the shipped skill bodies.
 
 | Shape | Owned by | Must move in the same commit |
 |---|---|---|
-| `> [!encounter-meta]` block | the library (`lib/encounter-meta-format.md`), shipped by symlink into combat-generator and build-session — so each skill installs alone with the shape it needs | combat-generator's SKILL.md, whose *Filing format* section cites the spec and owns what goes in the fields; build-session's keyed-site procedure (`dungeon.md`), which files its fights in the same shape, and its `session-page-format.md`, which cites the spec for the page's fights; catch-up, which reads its `Spotlight:` field as half the fired/denied ledger. The two code paths that read the block are `build-session/scripts/session_parser.py` and the mechanical checker (`lib/mechanical-checker/checker.py`). |
-| The `Spotlight (scene):` line | build-session (*session-page-format.md*, Conventions) | build-session's keyed-site procedure (`dungeon.md`), which files one for a keyed area's non-combat beat; catch-up, which reads it as the other half of the fired/denied ledger — the non-fight one |
-| `xp-budget.md`, `complications.md` | combat-generator (skill-internal) | Nobody loads these across a skill boundary — they sit beside the fight steps inside combat-generator, and build-session's page and keyed-site flows size fights by invoking `/combat-generator`, which owns these files |
-| `spotlight-doctrine.md`, `class-patterns.md` — the data ladder lives inside `spotlight-doctrine.md` | the library (`lib/spotlight-doctrine.md`, `lib/class-patterns.md`), shipped by symlink into build-session and combat-generator | build-session's spotlight and keyed-site procedures (`spotlight.md`, `dungeon.md`) and the combat-generator skill load them beside themselves; party-sync loads `spotlight-doctrine.md` across the skill boundary (guarded, *"if that skill is installed"*); `catch-up` reads the page's annotations and loads neither |
-| The **session spotlight plan** — transient, handed back in-run, never filed | build-session (`spotlight.md`, *Allocating the plan*) | build-session's Step 3, which loads `spotlight.md` and spends the plan inside the same run; the keyed-site procedure and the combat-generator skill, which are handed a beat from it and spend that instead of allocating texture independently inside a session build |
-| The **findings-log record schema** — the `"run"` and `"finding"` lines of `.claude/validator-findings/findings.jsonl` | `lib/mechanical-checker/findings_log.py`, the canonical definition and the only code that writes it — both tiers call it since the verification-chain cut gave the judgement tier real parameters (`verdict`, `quoted_span`, `reason`) | `lib/mechanical-checker/self-heal-loop.md`, whose pseudocode carries the mechanical call sites; the fresh-check log instructions in the shared protocol (`lib/verification.md`, Part 2), which build-session's and combat-generator's procedures run; and the schema bullets in `lib/mechanical-checker/README.md`. The old unpinned by-hand judgement writer is retired; a field change now lands in the module and its tests first |
-| The **shared verification protocol** — the two-part done-gate | the library (`lib/verification.md`), shipped by symlink into build-session and combat-generator | every definition-of-done section that runs it and names its own check ids and criteria: build-session's SKILL.md Steps 6–7 and `dungeon.md`, and combat-generator's SKILL.md |
-| `contradiction` callouts and the generated `Loose ends` section | the campaign schema (`lib/wiki-scaffold/template/wiki-schema.md` in the shipped scaffold) | `groom-wiki` / `okf-groom.py`, which place findings; `catch-up`, which clears settled callout pairs and invokes the groomer to refresh loose ends; `build-session`, which reads both shapes. sd-campaign's local `lazy-dm` reads the same shapes and moves through its companion ticket. Cross-skill invocation is guarded with "if installed". |
-| Live-layer `next_session` and live-layer/prep `stale_after` | the campaign schema's *Session horizon* rule; `okf_config.py` supplies `SESSION_WEEKDAY` | `catch-up` (next date and live-layer horizon, clearing the played session's horizon); `build-session` and sd-campaign's local `lazy-dm` (prep horizon and date rollover after cancellation); `groom-wiki` / `okf-groom.py` (reads and reports staleness without setting dates). |
-
-The session-page skeleton's own coupling (`render.md` and
-`scripts/session_parser.py`) stays noted inside build-session, where the
-parser lives. Of the two block-shaped conventions, the `Spotlight (scene):`
-line stays in `session-page-format.md` and the encounter-meta block lives in
-`lib/encounter-meta-format.md`; their deliberate separation (a scene line
-never sits inside an encounter-meta block, so the fight-variety ledger stays
-fights-only) is stated once in the block's own file, which the page format
-cites.
+| `> [!encounter-meta]` block | the library (`lib/encounter-meta-format.md`), shipped by symlink into combat-generator | combat-generator's SKILL.md, whose *Filing format* section cites the spec and owns what goes in the fields; prep-session, which embeds the block as-is under its scenes and *Relevant Monsters*; catch-up, which marks the block's `Spotlight:` opportunity fired or denied after play. The one code path that reads the block is the mechanical checker (`lib/mechanical-checker/checker.py`). |
+| `xp-budget.md`, `complications.md` | combat-generator (skill-internal) | Nobody loads these across a skill boundary — they sit beside the fight steps inside combat-generator, and prep-session sizes fights by invoking `/combat-generator`, which owns these files |
+| `spotlight-doctrine.md`, `class-patterns.md` — the data ladder lives inside `spotlight-doctrine.md` | the library (`lib/spotlight-doctrine.md`, `lib/class-patterns.md`), shipped by symlink into combat-generator | combat-generator loads them beside itself; party-sync loads `spotlight-doctrine.md` across the skill boundary (`../combat-generator/`, guarded, *"if that skill is installed"*); `catch-up` and `prep-session` load neither |
+| The **findings-log record schema** — the `"run"` and `"finding"` lines of `.claude/validator-findings/findings.jsonl` | `lib/mechanical-checker/findings_log.py`, the canonical definition and the only code that writes it — both tiers call it since the verification-chain cut gave the judgement tier real parameters (`verdict`, `quoted_span`, `reason`) | `lib/mechanical-checker/self-heal-loop.md`, whose pseudocode carries the mechanical call sites; the fresh-check log instructions in the shared protocol (`lib/verification.md`, Part 2), which combat-generator's procedure runs; and the schema bullets in `lib/mechanical-checker/README.md`. The old unpinned by-hand judgement writer is retired; a field change now lands in the module and its tests first |
+| The **shared verification protocol** — the two-part done-gate | the library (`lib/verification.md`), shipped by symlink into combat-generator | every definition-of-done section that runs it and names its own check ids and criteria: combat-generator's SKILL.md |
+| `contradiction` callouts and the generated `Loose ends` section | the campaign schema (`lib/wiki-scaffold/template/wiki-schema.md` in the shipped scaffold) | `groom-wiki` / `okf-groom.py`, which place findings; `catch-up`, which clears settled callout pairs and invokes the groomer to refresh loose ends; `prep-session`, which reads both shapes. Cross-skill invocation is guarded with "if installed". |
+| Live-layer `next_session` and live-layer/prep `stale_after` | the campaign schema's *Session horizon* rule; `okf_config.py` supplies `SESSION_WEEKDAY` | `catch-up` (next date and live-layer horizon, clearing the played session's horizon); `prep-session` (sheet horizon and date rollover after cancellation); `groom-wiki` / `okf-groom.py` (reads and reports staleness without setting dates). |
 
 ### When a shape change lands: sweep for the phrase it falsifies
 
 This table is prose, and nothing consults it — which is how `d1a08f9` changed a
-fact in `build-session/SKILL.md` and left six other locations asserting the old
+fact in one skill's SKILL.md and left six other locations asserting the old
 one. Reading it is a step a human has to remember, and no check covers the
 omission.
 
@@ -116,7 +101,6 @@ The generator merge retired both the duplication and the guard, and the
 combat-generator hoist moved the statement to its final home: the doctrine
 now lives once, at the top of `lib/rules-sourcing.md`, beside the chain it
 binds, and materialises by symlink into every skill that places rules
-content — combat-generator, build-session (whose keyed-site procedure
-`dungeon.md` points at it), party-sync, review-rewards — like the bundled
-SRD dataset (`lib/srd/`) and the mechanical checker. An edit to the doctrine
+content — combat-generator, prep-session, party-sync, review-rewards — like
+the bundled SRD dataset (`lib/srd/`) and the mechanical checker. An edit to the doctrine
 is an ordinary single-file edit.

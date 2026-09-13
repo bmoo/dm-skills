@@ -1,6 +1,6 @@
 # The encounter-meta block
 
-Every fight filed onto a page lands as an `> [!encounter-meta]` callout — the
+Every fight filed onto a prep sheet or node page lands as an `> [!encounter-meta]` callout — the
 machine-findable summary of the fight's vitals, with the prose it sits in
 (terrain, tactics, the complication's staging) as normal page text around it.
 The combat-generator skill composes the block (its *Filing format* section
@@ -29,14 +29,13 @@ choke`) rather than concrete ground, and its creature names appear on the
 when a floating fight is checked. Every creature named on the `Enemies:` line carries a
 stat-block reference (`{monster:Name}` where the render tokens are in use) —
 a bare creature name is a defect here as everywhere on a page. The
-`Spotlight:` field is the **fight** half of a page's spotlight annotations: a
-`Spotlight (scene):` line (the session-page format's other spotlight shape)
-never sits inside this block, which is what keeps the fight-variety ledger
-fights-only.
+`Spotlight:` field names the fight's texture and, for an aimed or puzzle
+fight, the opportunity it stages and whom it is staged for — never who acts
+or whether it works; it is the line catch-up marks fired or denied after
+play.
 
 This is a **library-owned format — never improvise its shape.** The block
-above is what the code reads: build-session's parser
-(`scripts/session_parser.py`) reads the callout, the mechanical checker
+above is what the code reads: the mechanical checker
 (`lib/mechanical-checker/`) asserts its six labels, and campaign repos may
 build tooling that parses it. Changing the shape is a breaking change, and
 every reader is held to this file rather than to a copy of it.

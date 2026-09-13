@@ -95,7 +95,7 @@ def test_judgement_finding_carries_its_evidence(log_path):
     """The evidence contract: a judgement finding records the quoted span it
     fired on and a one-line reason, so a wrong verdict is distinguishable from
     a right one at read time."""
-    log_finding("combat-generator", "build-session/spotlight-coverage", "judgement", "raised",
+    log_finding("combat-generator", "combat-generator/turn-economy", "judgement", "raised",
                 output_anchor="the roster table",
                 quoted_span="Nyla is named nowhere on the page",
                 reason="the staged rite is an unused obvious carrier", path=log_path)
@@ -111,10 +111,10 @@ def test_judgement_finding_without_evidence_raises(log_path):
     """A verdict with nothing behind it cannot be audited — both halves of the
     evidence are required, and the refusal is a caller bug, not I/O."""
     with pytest.raises(ValueError, match="quoted_span and reason"):
-        log_finding("combat-generator", "build-session/plain-language", "judgement", "raised",
+        log_finding("combat-generator", "combat-generator/stat-block-refs-in-prose", "judgement", "raised",
                     quoted_span="thread the needle", path=log_path)
     with pytest.raises(ValueError, match="quoted_span and reason"):
-        log_finding("combat-generator", "build-session/plain-language", "judgement", "raised",
+        log_finding("combat-generator", "combat-generator/stat-block-refs-in-prose", "judgement", "raised",
                     reason="undefined metaphor in a spotlight line", path=log_path)
     assert not log_path.exists()
 
@@ -130,7 +130,7 @@ def test_mechanical_finding_needs_no_evidence_fields(log_path):
 
 
 def test_heal_attempts_and_anchor_default_when_unknown(log_path):
-    log_finding("combat-generator", "build-session/every-flagged-pc-staged", "mechanical", "healed", path=log_path)
+    log_finding("combat-generator", "combat-generator/floating-terrain-roles", "mechanical", "healed", path=log_path)
     record, = _lines(log_path)
     assert record["heal_attempts"] is None
     assert record["output_anchor"] == ""
@@ -148,17 +148,17 @@ def test_timestamp_is_utc_iso8601(log_path):
 # --------------------------------------------------------------------------- #
 
 def test_run_record_carries_the_check_id_list_not_a_count(log_path):
-    log_run("combat-generator", ["combat-generator/budget-line-arithmetic", "combat-generator/distinct-stat-block-cap", "build-session/role-word-count"], path=log_path)
+    log_run("combat-generator", ["combat-generator/budget-line-arithmetic", "combat-generator/distinct-stat-block-cap", "combat-generator/enemies-line-arithmetic"], path=log_path)
     record, = _lines(log_path)
     assert record["record"] == "run"
-    assert record["checks_evaluated"] == ["combat-generator/budget-line-arithmetic", "combat-generator/distinct-stat-block-cap", "build-session/role-word-count"]
+    assert record["checks_evaluated"] == ["combat-generator/budget-line-arithmetic", "combat-generator/distinct-stat-block-cap", "combat-generator/enemies-line-arithmetic"]
     assert record["skill"] == "combat-generator"
 
 
 def test_run_record_copies_the_check_list(log_path):
     checks = ["combat-generator/budget-line-arithmetic", "combat-generator/distinct-stat-block-cap"]
     log_run("combat-generator", checks, path=log_path)
-    checks.append("build-session/role-word-count")
+    checks.append("combat-generator/enemies-line-arithmetic")
     record, = _lines(log_path)
     assert record["checks_evaluated"] == ["combat-generator/budget-line-arithmetic", "combat-generator/distinct-stat-block-cap"]
 
@@ -192,21 +192,21 @@ def test_judgement_run_record_is_distinguishable_from_a_mechanical_one(log_path)
     run also carries its verdict — an approve run with zero findings and a run
     that never happened must stay distinguishable."""
     log_run("combat-generator", ["combat-generator/budget-line-arithmetic"], path=log_path)
-    log_run("combat-generator", ["build-session/npc-rows-named", "build-session/clue-interpretability"],
+    log_run("combat-generator", ["combat-generator/stat-block-refs-in-prose", "combat-generator/swarm-carries-fragile-creatures"],
             tier="judgement", verdict="approve", path=log_path)
     mechanical, judgement = _lines(log_path)
     assert mechanical["tier"] == "mechanical"
     assert "verdict" not in mechanical
     assert judgement["tier"] == "judgement"
     assert judgement["verdict"] == "approve"
-    assert judgement["checks_evaluated"] == ["build-session/npc-rows-named", "build-session/clue-interpretability"]
+    assert judgement["checks_evaluated"] == ["combat-generator/stat-block-refs-in-prose", "combat-generator/swarm-carries-fragile-creatures"]
 
 
 def test_judgement_run_without_a_verdict_raises(log_path):
     """The verdict is the property of the pass; a judgement run row that omits
     it is the retired multi-round shape and is refused."""
     with pytest.raises(ValueError, match="judgement run requires verdict"):
-        log_run("combat-generator", ["build-session/npc-rows-named"], tier="judgement", path=log_path)
+        log_run("combat-generator", ["combat-generator/stat-block-refs-in-prose"], tier="judgement", path=log_path)
     assert not log_path.exists()
 
 
@@ -312,7 +312,7 @@ def test_unknown_tier_raises(log_path):
 
 def test_disposition_the_tier_cannot_produce_raises(log_path):
     with pytest.raises(ValueError, match="judgement tier"):
-        log_finding("combat-generator", "build-session/spotlight-coverage", "judgement", "healed", path=log_path)
+        log_finding("combat-generator", "combat-generator/turn-economy", "judgement", "healed", path=log_path)
     with pytest.raises(ValueError, match="mechanical tier"):
         log_finding("combat-generator", "combat-generator/budget-line-arithmetic", "mechanical", "raised", path=log_path)
     assert not log_path.exists()
