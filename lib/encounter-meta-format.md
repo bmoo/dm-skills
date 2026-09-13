@@ -35,7 +35,7 @@ or whether it works; it is the line catch-up marks fired or denied after
 play.
 
 This is a **library-owned format — never improvise its shape.** The block
-above is what the code reads: the mechanical checker
-(`lib/mechanical-checker/`) asserts its six labels, and campaign repos may
+above is what the code reads: combat-generator's mechanical checker
+(`scripts/mechanical_checker/` inside that skill) asserts its six labels, and campaign repos may
 build tooling that parses it. Changing the shape is a breaking change, and
 every reader is held to this file rather than to a copy of it.
