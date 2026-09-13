@@ -326,8 +326,14 @@ def markdown_links(text):
 
 
 def is_relative_link(destination):
-    """Local Markdown destinations (including #anchors) that lack leading /."""
-    return not destination.startswith("/") and re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", destination) is None
+    """Local Markdown destinations that lack a leading /.
+
+    A same-file fragment (`#heading-slug`) is a link form the schema
+    allows in its own right, not a relative path, so it is left alone.
+    """
+    if destination.startswith(("/", "#")):
+        return False
+    return re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", destination) is None
 
 
 # --- Targeted rewrites --------------------------------------------------------
@@ -353,9 +359,13 @@ def resolve_local_link(source, destination):
         return None
 
 
-def root_link(source, destination):
-    """Rewrite a resolvable relative destination, retaining its query/anchor."""
-    if not is_relative_link(destination):
+def root_link(source, destination, fragments=False):
+    """Rewrite a resolvable relative destination, retaining its query/anchor.
+
+    Same-file fragments are rewritten only when `fragments` is set — for text
+    about to move to another file, where `#slug` would stop resolving.
+    """
+    if not (is_relative_link(destination) or fragments and destination.startswith("#")):
         return destination
     target = resolve_local_link(source, destination)
     if target is None:
@@ -367,10 +377,10 @@ def root_link(source, destination):
     return "/" + target_path + trailing + (suffix[0] if suffix else "")
 
 
-def rewrite_local_links(source, text):
+def rewrite_local_links(source, text, fragments=False):
     """Pure destination-only rewrite; source is relative to the bundle root."""
     for link in reversed(list(markdown_links(text))):
-        text = text[:link.start] + root_link(source, link.destination) + text[link.end:]
+        text = text[:link.start] + root_link(source, link.destination, fragments) + text[link.end:]
     return text
 
 

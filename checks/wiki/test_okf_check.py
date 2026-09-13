@@ -186,7 +186,7 @@ def test_tag_may_equal_a_word_or_prefix_of_an_existing_concept_basename(campaign
 
 
 @pytest.mark.parametrize('link', [
-    '[Missing](unwritten.md)', '![Map](../media/map.png)', '[Section](#details)',
+    '[Missing](unwritten.md)', '![Map](../media/map.png)', '[Section](other.md#details)',
     '[Name](<a spaced file.md> "A title")', '[Name](folder/a(b).md)',
     '[Name][ref]\n\n[ref]: missing.md "Title"',
 ])
@@ -201,7 +201,7 @@ def test_link_examples_and_external_uri_schemes_are_ignored(campaign):
     concept(campaign, baseline() + '''
 [Link](https://example.com) [Email](mailto:brad@example.com)
 [File](file:///tmp/example.md) [Phone](tel:+12345)
-[CDN](//example.com/map.png) [Future](/missing.md#anchor)
+[CDN](//example.com/map.png) [Future](/missing.md#anchor) [Here](#a-heading)
 `[Example](relative.md)` and ``[Example](relative.md)``.
 
 ```markdown
