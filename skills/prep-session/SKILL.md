@@ -64,7 +64,10 @@ Then bring the record current:
   `stale_after`, check `now >= stale_after`. Stale: ask whether the session
   on `next_session` was played. Yes: catch-up first. No: roll
   `next_session` forward and rewrite the live layer's horizon per the
-  schema's *Session horizon* rule, and use that value on this sheet.
+  schema's *Session horizon* rule, and use that value on this sheet. When
+  the schema defines the fields but the live layer carries neither, ask
+  the DM for the next date and offer to set both; if none is known, build
+  without a horizon.
 - **Loose ends and contradictions.** Read the live layer's generated
   loose-ends section and any contradiction callouts on the concepts this
   prep touches (shapes in the schema). Loose ends are candidates, never
@@ -160,8 +163,9 @@ Name each fight's form:
 
 - **File** as `sessions/<slug>.md` wherever the campaign keeps session
   records, `type: session`, `status: draft`, a one-sentence plain
-  description, and `generated: { by: dm-skills/prep-session, at: <ISO 8601
-  with UTC offset> }` per the schema's last-writer rule. Copy `stale_after`
+  description, `tags` including `prep-sheet`, and `generated: { by:
+  dm-skills/prep-session, at: <ISO 8601 with UTC offset> }` per the
+  schema's last-writer rule. Copy `stale_after`
   from the live layer when `next_session` is known; omit it otherwise. A
   sheet delivered only in chat creates no file. Catch-up owns the flip to
   played history.
