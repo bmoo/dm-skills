@@ -63,6 +63,7 @@ MIGRATION_ACTOR = "campaignbot/postsession"
 MIGRATION_STATUS_MAP = dict(MIGRATION_STATUS_MAP, prep="stable")
 BUNDLE_DIRS.append("party")
 DIRECTORY_TYPES["party"] = "player"
+DIRECTORY_TYPES["."] = "reference"
 ROOT_CONCEPTS.append("overview.md")
 ''')
     party = bundle / "party"

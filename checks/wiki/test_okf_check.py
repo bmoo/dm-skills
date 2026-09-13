@@ -97,6 +97,18 @@ def test_wiki_type_matches_directory(campaign):
     assert_fixture(campaign, "wiki/type-matches-directory")
 
 
+@pytest.mark.parametrize("root_types,expected", [
+    ("", set()),
+    ('DIRECTORY_TYPES["."] = "reference"', set()),
+    ('DIRECTORY_TYPES["."] = "hub"', {"wiki/type-matches-directory"}),
+])
+def test_root_concept_type_is_checked_only_when_configured(campaign, root_types, expected):
+    with (campaign / "scripts/okf_config.py").open("a") as stream:
+        stream.write(f'\nROOT_CONCEPTS.append("overview.md")\n{root_types}\n')
+    (campaign / "overview.md").write_text(baseline().replace("type: npc", "type: reference"))
+    assert ids(run_check(campaign, "--warnings")) == expected
+
+
 def test_wiki_tags_suggested(campaign):
     assert_fixture(campaign, "wiki/tags-suggested")
 
@@ -215,7 +227,6 @@ BUNDLE_ROOT = "wiki"
 BUNDLE_DIRS = ["party", "analysis"]
 ROOT_CONCEPTS = ["hub.md"]
 DIRECTORY_TYPES = {"party": "player", "analysis": "analysis"}
-ROOT_TYPE = "reference"
 ''')
     bundle = campaign / 'wiki'
     (bundle / 'party').mkdir(parents=True)

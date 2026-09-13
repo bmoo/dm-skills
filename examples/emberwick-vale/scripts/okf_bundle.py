@@ -384,8 +384,8 @@ def first_heading(text):
 
 
 def inferred_type(path):
-    """Configured directory/root type, with the scaffold's file conventions."""
-    from okf_config import DIRECTORY_TYPES, ROOT_TYPE
+    """Configured directory type (root concepts under "."), with the scaffold's file conventions."""
+    from okf_config import DIRECTORY_TYPES
     path = Path(path)
     if path.name == "wiki-schema.md":
         return "schema"
@@ -393,7 +393,7 @@ def inferred_type(path):
         return "readme"
     if path.stem.endswith("-seed-ideas"):
         return "seed-ideas"
-    return ROOT_TYPE if path.parent == Path(".") else DIRECTORY_TYPES.get(path.parent.as_posix())
+    return DIRECTORY_TYPES.get(path.parent.as_posix())
 
 
 def edit_frontmatter(text, updates, remove=()):
