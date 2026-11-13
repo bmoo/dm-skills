@@ -43,7 +43,8 @@ Reference files sit beside this one. Load each when its step says to:
 
 Open [`scenario-format.md`](scenario-format.md) and write
 `<fight-slug>.scenario.json` beside the page that holds the fight. The
-slug is the fight's name in lowercase with hyphens. A fight that exists
+slug is the fight's title, or its place when it has no title, in lowercase
+with hyphens. A fight that exists
 only in chat compiles into the OS temp directory.
 
 - **Combatants.** Look up every enemy through the chain in

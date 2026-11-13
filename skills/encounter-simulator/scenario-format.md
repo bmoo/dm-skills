@@ -126,7 +126,7 @@ An action is one thing the combatant can do on its turn.
 | Field | Meaning |
 |---|---|
 | `time` | `action` or `bonus`. A combatant takes at most one of each on a turn. |
-| `reach` | `"melee"`, `{"range": 80, "long": 320}`, or `"self"`. `long` is optional. |
+| `reach` | `"melee"` (the default), `{"range": 80, "long": 320}`, or `"self"`. `long` is optional. |
 | `target` | `enemy` (the default), `ally`, or `self`. |
 | `uses` | Absent means at will. `{"resource": "spell slot 1", "cost": 1}` spends a named resource. `{"per_fight": 1}` limits uses. `{"recharge": 5}` makes the action available again on a d6 roll of 5 or higher at the start of the combatant's turn. |
 | `effects` | What happens, as a list of effects. |
@@ -273,6 +273,7 @@ report repeats this list under *Not modelled*.
   healed.
 - Hiding, readied actions, and anything a player improvises.
 - Positions inside a zone. Every creature in a zone can reach every other.
+- Line of sight. A creature can target any zone within range.
 
 ## The replay record
 

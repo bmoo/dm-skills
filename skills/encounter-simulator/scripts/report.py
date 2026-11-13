@@ -13,6 +13,7 @@ NEVER_MODELLED = [
     "Death saving throws. A player character at 0 hit points stays down until healed.",
     "Hiding, readied actions, and anything a player improvises.",
     "Positions inside a zone. Every creature in a zone can reach every other.",
+    "Line of sight. A creature can target any zone within range.",
 ]
 
 
