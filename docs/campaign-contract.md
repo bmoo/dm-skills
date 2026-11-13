@@ -55,7 +55,7 @@ degrades gracefully when an optional companion is absent.
 | Reward economy | What treasure and payment run on (gold? favors?) | prep-session (the rewards step) |
 | Approved-items list | Which magic/notable items may be placed silently, and where the list lives (review-rewards rewrites it as the Approved Reward Pool) | prep-session (the rewards step), review-rewards |
 | Reward review state | Where the review-rewards app's tracked JSON state lives — versioned, outside the wiki/site bundle (fallback: `rewards-review/` at the campaign root) | review-rewards |
-| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines with catch-up's fired/denied marks) | combat-generator, encounter-simulator (tactics cards and the replay check; no fallback, it skips both) |
+| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines with catch-up's fired/denied marks) | combat-generator, encounter-simulator (tactics cards, with the player page's observed style and then a plain card as fallbacks; and the replay check, which it skips without the record) |
 | Media dir + style anchor | Where images live; optionally an existing image that anchors the house style | campaign-art |
 | Sync camp | How changes land — direct to main, or PR flow | party-sync (and any skill that commits) |
 
