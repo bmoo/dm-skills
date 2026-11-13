@@ -5,9 +5,13 @@ fight: who is in it, what each combatant can do, the ground, the timed
 changes, and what each side is trying to achieve. The engine reads this file
 and nothing else. **This file is the one statement of the scenario's shape.**
 `scripts/simulate.py check` enforces it, and the fixtures under
-`scripts/fixtures/` are worked examples. The check reads the shape, then
-plays the fight once for the scenario and once for each variant, and
-reports any fight the engine could not play.
+`scripts/fixtures/` are worked examples.
+
+The shape is closed. Every object takes exactly the keys this file names,
+and every value has the type this file gives it. The check works in three
+passes and stops at the first that finds a problem: the shape, then what
+the shape cannot say (ids that must exist, a fight that can be fought),
+then one played fight for the scenario and one for each variant.
 
 A scenario sits beside the fight it was compiled from and is named
 `<fight-slug>.scenario.json`. The fight's `> [!encounter-meta]` block does
@@ -30,7 +34,8 @@ not change.
 ```
 
 `format`, `name`, `zones`, `combatants`, and `objectives` are required.
-`round_limit` defaults to 20 and cannot pass 100. `"first": "party"` or `"first": "enemies"`
+`round_limit` defaults to 20 and cannot pass 50. A fight holds at most 60
+creatures in all. `"first": "party"` or `"first": "enemies"`
 makes that whole side act before the other. Without it every combatant
 rolls initiative, and a group of identical creatures shares one roll.
 
@@ -94,7 +99,7 @@ combatant on the field when the fight starts.
 
 | Field | Meaning |
 |---|---|
-| `id` | Unique. With `count` above 1 the engine names the copies `bandit 1`, `bandit 2`. `count` cannot pass 100. |
+| `id` | Unique. With `count` above 1 the engine names the copies `bandit 1`, `bandit 2`. `count` cannot pass 30. |
 | `side` | `party` or `enemies`. |
 | `pc` | `true` for a player character. The report counts how often each PC dropped to 0 hit points. A PC at 0 is down and returns if healed. Any other creature at 0 is out. |
 | `zone` | The starting zone. `null` means the combatant is off the field until an event brings it in. |
@@ -223,7 +228,7 @@ round limit passes.
 
 | `kind` | Holds when |
 |---|---|
-| `defeat` | Every combatant of `side` on the field is down or has fled, and no `enter` event can still bring more. With `combatant` instead of `side`, every copy of that combatant is down. |
+| `defeat` | Takes a `side` or a `combatant`, never both. With `side`, every combatant of that side on the field is down or has fled, and no `enter` event can still bring more. With `combatant`, every copy of that combatant is down. |
 | `rounds` | Round `round` has ended, whatever else has happened. Use it for a clock that favours one side. The other side stops the clock only by meeting its own objective first. |
 | `reach` | `count` creatures of the side (or all of them, with `"count": "all"`) stand in `zone`. |
 

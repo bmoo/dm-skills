@@ -89,8 +89,9 @@ only in chat compiles into the OS temp directory.
   itself.
 
 Done when `python3 <this skill>/scripts/simulate.py check <scenario>`
-prints `OK`. The check names every break in the shape. Fix each one in the
-scenario file and run the check again.
+prints `OK`. The check reports shape problems first, then ids and fights
+that cannot be fought, so expect more than one round. Fix each problem in
+the scenario file and run the check again.
 
 ## Step 2: Review with the DM
 

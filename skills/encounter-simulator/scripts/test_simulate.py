@@ -63,9 +63,8 @@ def test_shipped_fixtures_pass_the_shape_check(path):
 def test_shape_check_names_every_break():
     result = _cli("check", FIXTURES / "bad_shape.scenario.json")
     assert result.returncode == 1
-    for needle in ("format must be", "cover must be", "unknown key 'armour'", "unknown zone 'cellar'",
-                   "not a dice expression", "'use' must name one of this combatant's actions",
-                   "'enemies' needs a non-empty 'wins' list"):
+    for needle in ("'format' must be", "'cover' must be", "unknown key 'armour'", "not a dice expression",
+                   "missing 'enemies'"):
         assert needle in result.stdout
 
 
@@ -368,25 +367,41 @@ def test_any_scenario_that_passes_the_check_can_be_reviewed_and_played(path):
     assert passed > 0
 
 
+def _crowd(sc):
+    del sc["zones"][0]["capacity"]
+    sc["combatants"][0]["count"] = sc["combatants"][1]["count"] = 30
+    sc["combatants"].append(_creature("extra", "enemies", [_swing()]))
+
+
 SECOND_ROUND_BREAKS = [
     (_set(("events",), [{"round": 1, "kind": "zone", "zone": "yard", "set": {"elevation": "high"}}]),
      "'elevation' must be a number"),
-    (_set(("events",), [{"round": 1, "kind": "zone", "zone": "yard", "set": {"cover": "full"}}]), "cover must be"),
+    (_set(("events",), [{"round": 1, "kind": "zone", "zone": "yard", "set": {"cover": "full"}}]), "'cover' must be"),
+    (_set((*OGRE, "zone"), "cellar"), "unknown zone 'cellar'"),
+    (_set((*HERO, "tactics"), {"plan": [{"use": "halberd"}]}), "'use' must name one of this combatant's actions"),
+    (_set(("objectives", "enemies", "wins"), []), "'enemies' needs a non-empty 'wins' list"),
+    (_set(("objectives", "neutral"), {"wins": []}), "unknown key 'neutral'"),
+    (_set((*HERO, "actions", 0, "effects", 0, "hit"),
+          [{"kind": "condition", "name": "prone", "duration": {"rounds": 1, "name": "doom"}}]), "'duration' must be"),
+    (_set((*HERO, "tactics"), {"plan": [{"use": "swing", "when": {"target_has": ["x"]}}]}), "'target_has' must be text"),
+    (_set(("name",), "\ud800"), "'name' must be plain text"),
+    (_set((*OGRE, "hp"), 10**400), "'hp' must be a whole number"),
     (_set(("events",), [{"round": 0, "kind": "leave", "combatant": "ogre"}]), "'round' must be a whole number of 1"),
     (_set(("events",), [{"round": 2, "kind": "enter", "combatant": "ogre", "zone": "yard"}]),
      "'ogre' starts on the field"),
-    (_set((*OGRE, "zone"), ["yard"]), "a value has a type the format does not allow"),
+    (_set((*OGRE, "zone"), ["yard"]), "'zone' must be a zone id or null"),
     (_set((*OGRE, "id"), ["ogre"]), "'id' must be text"),
-    (_set(("links", 0, "feet"), float("nan")), "'feet' must be a positive number"),
+    (_set(("links", 0, "feet"), float("nan")), "'feet' must be a number"),
     (_set((*HERO, "actions"), [_swing(), _swing()]), "duplicate action id 'swing'"),
     (_set((*HERO, "actions", 0, "reach"), {"range": 60, "long": 30}), "'long' must not be shorter than 'range'"),
     (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "dice"), "0d0"), "at least one die"),
-    (_set(("variants",), [{"name": "none", "drop_events": 0}]), "drop_events must be a list"),
-    (_set((*OGRE, "count"), 10**9), "'count' must be 100 or less"),
-    (_set(("round_limit",), 10**9), "'round_limit' must be 100 or less"),
+    (_set(("variants",), [{"name": "none", "drop_events": 0}]), "'drop_events' must be a list"),
+    (_set((*OGRE, "count"), 10**6), "'count' must be 30 or less"),
+    (_crowd, "a fight takes at most 60 creatures in all"),
+    (_set(("round_limit",), 10**6), "'round_limit' must be 50 or less"),
     (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "dice"), "5000d6"), "at most 100 dice"),
-    (_set(("assumptions",), "none"), "'assumptions' must be a list of sentences"),
-    (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "type"), 2.5), "'type' must be a damage type in words"),
+    (_set(("assumptions",), "none"), "'assumptions' must be a list"),
+    (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "type"), 2.5), "'type' must be text"),
     (_set(("variants",), [{"name": "crowd", "counts": {"hero": 9}}]), "variants[0] 'crowd': zones: 'yard' has a capacity"),
 ]
 

@@ -142,24 +142,34 @@ def scenario_problems(sc):
 def _problems(path, checker):
     try:
         errors = checker(load(path))
-    except (OSError, json.JSONDecodeError) as e:
-        errors = [f"cannot read it as JSON: {e}"]
+    except (OSError, ValueError, RecursionError) as e:
+        errors = [f"cannot read it as JSON: {type(e).__name__}: {str(e)[:200]}"]
     if errors:
         print(f"{len(errors)} problem(s) in {path}:")
         print("\n".join(f"- {e}" for e in errors))
     return bool(errors)
 
 
+def _runs(text):
+    runs = int(text)
+    if not 1 <= runs <= 1_000_000:
+        raise argparse.ArgumentTypeError("--runs must be between 1 and 1,000,000")
+    return runs
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", choices=("check", "review", "run", "replay"))
     parser.add_argument("scenario")
-    parser.add_argument("--runs", type=int, default=1000)
+    parser.add_argument("--runs", type=_runs, default=1000)
     parser.add_argument("--seed", default="1")
     parser.add_argument("--json", help="also write the numbers to this file")
     parser.add_argument("--out", help="write the report to this file and print only where it went")
     parser.add_argument("--record", help="replay: the played fight's recorded numbers")
     args = parser.parse_args(argv)
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(errors="backslashreplace")
 
     if args.command == "replay" and not args.record:
         parser.error("replay needs --record")
