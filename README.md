@@ -92,6 +92,7 @@ flowchart TD
     repo -- "eight steps over the record" --> prep["prep-session"]
     prep -- "costed fights" --> combat["combat-generator"]
     combat -- "encounter blocks" --> prep
+    combat -- "a fight to test" --> sim["encounter-simulator"]
     prep -- "prep sheet" --> repo
     repo --> play(["Play the session"])
     play -- "transcript or DM recounting" --> catchup["catch-up"]
@@ -125,6 +126,11 @@ flowchart TD
   scene, or **floating**: scene-free, written in roles, bound to a scene at
   the table. Runs standalone or invoked by `prep-session`
   (`/combat-generator`).
+- **`encounter-simulator`** — plays a prepped fight many times with dice and
+  reports how it tends to go: how often each side meets its objective, the
+  spread of rounds, who drops, and which single change moves the result
+  most. The agent compiles the fight once into a scenario file the DM
+  reviews; a Python engine with no model call rolls it.
 - **`catch-up`** — absorbs played sessions into the campaign record, from a
   transcript when one exists, by interviewing the DM otherwise.
 - **`groom-wiki`** — maintains a scaffolded campaign wiki after absorption or
@@ -160,7 +166,8 @@ maintainer machinery, not consumer surface:
 - The runtime verifier lives inside combat-generator at
   `skills/combat-generator/scripts/mechanical_checker/`, the only skill that
   runs it; its README describes the checks, test gate, and extension procedure.
-- **`pytest checks/ skills/combat-generator/scripts/ skills/prep-session/scripts/
+- **`pytest checks/ skills/combat-generator/scripts/
+  skills/encounter-simulator/scripts/ skills/prep-session/scripts/
   skills/review-rewards/scripts/` is the gate on every content commit** — it
   runs checks over shipped content and the units that ship with the skills.
 - Maintainer tooling in `.claude/skills/` never ships.

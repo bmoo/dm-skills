@@ -178,7 +178,7 @@ skill's other scripts and imports the same flat way.
 ```
 # The gate — checks over shipped content, this checker, then the script
 # tests that ship with prep-session and review-rewards.
-python -m pytest checks/ skills/combat-generator/scripts/ skills/prep-session/scripts/ skills/review-rewards/scripts/
+python -m pytest checks/ skills/combat-generator/scripts/ skills/encounter-simulator/scripts/ skills/prep-session/scripts/ skills/review-rewards/scripts/
 
 python -m pytest skills/combat-generator/scripts/mechanical_checker/  # this dir only
 ```
