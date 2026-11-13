@@ -1,0 +1,688 @@
+{
+  "format": "encounter-scenario/1",
+  "name": "The Countdown",
+  "sources": "enemies from the bundled SRD 5.2 (Cultist Fanatic, Cultist; 550 XP, Moderate for four level 2 characters); the party is four sample level 2 characters",
+  "assumptions": [
+    "A floating fight: the zones carry terrain roles, not places.",
+    "The rogue's Sneak Attack applies on every hit, so its 1d6 is in the shortbow's damage.",
+    "The leader's Command is always Halt, compiled as Incapacitated for one turn.",
+    "The engine gives cover to every Dexterity save from another zone, so Sacred Flame is weaker here than in the book, where it ignores cover."
+  ],
+  "round_limit": 12,
+  "zones": [
+    {
+      "id": "approach",
+      "name": "the approach"
+    },
+    {
+      "id": "choke",
+      "name": "the choke",
+      "roles": [
+        "choke"
+      ],
+      "capacity": 2
+    },
+    {
+      "id": "high",
+      "name": "the high position",
+      "roles": [
+        "high position"
+      ],
+      "elevation": 10,
+      "cover": "half"
+    }
+  ],
+  "links": [
+    {
+      "between": [
+        "approach",
+        "choke"
+      ],
+      "feet": 30
+    },
+    {
+      "between": [
+        "choke",
+        "high"
+      ],
+      "feet": 15
+    }
+  ],
+  "combatants": [
+    {
+      "id": "fighter",
+      "name": "Fighter",
+      "side": "party",
+      "pc": true,
+      "zone": "approach",
+      "ac": 18,
+      "hp": 20,
+      "speed": 30,
+      "initiative": 1,
+      "saves": {
+        "str": 5,
+        "dex": 1,
+        "con": 4,
+        "int": 0,
+        "wis": 1,
+        "cha": 0
+      },
+      "resources": {
+        "second wind": 2,
+        "action surge": 1
+      },
+      "actions": [
+        {
+          "id": "longsword",
+          "name": "Longsword",
+          "reach": "melee",
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 5,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "1d8+3",
+                  "type": "slashing"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "action-surge",
+          "name": "Action Surge (two Longsword attacks)",
+          "reach": "melee",
+          "uses": {
+            "resource": "action surge",
+            "cost": 1
+          },
+          "steps": [
+            "longsword",
+            "longsword"
+          ]
+        },
+        {
+          "id": "second-wind",
+          "name": "Second Wind",
+          "time": "bonus",
+          "reach": "self",
+          "target": "self",
+          "uses": {
+            "resource": "second wind",
+            "cost": 1
+          },
+          "effects": [
+            {
+              "kind": "heal",
+              "dice": "1d10+2"
+            }
+          ]
+        }
+      ],
+      "tactics": {
+        "target": "nearest",
+        "focus": [
+          "leader"
+        ],
+        "position": "close",
+        "plan": [
+          {
+            "use": "second-wind",
+            "when": {
+              "hp_below": 0.5
+            }
+          },
+          {
+            "use": "action-surge",
+            "when": {
+              "round_min": 2
+            }
+          },
+          {
+            "use": "longsword"
+          }
+        ]
+      },
+      "source": "sample character, Fighter 2"
+    },
+    {
+      "id": "cleric",
+      "name": "Cleric",
+      "side": "party",
+      "pc": true,
+      "zone": "approach",
+      "ac": 18,
+      "hp": 17,
+      "speed": 30,
+      "initiative": 0,
+      "saves": {
+        "str": 2,
+        "dex": 0,
+        "con": 2,
+        "int": 0,
+        "wis": 5,
+        "cha": 3
+      },
+      "resources": {
+        "spell slot 1": 3
+      },
+      "actions": [
+        {
+          "id": "sacred-flame",
+          "name": "Sacred Flame",
+          "reach": {
+            "range": 60
+          },
+          "effects": [
+            {
+              "kind": "save",
+              "ability": "dex",
+              "dc": 13,
+              "fail": [
+                {
+                  "kind": "damage",
+                  "dice": "1d8",
+                  "type": "radiant"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mace",
+          "name": "Mace",
+          "reach": "melee",
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 4,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "1d6+2",
+                  "type": "bludgeoning"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "healing-word",
+          "name": "Healing Word",
+          "time": "bonus",
+          "reach": {
+            "range": 60
+          },
+          "target": "ally",
+          "uses": {
+            "resource": "spell slot 1",
+            "cost": 1
+          },
+          "effects": [
+            {
+              "kind": "heal",
+              "dice": "2d4+3"
+            }
+          ]
+        }
+      ],
+      "tactics": {
+        "target": "weakest",
+        "focus": [
+          "leader"
+        ],
+        "position": "hold",
+        "plan": [
+          {
+            "use": "healing-word",
+            "when": {
+              "ally_hp_below": 0.34
+            }
+          },
+          {
+            "use": "sacred-flame"
+          }
+        ]
+      },
+      "source": "sample character, Cleric 2"
+    },
+    {
+      "id": "rogue",
+      "name": "Rogue",
+      "side": "party",
+      "pc": true,
+      "zone": "approach",
+      "ac": 14,
+      "hp": 15,
+      "speed": 30,
+      "initiative": 3,
+      "saves": {
+        "str": 0,
+        "dex": 5,
+        "con": 1,
+        "int": 3,
+        "wis": 1,
+        "cha": 1
+      },
+      "actions": [
+        {
+          "id": "shortbow",
+          "name": "Shortbow with Sneak Attack",
+          "reach": {
+            "range": 80,
+            "long": 320
+          },
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 5,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "2d6+3",
+                  "type": "piercing"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cunning-action",
+          "name": "Cunning Action",
+          "time": "bonus",
+          "unmodelled": "Dash, Disengage, and Hide as a bonus action have no effect the engine reads."
+        }
+      ],
+      "tactics": {
+        "target": "weakest",
+        "focus": [
+          "leader"
+        ],
+        "position": "keep range",
+        "plan": [
+          {
+            "use": "shortbow"
+          }
+        ]
+      },
+      "source": "sample character, Rogue 2"
+    },
+    {
+      "id": "wizard",
+      "name": "Wizard",
+      "side": "party",
+      "pc": true,
+      "zone": "approach",
+      "ac": 12,
+      "hp": 12,
+      "speed": 30,
+      "initiative": 2,
+      "saves": {
+        "str": -1,
+        "dex": 2,
+        "con": 1,
+        "int": 5,
+        "wis": 3,
+        "cha": 0
+      },
+      "resources": {
+        "spell slot 1": 3
+      },
+      "actions": [
+        {
+          "id": "burning-hands",
+          "name": "Burning Hands",
+          "reach": {
+            "range": 15
+          },
+          "uses": {
+            "resource": "spell slot 1",
+            "cost": 1
+          },
+          "effects": [
+            {
+              "kind": "area",
+              "who": "enemies",
+              "max": 3,
+              "effects": [
+                {
+                  "kind": "save",
+                  "ability": "dex",
+                  "dc": 13,
+                  "half_on_success": true,
+                  "fail": [
+                    {
+                      "kind": "damage",
+                      "dice": "3d6",
+                      "type": "fire"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fire-bolt",
+          "name": "Fire Bolt",
+          "reach": {
+            "range": 120
+          },
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 5,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "1d10",
+                  "type": "fire"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tactics": {
+        "target": "weakest",
+        "focus": [
+          "leader"
+        ],
+        "position": "keep range",
+        "plan": [
+          {
+            "use": "fire-bolt"
+          }
+        ]
+      },
+      "source": "sample character, Wizard 2"
+    },
+    {
+      "id": "leader",
+      "name": "The leader (Cultist Fanatic)",
+      "side": "enemies",
+      "zone": "high",
+      "ac": 13,
+      "hp": 44,
+      "speed": 30,
+      "initiative": 2,
+      "saves": {
+        "str": 0,
+        "dex": 2,
+        "con": 1,
+        "int": 0,
+        "wis": 4,
+        "cha": 1
+      },
+      "actions": [
+        {
+          "id": "hold-person",
+          "name": "Hold Person",
+          "reach": {
+            "range": 60
+          },
+          "concentration": true,
+          "uses": {
+            "per_fight": 1
+          },
+          "effects": [
+            {
+              "kind": "save",
+              "ability": "wis",
+              "dc": 12,
+              "fail": [
+                {
+                  "kind": "condition",
+                  "name": "paralyzed",
+                  "duration": {
+                    "until": "save",
+                    "ability": "wis",
+                    "dc": 12
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "command",
+          "name": "Command (Halt)",
+          "reach": {
+            "range": 60
+          },
+          "uses": {
+            "per_fight": 2
+          },
+          "effects": [
+            {
+              "kind": "save",
+              "ability": "wis",
+              "dc": 12,
+              "fail": [
+                {
+                  "kind": "condition",
+                  "name": "incapacitated",
+                  "duration": {
+                    "rounds": 1
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "pact-blade",
+          "name": "Pact Blade",
+          "reach": "melee",
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 4,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "1d8+2",
+                  "type": "slashing"
+                },
+                {
+                  "kind": "damage",
+                  "dice": "2d6",
+                  "type": "necrotic"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "spiritual-weapon",
+          "name": "Spiritual Weapon",
+          "time": "bonus",
+          "unmodelled": "A summoned weapon that attacks on later turns is outside the closed set."
+        }
+      ],
+      "tactics": {
+        "target": "strongest",
+        "position": "hold",
+        "plan": [
+          {
+            "use": "pact-blade"
+          },
+          {
+            "use": "hold-person",
+            "when": {
+              "target_lacks": "paralyzed"
+            }
+          },
+          {
+            "use": "command",
+            "when": {
+              "target_lacks": "paralyzed"
+            }
+          }
+        ]
+      },
+      "source": "SRD 5.2, Cultist Fanatic"
+    },
+    {
+      "id": "screen",
+      "name": "The screen (Cultist)",
+      "side": "enemies",
+      "count": 2,
+      "zone": "choke",
+      "ac": 12,
+      "hp": 9,
+      "speed": 30,
+      "initiative": 1,
+      "saves": {
+        "str": 0,
+        "dex": 1,
+        "con": 0,
+        "int": 0,
+        "wis": 2,
+        "cha": 0
+      },
+      "actions": [
+        {
+          "id": "ritual-sickle",
+          "name": "Ritual Sickle",
+          "reach": "melee",
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 3,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "1d4+1",
+                  "type": "slashing"
+                },
+                {
+                  "kind": "damage",
+                  "dice": "1",
+                  "type": "necrotic"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tactics": {
+        "target": "nearest",
+        "position": "hold",
+        "plan": [
+          {
+            "use": "ritual-sickle"
+          }
+        ]
+      },
+      "source": "SRD 5.2, Cultist"
+    },
+    {
+      "id": "acolytes",
+      "name": "The chanters (Cultist)",
+      "side": "enemies",
+      "count": 2,
+      "zone": "high",
+      "ac": 12,
+      "hp": 9,
+      "speed": 30,
+      "initiative": 1,
+      "saves": {
+        "str": 0,
+        "dex": 1,
+        "con": 0,
+        "int": 0,
+        "wis": 2,
+        "cha": 0
+      },
+      "actions": [
+        {
+          "id": "ritual-sickle",
+          "name": "Ritual Sickle",
+          "reach": "melee",
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 3,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "1d4+1",
+                  "type": "slashing"
+                },
+                {
+                  "kind": "damage",
+                  "dice": "1",
+                  "type": "necrotic"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tactics": {
+        "target": "nearest",
+        "position": "hold",
+        "plan": [
+          {
+            "use": "ritual-sickle"
+          }
+        ]
+      },
+      "source": "SRD 5.2, Cultist"
+    }
+  ],
+  "events": [],
+  "objectives": {
+    "party": {
+      "wins": [
+        {
+          "kind": "defeat",
+          "combatant": "leader"
+        }
+      ]
+    },
+    "enemies": {
+      "wins": [
+        {
+          "kind": "rounds",
+          "round": 4
+        },
+        {
+          "kind": "defeat",
+          "side": "party"
+        }
+      ]
+    }
+  },
+  "variants": [
+    {
+      "name": "the fighter cuts down the screen before the leader",
+      "tactics": {
+        "fighter": {
+          "target": "nearest",
+          "position": "close",
+          "plan": [
+            {
+              "use": "second-wind",
+              "when": {
+                "hp_below": 0.5
+              }
+            },
+            {
+              "use": "action-surge",
+              "when": {
+                "round_min": 2
+              }
+            },
+            {
+              "use": "longsword"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

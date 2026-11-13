@@ -77,6 +77,29 @@ The deterministic tier's own repair attempts against mechanical failures, before
 any checker runs.
 _Avoid_: auto-fix, retry
 
+## Simulation
+
+**Scenario**:
+The one JSON file the encounter-simulator's engine reads: a fight compiled
+into combatants, zones, events, and objectives.
+_Avoid_: sim config, encounter file
+
+**Tactics card**:
+The part of a scenario that says how one combatant plays: whom it targets,
+where it stands, and the ordered plan of actions it tries each turn.
+_Avoid_: AI, behaviour, script
+
+**Unmodelled**:
+Said of an action or trait the engine's closed set of effects cannot
+express. The engine never plays it and the report always lists it.
+_Avoid_: unsupported, skipped, approximated
+
+**Replay check**:
+A simulation of a fight the table already played, compiled only from what
+was known before initiative, whose report says where each recorded number
+sits in the simulated spread.
+_Avoid_: validation, calibration, backtest
+
 ## Campaign wiki
 
 **Concept**:

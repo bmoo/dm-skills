@@ -49,13 +49,13 @@ degrades gracefully when an optional companion is absent.
 |---|---|---|
 | Method handbook | Where the repo's planning-method conventions live (the guide should point at it) | all planning skills |
 | Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress; next session date, session horizon, and groomer loose ends / contradictions when the campaign schema defines them | catch-up, prep-session, groom-wiki |
-| Session records / prep home | Where played-session records and prep sheets live (the sheet's shape itself is library-owned) | catch-up, prep-session, review-rewards |
-| Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, prep-session, combat-generator, catch-up, review-rewards |
+| Session records / prep home | Where played-session records and prep sheets live (the sheet's shape itself is library-owned) | catch-up, prep-session, review-rewards, encounter-simulator |
+| Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, prep-session, combat-generator, encounter-simulator, catch-up, review-rewards |
 | Session transcripts | Where recordings/transcripts of play land, if the campaign keeps them | catch-up |
 | Reward economy | What treasure and payment run on (gold? favors?) | prep-session (the rewards step) |
 | Approved-items list | Which magic/notable items may be placed silently, and where the list lives (review-rewards rewrites it as the Approved Reward Pool) | prep-session (the rewards step), review-rewards |
 | Reward review state | Where the review-rewards app's tracked JSON state lives — versioned, outside the wiki/site bundle (fallback: `rewards-review/` at the campaign root) | review-rewards |
-| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines with catch-up's fired/denied marks) | combat-generator |
+| Combat evidence | Where structured combat data from played sessions lands, if kept (fallback: encounter-meta `Spotlight:` lines with catch-up's fired/denied marks) | combat-generator, encounter-simulator (tactics cards, with the player page's observed style and then a plain card as fallbacks; and the replay check, which it skips without the record) |
 | Media dir + style anchor | Where images live; optionally an existing image that anchors the house style | campaign-art |
 | Sync camp | How changes land — direct to main, or PR flow | party-sync (and any skill that commits) |
 
@@ -73,7 +73,8 @@ live here, out of the shipped skill bodies.
 
 | Shape | Owned by | Must move in the same commit |
 |---|---|---|
-| `> [!encounter-meta]` block | the library (`lib/encounter-meta-format.md`), shipped by symlink into combat-generator | combat-generator's SKILL.md, whose *Filing format* section cites the spec and owns what goes in the fields; prep-session, which embeds the block as-is under its scenes and *Relevant Monsters*; catch-up, which marks the block's `Spotlight:` opportunity fired or denied after play. The one code path that reads the block is the mechanical checker (`skills/combat-generator/scripts/mechanical_checker/checker.py`). |
+| `> [!encounter-meta]` block | the library (`lib/encounter-meta-format.md`), shipped by symlink into combat-generator | combat-generator's SKILL.md, whose *Filing format* section cites the spec and owns what goes in the fields; prep-session, which embeds the block as-is under its scenes and *Relevant Monsters*; catch-up, which marks the block's `Spotlight:` opportunity fired or denied after play; encounter-simulator, whose compile step reads the block's `Party:`, `Enemies:`, `Terrain:` and `Objective:` lines by eye. The one code path that reads the block is the mechanical checker (`skills/combat-generator/scripts/mechanical_checker/checker.py`). |
+| The **scenario file** (`<fight-slug>.scenario.json`) and its replay record | encounter-simulator (`skills/encounter-simulator/scenario-format.md`), skill-internal | `scripts/scenario.py`, which enforces the shape, and `scripts/engine.py`, which plays it; the fixtures under `scripts/fixtures/`; and the SKILL.md's compile table. Nobody loads the file across a skill boundary, and the `> [!encounter-meta]` block is unchanged by it |
 | `xp-budget.md`, `complications.md` | combat-generator (skill-internal) | Nobody loads these across a skill boundary — they sit beside the fight steps inside combat-generator, and prep-session sizes fights by invoking `/combat-generator`, which owns these files |
 | `spotlight-doctrine.md`, `class-patterns.md` — the data ladder lives inside `spotlight-doctrine.md` | the library (`lib/spotlight-doctrine.md`, `lib/class-patterns.md`), shipped by symlink into combat-generator | combat-generator loads them beside itself; party-sync loads `spotlight-doctrine.md` across the skill boundary (`../combat-generator/`, guarded, *"if that skill is installed"*); `catch-up` and `prep-session` load neither |
 | The **findings-log record schema** — the `"run"` and `"finding"` lines of `.claude/validator-findings/findings.jsonl` | combat-generator's `scripts/mechanical_checker/findings_log.py`, the canonical definition and the only code that writes it — both tiers call it since the verification-chain cut gave the judgement tier real parameters (`verdict`, `quoted_span`, `reason`) | `self-heal-loop.md` beside the module, whose pseudocode carries the mechanical call sites; the fresh-check log instructions in the verification protocol (`skills/combat-generator/verification.md`, Part 2), which combat-generator's procedure runs; and the schema bullets in the module's `README.md`. The old unpinned by-hand judgement writer is retired; a field change now lands in the module and its tests first |
@@ -101,6 +102,6 @@ The generator merge retired both the duplication and the guard, and the
 combat-generator hoist moved the statement to its final home: the doctrine
 now lives once, at the top of `lib/rules-sourcing.md`, beside the chain it
 binds, and materialises by symlink into every skill that places rules
-content — combat-generator, prep-session, party-sync, review-rewards — like
+content — combat-generator, encounter-simulator, prep-session, party-sync, review-rewards — like
 the bundled SRD dataset (`lib/srd/`) and the mechanical checker. An edit to the doctrine
 is an ordinary single-file edit.

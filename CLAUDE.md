@@ -31,7 +31,7 @@ runtime specification. Add a mechanical rule by writing the check and its passin
 failing fixture; subjective bars stay as completion criteria in the skill text
 and a one-round fresh check grades them.
 
-Run `pytest checks/ skills/combat-generator/scripts/ skills/prep-session/scripts/ skills/review-rewards/scripts/`
+Run `pytest checks/ skills/combat-generator/scripts/ skills/encounter-simulator/scripts/ skills/prep-session/scripts/ skills/review-rewards/scripts/`
 for the content gate.
 
 ### When a commit reverses something the library asserts
