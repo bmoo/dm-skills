@@ -1,0 +1,55 @@
+{
+  "format": "encounter-scenario/0",
+  "name": "Broken on purpose",
+  "zones": [
+    {
+      "id": "yard",
+      "cover": "total"
+    }
+  ],
+  "combatants": [
+    {
+      "id": "guard",
+      "side": "enemies",
+      "zone": "cellar",
+      "ac": 16,
+      "hp": 11,
+      "armour": "chain shirt",
+      "actions": [
+        {
+          "id": "spear",
+          "reach": "melee",
+          "effects": [
+            {
+              "kind": "attack",
+              "to_hit": 3,
+              "hit": [
+                {
+                  "kind": "damage",
+                  "dice": "d6 plus 1"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tactics": {
+        "plan": [
+          {
+            "use": "halberd"
+          }
+        ]
+      }
+    }
+  ],
+  "objectives": {
+    "party": {
+      "wins": [
+        {
+          "kind": "defeat",
+          "side": "enemies"
+        }
+      ]
+    }
+  }
+}
