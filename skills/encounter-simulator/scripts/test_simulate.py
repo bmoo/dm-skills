@@ -290,3 +290,142 @@ def test_review_lists_every_action_and_marks_what_is_not_modelled():
         for a in c["actions"]:
             assert a["name"] in text
     assert "Spiritual Weapon [bonus, melee] NOT MODELLED" in text
+
+
+def _swing(to_hit=5, dice="1d6"):
+    return {"id": "swing", "effects": [{"kind": "attack", "to_hit": to_hit, "hit": [{"kind": "damage", "dice": dice}]}]}
+
+
+def _set(path, value):
+    def change(sc):
+        target = sc
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+    return change
+
+
+HERO, OGRE = ("combatants", 0), ("combatants", 1)
+BREAKS = [
+    (_set((*OGRE, "count"), 0), "'count' must be a whole number of 1 or more"),
+    (_set((*OGRE, "count"), "3"), "'count' must be a whole number of 1 or more"),
+    (_set((*OGRE, "initiative"), "fast"), "'initiative' must be a whole number"),
+    (_set((*OGRE, "resources"), {"rage": "2"}), "'rage' must be a whole number of 0 or more"),
+    (_set((*HERO, "actions", 0, "effects", 0, "to_hit"), "5"), "'to_hit' must be a whole number"),
+    (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "dice"), "1d0"), "at least one side"),
+    (_set((*HERO, "actions", 0, "uses"), {"recharge": "5"}), "'recharge' must be a whole number of 2 or more"),
+    (_set((*HERO, "actions", 0, "reach"), {"range": 30, "long": "far"}), "'long' must be a number"),
+    (_set((*HERO, "actions"), "swing"), "'actions' must be a list"),
+    (_set((*HERO, "tactics"), {"flee": {"hp_below": "half"}}), "'hp_below' must be a number"),
+    (_set(("round_limit",), "ten"), "'round_limit' must be a whole number of 1 or more"),
+    (_set((*HERO, "side"), "enemies"), "the party side needs a combatant on the field"),
+    (_set((*OGRE, "zone"), None), "the enemies side needs a combatant on the field"),
+    (_set(("links",), []), "'gate' is not linked to the rest of the ground"),
+    (_set(("zones", 0, "hazard"), [{"kind": "lava"}]), "A hazard must use the closed set"),
+    (_set(("zones", 0, "capacity"), 1), "has a capacity of 1 and the party side starts 2 there"),
+    (_set((*HERO, "actions"), [_swing(), {"id": "twice", "steps": ["swing"]}, {"id": "thrice", "steps": ["twice"]}]),
+     "step 'twice' has steps of its own"),
+]
+
+
+@pytest.mark.parametrize("break_it, needle", BREAKS, ids=[needle for _, needle in BREAKS])
+def test_check_rejects_a_scenario_that_would_crash_or_cannot_be_fought(break_it, needle):
+    sc = _scenario(_creature("hero", "party", [_swing()], pc=True, count=2), _creature("ogre", "enemies", [_swing()]))
+    assert check(sc) == []
+    break_it(sc)
+    assert any(needle in e for e in check(sc)), check(sc)
+
+
+def test_check_reports_a_file_that_is_not_json(tmp_path):
+    broken = tmp_path / "fight.scenario.json"
+    broken.write_text("{not json", encoding="utf-8")
+    result = _cli("check", broken)
+    assert result.returncode == 1 and "cannot read it as JSON" in result.stdout
+
+
+def test_replay_rejects_a_record_that_names_nobody_in_the_fight(tmp_path):
+    record = tmp_path / "record.json"
+    record.write_text(json.dumps({"rounds": 3, "dropped": ["wizzard"], "round": 3}), encoding="utf-8")
+    result = _cli("replay", FIXTURES / "the_countdown.scenario.json", "--record", record, "--runs", "20")
+    assert result.returncode == 1
+    assert "unknown combatant 'wizzard'" in result.stdout and "unknown key 'round'" in result.stdout
+
+
+def test_a_multiattack_that_loses_a_step_is_reported_as_playing_short():
+    grab = {"id": "grab", "name": "Grab", "effects": [
+        {"kind": "condition", "name": "swallowed", "duration": {"rounds": 1}}]}
+    both = {"id": "both", "name": "Multiattack", "steps": ["swing", "grab"]}
+    sc = _scenario(_creature("hero", "party", [_swing()], pc=True),
+                   _creature("toad", "enemies", [_swing(), grab, both], tactics={"plan": [{"use": "both"}]}))
+    assert check(sc) == []
+    reasons = {g["item"]: g["reason"] for g in unmodelled(sc)}
+    assert reasons["Multiattack"] == "plays without Grab, which is not modelled"
+    assert "NOT MODELLED: plays without Grab" in review_text(sc)
+    assert any("uses swing" in line for line in _play(sc, log=True)["log"])
+
+
+def test_a_save_based_area_rolls_its_damage_once_and_stops_at_its_maximum():
+    blast = {"id": "blast", "reach": {"range": 60}, "effects": [{"kind": "area", "who": "enemies", "max": 3, "effects": [
+        {"kind": "save", "ability": "dex", "dc": UNBEATABLE_DC, "fail": [{"kind": "damage", "dice": "1d100"}]}]}]}
+    sc = _scenario(_creature("mage", "party", [blast], pc=True, zone="gate", tactics={"position": "hold"}),
+                   _creature("mob", "enemies", [], count=5, hp=1000), round_limit=1)
+    taken = sorted(c["taken"] for c in _play(sc)["creatures"] if c["id"] == "mob")
+    assert taken[:2] == [0, 0]
+    assert taken[2] > 0 and len(set(taken[2:])) == 1
+
+
+def test_a_hazard_hurts_whoever_starts_a_turn_in_its_zone():
+    zones = [{"id": "yard", "hazard": [{"kind": "damage", "dice": "3", "type": "fire"}]}, {"id": "gate"}]
+    sc = _scenario(_creature("hero", "party", [], pc=True, tactics={"position": "hold"}),
+                   _creature("archer", "enemies", [], zone="gate", tactics={"position": "hold"}),
+                   zones=zones, round_limit=2)
+    result = _play(sc)
+    assert (_by_id(result, "hero")["taken"], _by_id(result, "archer")["taken"]) == (6, 0)
+
+
+@pytest.mark.parametrize("movement, expected", [([], 0), (["climb"], 10), (["fly"], 10)])
+def test_a_climb_costs_double_without_a_climb_or_fly_speed(movement, expected):
+    zones = [{"id": "yard"}, {"id": "gate", "elevation": 15}]
+    sc = _scenario(_creature("hero", "party", [_sure_hit()], pc=True, speed=30, movement=movement),
+                   _creature("sniper", "enemies", [], zone="gate"), zones=zones,
+                   links=[{"between": ["yard", "gate"], "feet": 20}], round_limit=1)
+    assert _by_id(_play(sc), "sniper")["taken"] == expected
+
+
+def test_darkness_hinders_an_attacker_who_cannot_see_in_it():
+    def hits(senses):
+        shot = {"id": "shot", "reach": {"range": 60}, "effects": [
+            {"kind": "attack", "to_hit": 0, "hit": [{"kind": "damage", "dice": "1"}]}]}
+        zones = [{"id": "yard", "light": "dark"}, {"id": "gate"}]
+        sc = _scenario(_creature("archer", "party", [shot], pc=True, zone="gate", senses=senses,
+                                 tactics={"position": "hold"}),
+                       _creature("lurker", "enemies", [], ac=11, senses=["darkvision"], tactics={"position": "hold"}),
+                       zones=zones, round_limit=20)
+        return sum(_by_id(_play(sc, seed), "lurker")["taken"] for seed in range(40))
+    assert hits(["darkvision"]) > hits([]) * 1.5 > 0
+
+
+def test_a_concentration_effect_ends_when_its_caster_drops():
+    def friend_taken(concentration):
+        hold = {"id": "hold", "reach": {"range": 60}, "concentration": concentration, "effects": [
+            {"kind": "save", "ability": "wis", "dc": UNBEATABLE_DC, "fail": [
+                {"kind": "condition", "name": "paralyzed",
+                 "duration": {"until": "save", "ability": "wis", "dc": UNBEATABLE_DC}}]}]}
+        sc = _scenario(
+            _creature("caster", "party", [hold], pc=True, hp=5, initiative=200, tactics={"focus": ["ogre"]}),
+            _creature("friend", "party", [], pc=True, initiative=0),
+            _creature("killer", "enemies", [_sure_hit()], initiative=100, tactics={"focus": ["caster"]}),
+            _creature("ogre", "enemies", [_sure_hit("7")], initiative=50, tactics={"focus": ["friend"]}),
+            round_limit=1)
+        return _by_id(_play(sc), "friend")["taken"]
+    assert (friend_taken(True), friend_taken(False)) == (7, 0)
+
+
+def test_a_wider_critical_range_doubles_the_dice_more_often():
+    def dealt(crit_from):
+        swing = _swing(to_hit=100, dice="1d1")
+        swing["effects"][0]["crit_from"] = crit_from
+        sc = _scenario(_creature("hero", "party", [swing], pc=True),
+                       _creature("dummy", "enemies", [], hp=1000), round_limit=20)
+        return _by_id(_play(sc), "dummy")["taken"]
+    assert dealt(2) > dealt(20) * 1.5

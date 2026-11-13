@@ -49,7 +49,7 @@ degrades gracefully when an optional companion is absent.
 |---|---|---|
 | Method handbook | Where the repo's planning-method conventions live (the guide should point at it) | all planning skills |
 | Live layer + progress marker | What's in motion — timelines, threads, revelation tracking — and the canonical marker of campaign progress; next session date, session horizon, and groomer loose ends / contradictions when the campaign schema defines them | catch-up, prep-session, groom-wiki |
-| Session records / prep home | Where played-session records and prep sheets live (the sheet's shape itself is library-owned) | catch-up, prep-session, review-rewards |
+| Session records / prep home | Where played-session records and prep sheets live (the sheet's shape itself is library-owned) | catch-up, prep-session, review-rewards, encounter-simulator |
 | Player pages / party cache | Where player characters are tracked, and where the synced party JSON lands | party-sync, prep-session, combat-generator, encounter-simulator, catch-up, review-rewards |
 | Session transcripts | Where recordings/transcripts of play land, if the campaign keeps them | catch-up |
 | Reward economy | What treasure and payment run on (gold? favors?) | prep-session (the rewards step) |

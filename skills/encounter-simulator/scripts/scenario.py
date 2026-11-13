@@ -104,6 +104,16 @@ def action_gap(action) -> ReasonNotModelled | None:
     return effect_gap(action.get("effects"))
 
 
+def steps_gap(action, actions) -> ReasonNotModelled | None:
+    by_id = {a["id"]: a for a in actions}
+    missing = [by_id[s].get("name") or s for s in action.get("steps", []) if action_gap(by_id[s])]
+    if not missing:
+        return None
+    if len(missing) == len(action["steps"]):
+        return "never plays, because none of its steps is modelled"
+    return f"plays without {', '.join(missing)}, which is not modelled"
+
+
 def unmodelled(sc):
     out = []
     for c in sc.get("combatants", []):
@@ -111,7 +121,7 @@ def unmodelled(sc):
         for note in c.get("unmodelled", []):
             out.append({"combatant": who, "item": note, "reason": "listed by the compile step"})
         for a in c.get("actions", []):
-            gap = action_gap(a)
+            gap = action_gap(a) or steps_gap(a, c["actions"])
             if gap:
                 out.append({"combatant": who, "item": a.get("name") or a.get("id"), "reason": gap})
     return out
@@ -129,11 +139,31 @@ def _keys(obj, where, spec, errors):
     return True
 
 
+def _number(obj, key, where, errors, whole=False, low=None):
+    if key not in obj:
+        return
+    value = obj[key]
+    ok = not isinstance(value, bool) and isinstance(value, int if whole else (int, float))
+    if not ok or (low is not None and value < low):
+        kind = "whole number" if whole else "number"
+        errors.append(f"{where}: '{key}' must be a {kind}" + (f" of {low} or more" if low is not None else ""))
+
+
 def _dice_ok(value, where, errors):
     try:
-        parse_dice(value)
+        dice = parse_dice(value)
     except ValueError as e:
         errors.append(f"{where}: {e}")
+        return
+    if dice.number and dice.sides < 1:
+        errors.append(f"{where}: a die needs at least one side: {value!r}")
+
+
+def _check_hazard(hazard, where, zones, errors):
+    _check_effects(hazard, where, zones, errors)
+    gap = effect_gap(hazard) if isinstance(hazard, list) else None
+    if gap:
+        errors.append(f"{where}: {gap}. A hazard must use the closed set")
 
 
 def _check_effects(effects, where, zones, errors):
@@ -149,6 +179,9 @@ def _check_effects(effects, where, zones, errors):
         _keys(e, at, (required | {"kind"}, optional), errors)
         if kind in ("damage", "heal") and "dice" in e:
             _dice_ok(e["dice"], at, errors)
+        for key, whole, low in (("to_hit", True, None), ("crit_from", True, 2), ("dc", True, None),
+                                ("feet", False, 0), ("max", True, 1)):
+            _number(e, key, at, errors, whole, low)
         if kind == "save" and e.get("ability") not in ABILITIES:
             errors.append(f"{at}: ability must be one of {', '.join(ABILITIES)}")
         if kind == "condition":
@@ -195,11 +228,23 @@ def _check_tactics(t, where, action_ids, combatant_ids, zones, errors):
             continue
         for k in sorted(set(entry) - {"use", "when"}):
             errors.append(f"{at}: unknown key '{k}'")
-        for k in sorted(set(entry.get("when", {})) - WHEN_KEYS):
+        when = entry.get("when", {})
+        if not isinstance(when, dict):
+            errors.append(f"{at}: 'when' must be an object")
+            continue
+        for k in sorted(set(when) - WHEN_KEYS):
             errors.append(f"{at}: unknown when key '{k}'")
+        for k in ("round", "round_min", "round_max", "targets_min"):
+            _number(when, k, at, errors, whole=True)
+        for k in ("hp_below", "ally_hp_below"):
+            _number(when, k, at, errors)
     flee = t.get("flee")
-    if flee is not None and not (isinstance(flee, dict) and set(flee) <= {"hp_below", "side_below"} and flee):
-        errors.append(f"{where}: flee must be {{'hp_below': x}} or {{'side_below': x}}")
+    if flee is not None:
+        if not (isinstance(flee, dict) and set(flee) <= {"hp_below", "side_below"} and flee):
+            errors.append(f"{where}: flee must be {{'hp_below': x}} or {{'side_below': x}}")
+        else:
+            for k in flee:
+                _number(flee, k, f"{where} flee", errors)
 
 
 def _check_objectives(objectives, at, ids, zones, errors):
@@ -219,8 +264,10 @@ def _check_objectives(objectives, at, ids, zones, errors):
                 if not isinstance(w.get("round"), int):
                     errors.append(f"{where}: rounds needs a whole-number 'round'")
             elif kind == "reach":
-                if w.get("zone") not in zones or not (w.get("count") == "all" or isinstance(w.get("count"), int)):
-                    errors.append(f"{where}: reach needs a known 'zone' and a 'count'")
+                count = w.get("count")
+                whole = isinstance(count, int) and not isinstance(count, bool) and count >= 1
+                if w.get("zone") not in zones or not (count == "all" or whole):
+                    errors.append(f"{where}: reach needs a known 'zone' and a 'count' of 1 or more, or 'all'")
             else:
                 errors.append(f"{where}: kind must be 'defeat', 'rounds', or 'reach'")
 
@@ -233,8 +280,14 @@ def check(sc):
         errors.append(f"scenario: format must be '{FORMAT}'")
     if sc.get("first") not in (None, *SIDES):
         errors.append("scenario: first must be 'party' or 'enemies'")
+    _number(sc, "round_limit", "scenario", errors, whole=True, low=1)
+    for key in ("zones", "links", "combatants", "events", "variants"):
+        if not isinstance(sc.get(key, []), list):
+            errors.append(f"scenario: '{key}' must be a list")
+            return errors
 
     zones = set()
+    capacity = {}
     for i, z in enumerate(sc.get("zones") or []):
         if _keys(z, f"zones[{i}]", ZONE_KEYS, errors) and "id" in z:
             if z["id"] in zones:
@@ -244,20 +297,39 @@ def check(sc):
                 errors.append(f"zones[{i}]: cover must be 'none', 'half', or 'three-quarters'")
             if z.get("light", "bright") not in ("bright", "dark"):
                 errors.append(f"zones[{i}]: light must be 'bright' or 'dark'")
+            _number(z, "elevation", f"zones[{i}]", errors)
+            _number(z, "capacity", f"zones[{i}]", errors, whole=True, low=1)
+            if isinstance(z.get("capacity"), int):
+                capacity[z["id"]] = z["capacity"]
             if "hazard" in z:
-                _check_effects(z["hazard"], f"zones[{i}].hazard", zones, errors)
+                _check_hazard(z["hazard"], f"zones[{i}].hazard", zones, errors)
     if not zones:
         errors.append("scenario: needs at least one zone")
+    linked = {z: set() for z in zones}
     for i, link in enumerate(sc.get("links", [])):
         ends = link.get("between") if isinstance(link, dict) else None
-        if not (isinstance(ends, list) and len(ends) == 2 and set(ends) <= zones and ends[0] != ends[1]):
+        if not (isinstance(ends, list) and len(ends) == 2 and all(isinstance(z, str) for z in ends)
+                and set(ends) <= zones and ends[0] != ends[1]):
             errors.append(f"links[{i}]: 'between' must name two different known zones")
-        elif not isinstance(link.get("feet"), (int, float)) or link["feet"] <= 0:
+        elif isinstance(link.get("feet"), bool) or not isinstance(link.get("feet"), (int, float)) or link["feet"] <= 0:
             errors.append(f"links[{i}]: 'feet' must be a positive number")
+        else:
+            linked[ends[0]].add(ends[1])
+            linked[ends[1]].add(ends[0])
+    if zones:
+        start = next(z["id"] for z in sc["zones"] if isinstance(z, dict) and "id" in z)
+        reached, frontier = {start}, [start]
+        while frontier:
+            for z in linked[frontier.pop()] - reached:
+                reached.add(z)
+                frontier.append(z)
+        for z in sorted(zones - reached):
+            errors.append(f"zones: '{z}' is not linked to the rest of the ground")
 
     combatants = sc.get("combatants") or []
     ids = {c.get("id") for c in combatants if isinstance(c, dict)}
     seen = set()
+    standing = {}
     for i, c in enumerate(combatants):
         where = f"combatants[{i}]"
         if not _keys(c, where, COMBATANT_KEYS, errors):
@@ -270,13 +342,30 @@ def check(sc):
             errors.append(f"{where}: side must be 'party' or 'enemies'")
         if c.get("zone") is not None and c.get("zone") not in zones:
             errors.append(f"{where}: unknown zone '{c.get('zone')}'")
-        for k in ("ac", "hp"):
-            if k in c and not (isinstance(c[k], int) and c[k] > 0):
-                errors.append(f"{where}: '{k}' must be a positive whole number")
-        for k in sorted(set(c.get("saves", {})) - set(ABILITIES)):
+        for key, whole, low in (("ac", True, 1), ("hp", True, 1), ("count", True, 1),
+                                ("speed", False, 0), ("initiative", True, None)):
+            _number(c, key, where, errors, whole, low)
+        for key in ("saves", "resources"):
+            table = c.get(key, {})
+            if not isinstance(table, dict):
+                errors.append(f"{where}: '{key}' must be an object")
+                continue
+            for k in table:
+                _number(table, k, f"{where} {key}", errors, whole=True, low=0 if key == "resources" else None)
+        for k in sorted(set(c.get("saves", {}) if isinstance(c.get("saves", {}), dict) else ()) - set(ABILITIES)):
             errors.append(f"{where}: unknown save '{k}'")
+        for key in ("resistances", "immunities", "vulnerabilities", "condition_immunities",
+                    "senses", "movement", "unmodelled"):
+            if not (isinstance(c.get(key, []), list) and all(isinstance(x, str) for x in c.get(key, []))):
+                errors.append(f"{where}: '{key}' must be a list of words")
+        if not isinstance(c.get("actions"), list):
+            errors.append(f"{where}: 'actions' must be a list")
+        count = c.get("count", 1)
+        if c.get("zone") in zones and c.get("side") in SIDES and isinstance(count, int):
+            standing[(c["zone"], c["side"])] = standing.get((c["zone"], c["side"]), 0) + count
         actions = c.get("actions") if isinstance(c.get("actions"), list) else []
         action_ids = {a.get("id") for a in actions if isinstance(a, dict)}
+        with_steps = {a.get("id") for a in actions if isinstance(a, dict) and "steps" in a}
         for j, a in enumerate(actions):
             at = f"{where} action '{a.get('id') if isinstance(a, dict) else j}'"
             if not _keys(a, at, ACTION_KEYS, errors):
@@ -286,7 +375,12 @@ def check(sc):
             if a.get("target", "enemy") not in ("enemy", "ally", "self"):
                 errors.append(f"{at}: target must be 'enemy', 'ally', or 'self'")
             reach = a.get("reach", "melee")
-            if not (reach in ("melee", "self") or (isinstance(reach, dict) and isinstance(reach.get("range"), (int, float)))):
+            if isinstance(reach, dict):
+                if "range" not in reach or set(reach) - {"range", "long"}:
+                    errors.append(f"{at}: a ranged reach is {{'range': feet}} with an optional 'long'")
+                _number(reach, "range", f"{at} reach", errors, low=0)
+                _number(reach, "long", f"{at} reach", errors, low=0)
+            elif reach not in ("melee", "self"):
                 errors.append(f"{at}: reach must be 'melee', 'self', or {{'range': feet}}")
             uses = a.get("uses")
             if uses is not None:
@@ -296,17 +390,33 @@ def check(sc):
                     errors.append(f"{at}: uses unknown resource '{uses['resource']}'")
                 elif not ({"resource", "per_fight", "recharge"} & set(uses)):
                     errors.append(f"{at}: uses needs 'resource', 'per_fight', or 'recharge'")
+                else:
+                    for key, low in (("cost", 1), ("per_fight", 1), ("recharge", 2)):
+                        _number(uses, key, f"{at} uses", errors, whole=True, low=low)
             if a.get("unmodelled"):
                 continue
             if ("steps" in a) == ("effects" in a):
                 errors.append(f"{at}: needs exactly one of 'effects', 'steps', or 'unmodelled'")
-            for s in a.get("steps", []):
+            steps = a.get("steps", [])
+            if not isinstance(steps, list):
+                errors.append(f"{at}: 'steps' must be a list of action ids")
+                steps = []
+            for s in steps:
                 if s not in action_ids or s == a.get("id"):
                     errors.append(f"{at}: step '{s}' must name another of this combatant's actions")
+                elif s in with_steps:
+                    errors.append(f"{at}: step '{s}' has steps of its own. List every attack in one action")
             if "effects" in a:
                 _check_effects(a["effects"], f"{at}.effects", zones, errors)
         if "tactics" in c:
             _check_tactics(c["tactics"], f"{where} tactics", action_ids, ids, zones, errors)
+
+    for side in SIDES:
+        if not any(side == s for _, s in standing):
+            errors.append(f"scenario: the {side} side needs a combatant on the field when the fight starts")
+    for (zone, side), count in sorted(standing.items()):
+        if count > capacity.get(zone, count):
+            errors.append(f"zones: '{zone}' has a capacity of {capacity[zone]} and the {side} side starts {count} there")
 
     for i, e in enumerate(sc.get("events", [])):
         where = f"events[{i}]"
@@ -322,8 +432,10 @@ def check(sc):
         elif kind == "zone":
             if e.get("zone") not in zones or not isinstance(e.get("set"), dict):
                 errors.append(f"{where}: needs a known 'zone' and a 'set' object")
+            elif set(e["set"]) - (ZONE_KEYS[1] - {"capacity"}):
+                errors.append(f"{where}: 'set' takes name, roles, cover, light, elevation, or hazard")
             elif "hazard" in e["set"]:
-                _check_effects(e["set"]["hazard"], f"{where}.set.hazard", zones, errors)
+                _check_hazard(e["set"]["hazard"], f"{where}.set.hazard", zones, errors)
         else:
             errors.append(f"{where}: kind must be 'enter', 'leave', or 'zone'")
         if "unless_down" in e and e["unless_down"] not in ids:
@@ -337,11 +449,50 @@ def check(sc):
             continue
         if "objectives" in v:
             _check_objectives(v["objectives"], f"{where}.objectives", ids, zones, errors)
+        if not (isinstance(v.get("tactics", {}), dict) and isinstance(v.get("counts", {}), dict)):
+            errors.append(f"{where}: 'tactics' and 'counts' must be objects keyed by combatant id")
+            continue
         for cid in list(v.get("tactics", {})) + list(v.get("counts", {})):
             if cid not in ids:
                 errors.append(f"{where}: unknown combatant '{cid}'")
+        for cid in v.get("counts", {}):
+            _number(v["counts"], cid, f"{where} counts", errors, whole=True, low=1)
+        for cid, card in v.get("tactics", {}).items():
+            spec = next((c for c in combatants if isinstance(c, dict) and c.get("id") == cid), None)
+            if spec and isinstance(spec.get("actions"), list):
+                action_ids = {a.get("id") for a in spec["actions"] if isinstance(a, dict)}
+                _check_tactics(card, f"{where} tactics '{cid}'", action_ids, ids, zones, errors)
+        events = len(sc.get("events", []))
+        if not all(isinstance(i, int) and 0 <= i < events for i in v.get("drop_events", [])):
+            errors.append(f"{where}: drop_events must be positions in 'events', counted from 0")
         if v.get("first") not in (None, *SIDES):
             errors.append(f"{where}: first must be 'party' or 'enemies'")
+    return errors
+
+
+RECORD_KEYS = (set(), {"rounds", "party_met_objective", "damage_dealt", "damage_taken", "dropped"})
+
+
+def check_record(sc, record):
+    errors = []
+    if not _keys(record, "record", RECORD_KEYS, errors):
+        return errors
+    ids = {c["id"] for c in sc["combatants"]}
+    _number(record, "rounds", "record", errors, whole=True, low=1)
+    for key in ("damage_dealt", "damage_taken"):
+        table = record.get(key, {})
+        if not isinstance(table, dict):
+            errors.append(f"record: '{key}' must be an object keyed by combatant id")
+            continue
+        for cid in table:
+            if cid not in ids:
+                errors.append(f"record: {key} names unknown combatant '{cid}'")
+            _number(table, cid, f"record {key}", errors, low=0)
+    dropped = record.get("dropped", [])
+    if not isinstance(dropped, list):
+        errors.append("record: 'dropped' must be a list of combatant ids")
+    else:
+        errors += [f"record: dropped names unknown combatant '{cid}'" for cid in dropped if cid not in ids]
     return errors
 
 

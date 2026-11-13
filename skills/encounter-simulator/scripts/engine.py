@@ -50,6 +50,9 @@ class Fight:
         self.rng = rng
         self.log = [] if log else None
         self.round = 0
+        # Damage that a save-based area deals is rolled once for every creature caught (SRD 5.2,
+        # "Damage against Multiple Targets"). An attack roll inside an area still rolls its own.
+        self.area_rolls: dict[int, int] | None = None
         self.zones = {z["id"]: dict(z) for z in sc["zones"]}
         self.adjacent = {z: {} for z in self.zones}
         for link in sc.get("links", []):
@@ -467,10 +470,12 @@ class Fight:
         hit = roll == 20 or (roll != 1 and roll + e["to_hit"] >= target.spec["ac"] + self._cover(source, target))
         crit = hit and (roll >= e.get("crit_from", 20) or ("melee_crit" in target.flags() and source is not None
                                                            and source.zone == target.zone))
-        self._say(f"   attack roll {roll}{' with advantage' if adv and not dis else ''}"
+        self._say(f"   d20 {roll}{' with advantage' if adv and not dis else ''}"
                   f"{' with disadvantage' if dis and not adv else ''}: "
                   f"{'critical hit' if crit else 'hit' if hit else 'miss'}")
+        shared, self.area_rolls = self.area_rolls, None
         self._apply(e["hit"] if hit else e.get("miss", []), source, target, action, crit=crit)
+        self.area_rolls = shared
 
     def _saves(self, target, ability, dc, source):
         tf = target.flags()
@@ -496,7 +501,12 @@ class Fight:
     def _damage(self, e, source, target, action, crit, half):
         if target.status != "up":
             return
-        amount = max(self._roll(e["dice"], crit), 0)
+        if self.area_rolls is None:
+            amount = max(self._roll(e["dice"], crit), 0)
+        else:
+            if id(e) not in self.area_rolls:
+                self.area_rolls[id(e)] = max(self._roll(e["dice"]), 0)
+            amount = self.area_rolls[id(e)]
         if half:
             amount //= 2
         kind = e.get("type")
@@ -581,8 +591,10 @@ class Fight:
         primary_fits = target.status == "up" and target is not source and (
             e["who"] == "all" or (e["who"] == "enemies") == (target.side != side))
         caught = ([target] if primary_fits else []) + pool
+        self.area_rolls = {}
         for c in caught[:e.get("max", len(caught))]:
             self._apply(e["effects"], source, c, action)
+        self.area_rolls = None
 
 
 def play(sc, rng, log=False):

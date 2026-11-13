@@ -56,8 +56,8 @@ everyone can reach everyone else in melee.
 | `cover` | `half` gives +2 and `three-quarters` gives +5 to the AC and the Dexterity saves of a creature in the zone, against an attack or effect from another zone. |
 | `light` | `bright` (the default) or `dark`. An attacker without `darkvision` has disadvantage against a target in a dark zone. An attacker in a dark zone has advantage against a target without `darkvision`. |
 | `elevation` | Height in feet. A move along a link into a higher zone costs double, unless the mover has `fly` or `climb`. |
-| `capacity` | The choke. At most this many creatures per side can stand in the zone. |
-| `hazard` | A list of effects (see *Effects*) that the engine applies to each creature that starts its turn in the zone. |
+| `capacity` | The choke. At most this many creatures per side can move into the zone. The check rejects a starting placement over it. An `enter` event ignores it. |
+| `hazard` | A list of effects (see *Effects*) that the engine applies to each creature that starts its turn in the zone. A hazard must stay inside the closed set. |
 
 A link gives the distance in feet between two zones. The distance between
 two unlinked zones is the shortest path. On its turn a combatant moves up
@@ -65,8 +65,12 @@ to its `speed` in feet along links, and a link it cannot afford stops it.
 A combatant whose position is `close` and who has no usable action moves up
 to twice its `speed` toward the nearest enemy. Creatures in the same zone are 5
 feet apart. A melee attack needs the attacker and the target in one zone. A
-ranged attack needs the distance to be within `range`, and has disadvantage
-beyond `range` up to `long`.
+ranged attack needs the distance to be within `range`. It has disadvantage
+beyond `range` up to `long`, and whenever an enemy that can act stands in
+the attacker's zone.
+
+Every zone must be linked to the rest, and each side needs at least one
+combatant on the field when the fight starts.
 
 ## Combatants
 
@@ -119,7 +123,7 @@ An action is one thing the combatant can do on its turn.
 | `target` | `enemy` (the default), `ally`, or `self`. |
 | `uses` | Absent means at will. `{"resource": "spell slot 1", "cost": 1}` spends a named resource. `{"per_fight": 1}` limits uses. `{"recharge": 5}` makes the action available again on a d6 roll of 5 or higher at the start of the combatant's turn. |
 | `effects` | What happens, as a list of effects. |
-| `steps` | Used instead of `effects` for a multiattack. A list of action ids that the combatant performs in order, each with its own target choice. |
+| `steps` | Used instead of `effects` for a multiattack. A list of action ids that the combatant performs in order, each with its own target choice. A step names an action that has `effects`, never one with steps of its own. When a step is unmodelled, the multiattack plays without it and the report says so. |
 | `concentration` | `true` for a concentration spell. Its conditions end when the caster drops, fails a Constitution save after damage, or uses another concentration action. |
 | `unmodelled` | A sentence that says why the action cannot be expressed. The engine never chooses the action, and the report lists it. Such an action needs no `effects`. |
 
@@ -139,7 +143,7 @@ is unmodelled.
 | `condition` | `name`, `duration` | Puts a condition on the target. `duration` is `{"rounds": 1}` (ends after that many of the target's own turns), `{"until": "source turn"}` (ends at the start of the source's next turn), or `{"until": "save", "ability": "wis", "dc": 12}` (the target repeats the save at the end of each of its turns). |
 | `heal` | `dice` | Restores hit points up to the maximum. A PC at 0 returns to the fight. |
 | `move` | `subject` (`target` or `self`), `feet`, `direction` (`away`, `toward`, or `to` with a `zone`) | Moves the subject along a link when `feet` covers the link's distance. |
-| `area` | `who` (`enemies`, `allies`, or `all`), optional `max`, `effects` | Applies `effects` to each matching creature in the target's zone, up to `max` creatures. |
+| `area` | `who` (`enemies`, `allies`, or `all`), optional `max`, `effects` | Applies `effects` to each matching creature in the target's zone, up to `max` creatures. Damage behind a `save` is rolled once for every creature caught. |
 
 The engine knows these conditions: `blinded`, `charmed`, `frightened`,
 `grappled`, `incapacitated`, `paralyzed`, `poisoned`, `prone`, `restrained`,
@@ -197,7 +201,7 @@ An event changes the fight at the start of a round.
 |---|---|
 | `enter` | The combatant, whose starting `zone` is `null`, enters at `zone` and rolls initiative. |
 | `leave` | The combatant leaves the field. It does not count as defeated. |
-| `zone` | The fields in `set` replace the zone's fields. |
+| `zone` | The fields in `set` replace the zone's fields. `set` cannot change `capacity`. |
 
 `unless_down` names a combatant. The event does not fire when that combatant
 is down or has fled.
@@ -245,9 +249,9 @@ ranks the changes by how far they move the result.
 | `objectives` | Replaces `objectives`. |
 | `first` | Sets which side acts first. |
 
-The engine adds its own variants to this list: one creature more and one
-fewer for each enemy group, the party acting first, and the enemies acting
-first.
+The engine adds its own variants to this list: one creature more for each
+enemy group, one fewer for each group of two or more, the party acting
+first, and the enemies acting first.
 
 ## The engine's limits
 
@@ -278,5 +282,9 @@ spread. The record is a second JSON file. Every key is optional.
 
 The keys of `damage_dealt` and `damage_taken`, and the entries of `dropped`,
 are combatant ids from the scenario. For a combatant with `count` above 1,
-give the total across its copies. `damage_taken` is hit points lost, so it
-never exceeds the combatant's `hp`.
+give the total across its copies. `damage_taken` is every hit point lost,
+so a character who is healed and hit again can lose more than its `hp`.
+The replay rejects a record that names a combatant the scenario lacks.
+
+In a sample fight's log, `d20 14` is the number on the die before any
+bonus.

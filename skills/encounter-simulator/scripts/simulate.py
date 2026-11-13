@@ -13,7 +13,7 @@ import json
 import sys
 
 import report
-from scenario import action_gap, check, load, unmodelled
+from scenario import action_gap, check, check_record, load, steps_gap, unmodelled
 
 
 def _effects_text(effects):
@@ -52,7 +52,7 @@ def _effects_text(effects):
     return "; ".join(parts)
 
 
-def _action_text(a):
+def _action_text(a, actions):
     reach = a.get("reach", "melee")
     where = reach if isinstance(reach, str) else f"range {reach['range']}" + (f"/{reach['long']}" if "long" in reach else "")
     uses = a.get("uses")
@@ -68,7 +68,8 @@ def _action_text(a):
     if gap:
         return f"{head} NOT MODELLED: {gap}"
     if "steps" in a:
-        return f"{head} then in order: {', '.join(a['steps'])}"
+        short = steps_gap(a, actions)
+        return f"{head} then in order: {', '.join(a['steps'])}" + (f". NOT MODELLED: {short}" if short else "")
     return f"{head} {_effects_text(a['effects'])}"
 
 
@@ -95,7 +96,7 @@ def review_text(sc):
                 out.append(f"  {k.replace('_', ' ')}: {', '.join(c[k])}")
         if c.get("resources"):
             out.append("  resources: " + ", ".join(f"{k} {v}" for k, v in c["resources"].items()))
-        out += [f"  - {_action_text(a)}" for a in c["actions"]]
+        out += [f"  - {_action_text(a, c['actions'])}" for a in c["actions"]]
         t = c.get("tactics", {})
         plan = ", then ".join(
             p["use"] + (f" when {json.dumps(p['when'])}" if p.get("when") else "") for p in t.get("plan", [])
@@ -118,6 +119,17 @@ def review_text(sc):
     return "\n".join(out) + "\n"
 
 
+def _problems(path, checker):
+    try:
+        errors = checker(load(path))
+    except (OSError, json.JSONDecodeError) as e:
+        errors = [f"cannot read it as JSON: {e}"]
+    if errors:
+        print(f"{len(errors)} problem(s) in {path}:")
+        print("\n".join(f"- {e}" for e in errors))
+    return bool(errors)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", choices=("check", "review", "run", "replay"))
@@ -129,23 +141,22 @@ def main(argv=None):
     parser.add_argument("--record", help="replay: the played fight's recorded numbers")
     args = parser.parse_args(argv)
 
-    sc = load(args.scenario)
-    errors = check(sc)
-    if errors:
-        print(f"{len(errors)} problem(s) in {args.scenario}:")
-        print("\n".join(f"- {e}" for e in errors))
+    if args.command == "replay" and not args.record:
+        parser.error("replay needs --record")
+    if _problems(args.scenario, check):
         return 1
+    sc = load(args.scenario)
     if args.command == "check":
         print(f"OK: {len(sc['combatants'])} combatant entries, {len(unmodelled(sc))} item(s) not modelled.")
         return 0
     if args.command == "review":
         print(review_text(sc), end="")
         return 0
+    if args.command == "replay" and _problems(args.record, lambda record: check_record(sc, record)):
+        return 1
 
     results = report.run_many(sc, args.runs, args.seed)
     if args.command == "replay":
-        if not args.record:
-            parser.error("replay needs --record")
         outcome = report.replay(results, load(args.record))
         text = report.render_replay(sc, outcome, args.runs, args.seed)
         payload = outcome
