@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import re
 from typing import NamedTuple
 
@@ -9,6 +10,11 @@ FORMAT = "encounter-scenario/1"
 SIDES = ("party", "enemies")
 ABILITIES = ("str", "dex", "con", "int", "wis", "cha")
 DEFAULT_ROUND_LIMIT = 20
+# Ceilings that keep a typo from hanging a run or filling memory.
+MOST_ROUNDS = 100
+MOST_COPIES = 100
+MOST_DICE = 100
+MOST_SIDES = 1000
 
 # What each condition does in the engine, per the 2024 Rules Glossary.
 CONDITIONS = {
@@ -139,14 +145,20 @@ def _keys(obj, where, spec, errors):
     return True
 
 
-def _number(obj, key, where, errors, whole=False, low=None):
+def _whole_from(value, low):
+    return isinstance(value, int) and not isinstance(value, bool) and value >= low
+
+
+def _number(obj, key, where, errors, whole=False, low=None, high=None):
     if key not in obj:
         return
     value = obj[key]
-    ok = not isinstance(value, bool) and isinstance(value, int if whole else (int, float))
+    ok = not isinstance(value, bool) and isinstance(value, int if whole else (int, float)) and math.isfinite(value)
     if not ok or (low is not None and value < low):
         kind = "whole number" if whole else "number"
         errors.append(f"{where}: '{key}' must be a {kind}" + (f" of {low} or more" if low is not None else ""))
+    elif high is not None and value > high:
+        errors.append(f"{where}: '{key}' must be {high} or less")
 
 
 def _dice_ok(value, where, errors):
@@ -155,15 +167,30 @@ def _dice_ok(value, where, errors):
     except ValueError as e:
         errors.append(f"{where}: {e}")
         return
-    if dice.number and dice.sides < 1:
-        errors.append(f"{where}: a die needs at least one side: {value!r}")
+    if "d" in str(value).lower() and (dice.number < 1 or dice.sides < 1):
+        errors.append(f"{where}: a roll needs at least one die with at least one side: {value!r}")
+    elif dice.number > MOST_DICE or dice.sides > MOST_SIDES:
+        errors.append(f"{where}: a roll takes at most {MOST_DICE} dice of at most {MOST_SIDES} sides: {value!r}")
 
 
-def _check_hazard(hazard, where, zones, errors):
-    _check_effects(hazard, where, zones, errors)
-    gap = effect_gap(hazard) if isinstance(hazard, list) else None
-    if gap:
-        errors.append(f"{where}: {gap}. A hazard must use the closed set")
+def _check_zone_fields(fields, where, zones, errors):
+    """One validator for a zone's fields, wherever they appear: on a zone, or in a zone event's `set`."""
+    if not isinstance(fields.get("name", ""), str):
+        errors.append(f"{where}: 'name' must be text")
+    roles = fields.get("roles", [])
+    if not (isinstance(roles, list) and all(isinstance(r, str) for r in roles)):
+        errors.append(f"{where}: 'roles' must be a list of words")
+    if fields.get("cover", "none") not in ("none", "half", "three-quarters"):
+        errors.append(f"{where}: cover must be 'none', 'half', or 'three-quarters'")
+    if fields.get("light", "bright") not in ("bright", "dark"):
+        errors.append(f"{where}: light must be 'bright' or 'dark'")
+    _number(fields, "elevation", where, errors)
+    _number(fields, "capacity", where, errors, whole=True, low=1)
+    if "hazard" in fields:
+        _check_effects(fields["hazard"], f"{where}.hazard", zones, errors)
+        gap = effect_gap(fields["hazard"]) if isinstance(fields["hazard"], list) else None
+        if gap:
+            errors.append(f"{where}.hazard: {gap}. A hazard must use the closed set")
 
 
 def _check_effects(effects, where, zones, errors):
@@ -179,6 +206,8 @@ def _check_effects(effects, where, zones, errors):
         _keys(e, at, (required | {"kind"}, optional), errors)
         if kind in ("damage", "heal") and "dice" in e:
             _dice_ok(e["dice"], at, errors)
+        if not isinstance(e.get("type", ""), str):
+            errors.append(f"{at}: 'type' must be a damage type in words")
         for key, whole, low in (("to_hit", True, None), ("crit_from", True, 2), ("dc", True, None),
                                 ("feet", False, 0), ("max", True, 1)):
             _number(e, key, at, errors, whole, low)
@@ -187,9 +216,9 @@ def _check_effects(effects, where, zones, errors):
         if kind == "condition":
             d = e.get("duration")
             ok = isinstance(d, dict) and (
-                isinstance(d.get("rounds"), int)
+                _whole_from(d.get("rounds"), 1)
                 or d.get("until") == "source turn"
-                or (d.get("until") == "save" and d.get("ability") in ABILITIES and isinstance(d.get("dc"), int))
+                or (d.get("until") == "save" and d.get("ability") in ABILITIES and _whole_from(d.get("dc"), 0))
             )
             if not ok:
                 errors.append(f"{at}: duration must be rounds, until 'source turn', or until 'save' with ability and dc")
@@ -261,12 +290,12 @@ def _check_objectives(objectives, at, ids, zones, errors):
                 if w.get("side") not in SIDES and w.get("combatant") not in ids:
                     errors.append(f"{where}: defeat needs a 'side' or a known 'combatant'")
             elif kind == "rounds":
-                if not isinstance(w.get("round"), int):
-                    errors.append(f"{where}: rounds needs a whole-number 'round'")
+                if "round" not in w:
+                    errors.append(f"{where}: rounds needs a 'round'")
+                _number(w, "round", where, errors, whole=True, low=1)
             elif kind == "reach":
                 count = w.get("count")
-                whole = isinstance(count, int) and not isinstance(count, bool) and count >= 1
-                if w.get("zone") not in zones or not (count == "all" or whole):
+                if w.get("zone") not in zones or not (count == "all" or _whole_from(count, 1)):
                     errors.append(f"{where}: reach needs a known 'zone' and a 'count' of 1 or more, or 'all'")
             else:
                 errors.append(f"{where}: kind must be 'defeat', 'rounds', or 'reach'")
@@ -274,13 +303,28 @@ def _check_objectives(objectives, at, ids, zones, errors):
 
 def check(sc):
     errors = []
+    try:
+        _check_shape(sc, errors)
+    except (TypeError, AttributeError, KeyError, IndexError) as e:
+        errors.append(f"scenario: a value has a type the format does not allow ({e}). "
+                      "Compare the file with scenario-format.md")
+    return errors
+
+
+def _check_shape(sc, errors):
     if not _keys(sc, "scenario", TOP_KEYS, errors):
         return errors
     if sc.get("format") != FORMAT:
         errors.append(f"scenario: format must be '{FORMAT}'")
     if sc.get("first") not in (None, *SIDES):
         errors.append("scenario: first must be 'party' or 'enemies'")
-    _number(sc, "round_limit", "scenario", errors, whole=True, low=1)
+    _number(sc, "round_limit", "scenario", errors, whole=True, low=1, high=MOST_ROUNDS)
+    for key in ("name", "sources"):
+        if not isinstance(sc.get(key, ""), str):
+            errors.append(f"scenario: '{key}' must be text")
+    notes = sc.get("assumptions", [])
+    if not (isinstance(notes, list) and all(isinstance(n, str) for n in notes)):
+        errors.append("scenario: 'assumptions' must be a list of sentences")
     for key in ("zones", "links", "combatants", "events", "variants"):
         if not isinstance(sc.get(key, []), list):
             errors.append(f"scenario: '{key}' must be a list")
@@ -293,16 +337,9 @@ def check(sc):
             if z["id"] in zones:
                 errors.append(f"zones[{i}]: duplicate id '{z['id']}'")
             zones.add(z["id"])
-            if z.get("cover", "none") not in ("none", "half", "three-quarters"):
-                errors.append(f"zones[{i}]: cover must be 'none', 'half', or 'three-quarters'")
-            if z.get("light", "bright") not in ("bright", "dark"):
-                errors.append(f"zones[{i}]: light must be 'bright' or 'dark'")
-            _number(z, "elevation", f"zones[{i}]", errors)
-            _number(z, "capacity", f"zones[{i}]", errors, whole=True, low=1)
+            _check_zone_fields(z, f"zones[{i}]", zones, errors)
             if isinstance(z.get("capacity"), int):
                 capacity[z["id"]] = z["capacity"]
-            if "hazard" in z:
-                _check_hazard(z["hazard"], f"zones[{i}].hazard", zones, errors)
     if not zones:
         errors.append("scenario: needs at least one zone")
     linked = {z: set() for z in zones}
@@ -311,7 +348,8 @@ def check(sc):
         if not (isinstance(ends, list) and len(ends) == 2 and all(isinstance(z, str) for z in ends)
                 and set(ends) <= zones and ends[0] != ends[1]):
             errors.append(f"links[{i}]: 'between' must name two different known zones")
-        elif isinstance(link.get("feet"), bool) or not isinstance(link.get("feet"), (int, float)) or link["feet"] <= 0:
+        elif (isinstance(link.get("feet"), bool) or not isinstance(link.get("feet"), (int, float))
+              or not math.isfinite(link["feet"]) or link["feet"] <= 0):
             errors.append(f"links[{i}]: 'feet' must be a positive number")
         else:
             linked[ends[0]].add(ends[1])
@@ -327,12 +365,17 @@ def check(sc):
             errors.append(f"zones: '{z}' is not linked to the rest of the ground")
 
     combatants = sc.get("combatants") or []
-    ids = {c.get("id") for c in combatants if isinstance(c, dict)}
+    ids = {c.get("id") for c in combatants if isinstance(c, dict) and isinstance(c.get("id"), str)}
+    off_field = {c["id"] for c in combatants
+                 if isinstance(c, dict) and isinstance(c.get("id"), str) and c.get("zone") is None}
     seen = set()
     standing = {}
     for i, c in enumerate(combatants):
         where = f"combatants[{i}]"
         if not _keys(c, where, COMBATANT_KEYS, errors):
+            continue
+        if not isinstance(c.get("id"), str):
+            errors.append(f"{where}: 'id' must be text")
             continue
         where = f"combatant '{c.get('id')}'"
         if c.get("id") in seen:
@@ -340,11 +383,14 @@ def check(sc):
         seen.add(c.get("id"))
         if c.get("side") not in SIDES:
             errors.append(f"{where}: side must be 'party' or 'enemies'")
+        for key in ("name", "source"):
+            if not isinstance(c.get(key, ""), str):
+                errors.append(f"{where}: '{key}' must be text")
         if c.get("zone") is not None and c.get("zone") not in zones:
             errors.append(f"{where}: unknown zone '{c.get('zone')}'")
-        for key, whole, low in (("ac", True, 1), ("hp", True, 1), ("count", True, 1),
-                                ("speed", False, 0), ("initiative", True, None)):
+        for key, whole, low in (("ac", True, 1), ("hp", True, 1), ("speed", False, 0), ("initiative", True, None)):
             _number(c, key, where, errors, whole, low)
+        _number(c, "count", where, errors, whole=True, low=1, high=MOST_COPIES)
         for key in ("saves", "resources"):
             table = c.get(key, {})
             if not isinstance(table, dict):
@@ -364,12 +410,19 @@ def check(sc):
         if c.get("zone") in zones and c.get("side") in SIDES and isinstance(count, int):
             standing[(c["zone"], c["side"])] = standing.get((c["zone"], c["side"]), 0) + count
         actions = c.get("actions") if isinstance(c.get("actions"), list) else []
-        action_ids = {a.get("id") for a in actions if isinstance(a, dict)}
-        with_steps = {a.get("id") for a in actions if isinstance(a, dict) and "steps" in a}
+        action_ids = set()
+        for a in actions:
+            if isinstance(a, dict) and isinstance(a.get("id"), str):
+                if a["id"] in action_ids:
+                    errors.append(f"{where}: duplicate action id '{a['id']}'")
+                action_ids.add(a["id"])
+        with_steps = {a["id"] for a in actions if isinstance(a, dict) and a.get("id") in action_ids and "steps" in a}
         for j, a in enumerate(actions):
             at = f"{where} action '{a.get('id') if isinstance(a, dict) else j}'"
             if not _keys(a, at, ACTION_KEYS, errors):
                 continue
+            if not isinstance(a.get("name", ""), str):
+                errors.append(f"{at}: 'name' must be text")
             if a.get("time", "action") not in ("action", "bonus"):
                 errors.append(f"{at}: time must be 'action' or 'bonus'")
             if a.get("target", "enemy") not in ("enemy", "ally", "self"):
@@ -378,8 +431,11 @@ def check(sc):
             if isinstance(reach, dict):
                 if "range" not in reach or set(reach) - {"range", "long"}:
                     errors.append(f"{at}: a ranged reach is {{'range': feet}} with an optional 'long'")
+                before = len(errors)
                 _number(reach, "range", f"{at} reach", errors, low=0)
                 _number(reach, "long", f"{at} reach", errors, low=0)
+                if len(errors) == before and reach.get("long", reach.get("range", 0)) < reach.get("range", 0):
+                    errors.append(f"{at}: 'long' must not be shorter than 'range'")
             elif reach not in ("melee", "self"):
                 errors.append(f"{at}: reach must be 'melee', 'self', or {{'range': feet}}")
             uses = a.get("uses")
@@ -420,13 +476,17 @@ def check(sc):
 
     for i, e in enumerate(sc.get("events", [])):
         where = f"events[{i}]"
-        if not isinstance(e, dict) or not isinstance(e.get("round"), int):
+        if not isinstance(e, dict) or "round" not in e:
             errors.append(f"{where}: needs a whole-number 'round'")
             continue
+        _number(e, "round", where, errors, whole=True, low=1)
         kind = e.get("kind")
         if kind in ("enter", "leave"):
             if e.get("combatant") not in ids:
                 errors.append(f"{where}: unknown combatant '{e.get('combatant')}'")
+            elif kind == "enter" and e["combatant"] not in off_field:
+                errors.append(f"{where}: '{e['combatant']}' starts on the field. "
+                              "An enter event needs a combatant whose zone is null")
             if kind == "enter" and e.get("zone") not in zones:
                 errors.append(f"{where}: unknown zone '{e.get('zone')}'")
         elif kind == "zone":
@@ -434,8 +494,8 @@ def check(sc):
                 errors.append(f"{where}: needs a known 'zone' and a 'set' object")
             elif set(e["set"]) - (ZONE_KEYS[1] - {"capacity"}):
                 errors.append(f"{where}: 'set' takes name, roles, cover, light, elevation, or hazard")
-            elif "hazard" in e["set"]:
-                _check_hazard(e["set"]["hazard"], f"{where}.set.hazard", zones, errors)
+            else:
+                _check_zone_fields(e["set"], f"{where}.set", zones, errors)
         else:
             errors.append(f"{where}: kind must be 'enter', 'leave', or 'zone'")
         if "unless_down" in e and e["unless_down"] not in ids:
@@ -447,26 +507,24 @@ def check(sc):
         where = f"variants[{i}]"
         if not _keys(v, where, VARIANT_KEYS, errors):
             continue
-        if "objectives" in v:
-            _check_objectives(v["objectives"], f"{where}.objectives", ids, zones, errors)
+        before = len(errors)
+        if not isinstance(v.get("name"), str):
+            errors.append(f"{where}: 'name' must be text")
         if not (isinstance(v.get("tactics", {}), dict) and isinstance(v.get("counts", {}), dict)):
             errors.append(f"{where}: 'tactics' and 'counts' must be objects keyed by combatant id")
             continue
         for cid in list(v.get("tactics", {})) + list(v.get("counts", {})):
             if cid not in ids:
                 errors.append(f"{where}: unknown combatant '{cid}'")
-        for cid in v.get("counts", {}):
-            _number(v["counts"], cid, f"{where} counts", errors, whole=True, low=1)
-        for cid, card in v.get("tactics", {}).items():
-            spec = next((c for c in combatants if isinstance(c, dict) and c.get("id") == cid), None)
-            if spec and isinstance(spec.get("actions"), list):
-                action_ids = {a.get("id") for a in spec["actions"] if isinstance(a, dict)}
-                _check_tactics(card, f"{where} tactics '{cid}'", action_ids, ids, zones, errors)
         events = len(sc.get("events", []))
-        if not all(isinstance(i, int) and 0 <= i < events for i in v.get("drop_events", [])):
-            errors.append(f"{where}: drop_events must be positions in 'events', counted from 0")
+        dropped = v.get("drop_events", [])
+        if not (isinstance(dropped, list)
+                and all(isinstance(n, int) and not isinstance(n, bool) and 0 <= n < events for n in dropped)):
+            errors.append(f"{where}: drop_events must be a list of positions in 'events', counted from 0")
         if v.get("first") not in (None, *SIDES):
             errors.append(f"{where}: first must be 'party' or 'enemies'")
+        if len(errors) == before and not before:
+            errors += [f"{where} '{v['name']}': {e}" for e in check(apply_variant(sc, v))]
     return errors
 
 
@@ -479,6 +537,8 @@ def check_record(sc, record):
         return errors
     ids = {c["id"] for c in sc["combatants"]}
     _number(record, "rounds", "record", errors, whole=True, low=1)
+    if not isinstance(record.get("party_met_objective", True), bool):
+        errors.append("record: 'party_met_objective' must be true or false")
     for key in ("damage_dealt", "damage_taken"):
         table = record.get(key, {})
         if not isinstance(table, dict):
@@ -492,7 +552,8 @@ def check_record(sc, record):
     if not isinstance(dropped, list):
         errors.append("record: 'dropped' must be a list of combatant ids")
     else:
-        errors += [f"record: dropped names unknown combatant '{cid}'" for cid in dropped if cid not in ids]
+        errors += [f"record: dropped names unknown combatant '{cid}'" for cid in dropped
+                   if not (isinstance(cid, str) and cid in ids)]
     return errors
 
 

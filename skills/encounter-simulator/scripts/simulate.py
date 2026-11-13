@@ -10,10 +10,13 @@ The scenario's shape is stated in scenario-format.md beside the skill.
 
 import argparse
 import json
+import random
 import sys
 
 import report
-from scenario import action_gap, check, check_record, load, steps_gap, unmodelled
+from engine import play
+from scenario import (action_gap, apply_variant, auto_variants, check, check_record, load, steps_gap,
+                      unmodelled)
 
 
 def _effects_text(effects):
@@ -119,6 +122,23 @@ def review_text(sc):
     return "\n".join(out) + "\n"
 
 
+def scenario_problems(sc):
+    """The shape check, then one played fight for the scenario and for each variant.
+
+    The shape check lists the breaks it knows. Playing the fight catches the ones it does not.
+    """
+    errors = check(sc)
+    if errors:
+        return errors
+    for variant in [None, *sc.get("variants", []), *auto_variants(sc)]:
+        try:
+            play(apply_variant(sc, variant) if variant else sc, random.Random(0), log=True)
+        except Exception as e:
+            what = f"variant '{variant['name']}'" if variant else "the scenario"
+            errors.append(f"{what}: the engine could not play it ({type(e).__name__}: {e})")
+    return errors
+
+
 def _problems(path, checker):
     try:
         errors = checker(load(path))
@@ -143,7 +163,7 @@ def main(argv=None):
 
     if args.command == "replay" and not args.record:
         parser.error("replay needs --record")
-    if _problems(args.scenario, check):
+    if _problems(args.scenario, scenario_problems):
         return 1
     sc = load(args.scenario)
     if args.command == "check":

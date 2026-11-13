@@ -12,7 +12,7 @@ import pytest
 import report
 from engine import play
 from scenario import apply_variant, auto_variants, check, load, unmodelled
-from simulate import review_text
+from simulate import review_text, scenario_problems
 
 HERE = Path(__file__).resolve().parent
 FIXTURES = HERE / "fixtures"
@@ -331,6 +331,70 @@ BREAKS = [
 @pytest.mark.parametrize("break_it, needle", BREAKS, ids=[needle for _, needle in BREAKS])
 def test_check_rejects_a_scenario_that_would_crash_or_cannot_be_fought(break_it, needle):
     sc = _scenario(_creature("hero", "party", [_swing()], pc=True, count=2), _creature("ogre", "enemies", [_swing()]))
+    assert check(sc) == []
+    break_it(sc)
+    assert any(needle in e for e in check(sc)), check(sc)
+
+
+WRONG_VALUES = [None, "x", "", 0, -1, 2.5, True, [], {}, [1], ["x"], {"x": 1}, float("nan"), "0d0", 10**9]
+
+
+def _paths(node, prefix=()):
+    if prefix:
+        yield prefix
+    children = node.items() if isinstance(node, dict) else enumerate(node) if isinstance(node, list) else ()
+    for key, child in children:
+        yield from _paths(child, (*prefix, key))
+
+
+@pytest.mark.parametrize("path", GOOD, ids=lambda p: p.name)
+def test_any_scenario_that_passes_the_check_can_be_reviewed_and_played(path):
+    base = load(path)
+    paths = list(_paths(base))
+    rng = random.Random(102)
+    passed = 0
+    for _ in range(300):
+        sc = copy.deepcopy(base)
+        where, value = rng.choice(paths), copy.deepcopy(rng.choice(WRONG_VALUES))
+        _set(where, value)(sc)
+        try:
+            if scenario_problems(sc):
+                continue
+            passed += 1
+            review_text(sc)
+            report.sensitivity(sc, report.run_many(sc, 2, "fuzz"), 2, "fuzz")
+        except Exception as e:
+            pytest.fail(f"{'/'.join(map(str, where))} = {value!r}: {type(e).__name__}: {e}")
+    assert passed > 0
+
+
+SECOND_ROUND_BREAKS = [
+    (_set(("events",), [{"round": 1, "kind": "zone", "zone": "yard", "set": {"elevation": "high"}}]),
+     "'elevation' must be a number"),
+    (_set(("events",), [{"round": 1, "kind": "zone", "zone": "yard", "set": {"cover": "full"}}]), "cover must be"),
+    (_set(("events",), [{"round": 0, "kind": "leave", "combatant": "ogre"}]), "'round' must be a whole number of 1"),
+    (_set(("events",), [{"round": 2, "kind": "enter", "combatant": "ogre", "zone": "yard"}]),
+     "'ogre' starts on the field"),
+    (_set((*OGRE, "zone"), ["yard"]), "a value has a type the format does not allow"),
+    (_set((*OGRE, "id"), ["ogre"]), "'id' must be text"),
+    (_set(("links", 0, "feet"), float("nan")), "'feet' must be a positive number"),
+    (_set((*HERO, "actions"), [_swing(), _swing()]), "duplicate action id 'swing'"),
+    (_set((*HERO, "actions", 0, "reach"), {"range": 60, "long": 30}), "'long' must not be shorter than 'range'"),
+    (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "dice"), "0d0"), "at least one die"),
+    (_set(("variants",), [{"name": "none", "drop_events": 0}]), "drop_events must be a list"),
+    (_set((*OGRE, "count"), 10**9), "'count' must be 100 or less"),
+    (_set(("round_limit",), 10**9), "'round_limit' must be 100 or less"),
+    (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "dice"), "5000d6"), "at most 100 dice"),
+    (_set(("assumptions",), "none"), "'assumptions' must be a list of sentences"),
+    (_set((*HERO, "actions", 0, "effects", 0, "hit", 0, "type"), 2.5), "'type' must be a damage type in words"),
+    (_set(("variants",), [{"name": "crowd", "counts": {"hero": 9}}]), "variants[0] 'crowd': zones: 'yard' has a capacity"),
+]
+
+
+@pytest.mark.parametrize("break_it, needle", SECOND_ROUND_BREAKS, ids=[n for _, n in SECOND_ROUND_BREAKS])
+def test_check_rejects_what_a_second_look_found(break_it, needle):
+    sc = _scenario(_creature("hero", "party", [_swing()], pc=True, count=2), _creature("ogre", "enemies", [_swing()]))
+    sc["zones"][0]["capacity"] = 4
     assert check(sc) == []
     break_it(sc)
     assert any(needle in e for e in check(sc)), check(sc)

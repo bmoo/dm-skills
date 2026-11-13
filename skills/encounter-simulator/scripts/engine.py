@@ -591,10 +591,10 @@ class Fight:
         primary_fits = target.status == "up" and target is not source and (
             e["who"] == "all" or (e["who"] == "enemies") == (target.side != side))
         caught = ([target] if primary_fits else []) + pool
-        self.area_rolls = {}
+        outer, self.area_rolls = self.area_rolls, {}
         for c in caught[:e.get("max", len(caught))]:
             self._apply(e["effects"], source, c, action)
-        self.area_rolls = None
+        self.area_rolls = outer
 
 
 def play(sc, rng, log=False):

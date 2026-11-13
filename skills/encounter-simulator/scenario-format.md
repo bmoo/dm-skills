@@ -5,7 +5,9 @@ fight: who is in it, what each combatant can do, the ground, the timed
 changes, and what each side is trying to achieve. The engine reads this file
 and nothing else. **This file is the one statement of the scenario's shape.**
 `scripts/simulate.py check` enforces it, and the fixtures under
-`scripts/fixtures/` are worked examples.
+`scripts/fixtures/` are worked examples. The check reads the shape, then
+plays the fight once for the scenario and once for each variant, and
+reports any fight the engine could not play.
 
 A scenario sits beside the fight it was compiled from and is named
 `<fight-slug>.scenario.json`. The fight's `> [!encounter-meta]` block does
@@ -28,7 +30,7 @@ not change.
 ```
 
 `format`, `name`, `zones`, `combatants`, and `objectives` are required.
-`round_limit` defaults to 20. `"first": "party"` or `"first": "enemies"`
+`round_limit` defaults to 20 and cannot pass 100. `"first": "party"` or `"first": "enemies"`
 makes that whole side act before the other. Without it every combatant
 rolls initiative, and a group of identical creatures shares one roll.
 
@@ -92,7 +94,7 @@ combatant on the field when the fight starts.
 
 | Field | Meaning |
 |---|---|
-| `id` | Unique. With `count` above 1 the engine names the copies `bandit 1`, `bandit 2`. |
+| `id` | Unique. With `count` above 1 the engine names the copies `bandit 1`, `bandit 2`. `count` cannot pass 100. |
 | `side` | `party` or `enemies`. |
 | `pc` | `true` for a player character. The report counts how often each PC dropped to 0 hit points. A PC at 0 is down and returns if healed. Any other creature at 0 is out. |
 | `zone` | The starting zone. `null` means the combatant is off the field until an event brings it in. |
@@ -128,7 +130,7 @@ An action is one thing the combatant can do on its turn.
 | `unmodelled` | A sentence that says why the action cannot be expressed. The engine never chooses the action, and the report lists it. Such an action needs no `effects`. |
 
 An action carries exactly one of `effects`, `steps`, or `unmodelled`.
-`uses` works with any of them.
+`uses` works with any of them. Action ids are unique within a combatant.
 
 ## Effects
 
@@ -139,7 +141,7 @@ is unmodelled.
 |---|---|---|
 | `attack` | `to_hit`, `hit`, optional `miss`, `advantage`, `crit_from` | Rolls d20 plus `to_hit` against the target's AC. A natural 20 hits and doubles the dice of each `damage` in `hit`. A natural 1 misses. Applies `hit` or `miss`. `"advantage": true` is for an attacker who always has it. `"crit_from": 19` widens the critical range. |
 | `save` | `ability`, `dc`, `fail`, optional `success`, optional `half_on_success` | The target rolls d20 plus its save bonus. Applies `fail` or `success`. With `half_on_success`, a success applies half of the `fail` damage and no other `fail` effect. |
-| `damage` | `dice`, optional `type` | Rolls `dice` (`2d6+3`, `1d8`, or a flat `4`) and subtracts it from the target's hit points after resistance, immunity, and vulnerability. |
+| `damage` | `dice`, optional `type` | Rolls `dice` (`2d6+3`, `1d8`, or a flat `4`, at most 100 dice of at most 1,000 sides) and subtracts it from the target's hit points after resistance, immunity, and vulnerability. |
 | `condition` | `name`, `duration` | Puts a condition on the target. `duration` is `{"rounds": 1}` (ends after that many of the target's own turns), `{"until": "source turn"}` (ends at the start of the source's next turn), or `{"until": "save", "ability": "wis", "dc": 12}` (the target repeats the save at the end of each of its turns). |
 | `heal` | `dice` | Restores hit points up to the maximum. A PC at 0 returns to the fight. |
 | `move` | `subject` (`target` or `self`), `feet`, `direction` (`away`, `toward`, or `to` with a `zone`) | Moves the subject along a link when `feet` covers the link's distance. |
@@ -199,7 +201,7 @@ An event changes the fight at the start of a round.
 
 | `kind` | What happens |
 |---|---|
-| `enter` | The combatant, whose starting `zone` is `null`, enters at `zone` and rolls initiative. |
+| `enter` | The combatant enters at `zone` and rolls initiative. The check rejects an `enter` for a combatant whose starting `zone` is not `null`. |
 | `leave` | The combatant leaves the field. It does not count as defeated. |
 | `zone` | The fields in `set` replace the zone's fields. `set` cannot change `capacity`. |
 
