@@ -58,15 +58,15 @@ everyone can reach everyone else in melee.
 
 | Field | Meaning in the engine |
 |---|---|
-| `id`, `name` | `id` is what other fields point at. `name` appears in logs. |
+| `id`, `name` | `id` is what other fields point at. `name` appears in logs. An id is never empty. |
 | `roles` | The terrain roles from the fight (`high position`, `cover field`, `choke`, `hazard`). The engine does not read them. They let a floating fight keep its role names. |
-| `cover` | `half` gives +2 and `three-quarters` gives +5 to the AC and the Dexterity saves of a creature in the zone, against an attack or effect from another zone. |
+| `cover` | `none` (the default), `half`, or `three-quarters`. `half` gives +2 and `three-quarters` gives +5 to the AC and the Dexterity saves of a creature in the zone, against an attack or effect from another zone. |
 | `light` | `bright` (the default) or `dark`. An attacker without `darkvision` has disadvantage against a target in a dark zone. An attacker in a dark zone has advantage against a target without `darkvision`. |
 | `elevation` | Height in feet. A move along a link into a higher zone costs double, unless the mover has `fly` or `climb`. |
 | `capacity` | The choke. At most this many creatures per side can move into the zone. The check rejects a starting placement over it. An `enter` event ignores it. |
 | `hazard` | A list of effects (see *Effects*) that the engine applies to each creature that starts its turn in the zone. A hazard must stay inside the closed set. |
 
-A link gives the distance in feet between two zones. The distance between
+A link gives the distance between two zones, from 1 to 100,000 feet. The distance between
 two unlinked zones is the shortest path. On its turn a combatant moves up
 to its `speed` in feet along links, and a link it cannot afford stops it.
 A combatant whose position is `close` and who has no usable action moves up
@@ -140,7 +140,9 @@ An action carries exactly one of `effects`, `steps`, or `unmodelled`.
 ## Effects
 
 Effects are a closed set of seven kinds. An action that needs anything else
-is unmodelled.
+is unmodelled. The check does not read the fields of an effect whose `kind`
+is outside the seven, because the engine never plays it. Effects nest at
+most 8 deep.
 
 | `kind` | Fields | What the engine does |
 |---|---|---|
@@ -150,7 +152,7 @@ is unmodelled.
 | `condition` | `name`, `duration` | Puts a condition on the target. `duration` is `{"rounds": 1}` (ends after that many of the target's own turns), `{"until": "source turn"}` (ends at the start of the source's next turn), or `{"until": "save", "ability": "wis", "dc": 12}` (the target repeats the save at the end of each of its turns). |
 | `heal` | `dice` | Restores hit points up to the maximum. A PC at 0 returns to the fight. |
 | `move` | `subject` (`target` or `self`), `feet`, `direction` (`away`, `toward`, or `to` with a `zone`) | Moves the subject along a link when `feet` covers the link's distance. |
-| `area` | `who` (`enemies`, `allies`, or `all`), optional `max`, `effects` | Applies `effects` to each matching creature in the target's zone, up to `max` creatures. Damage behind a `save` is rolled once for every creature caught. |
+| `area` | `who` (`enemies`, `allies`, or `all`), optional `max`, `effects` | Applies `effects` to each matching creature in the target's zone, up to `max` creatures. Damage behind a `save` is rolled once for every creature caught. An area cannot sit inside another area. |
 
 The engine knows these conditions: `blinded`, `charmed`, `frightened`,
 `grappled`, `incapacitated`, `paralyzed`, `poisoned`, `prone`, `restrained`,

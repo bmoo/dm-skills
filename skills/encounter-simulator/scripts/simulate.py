@@ -150,6 +150,14 @@ def _problems(path, checker):
     return bool(errors)
 
 
+def _seed(text):
+    try:
+        text.encode("utf-8")
+    except UnicodeEncodeError:
+        raise argparse.ArgumentTypeError("--seed must be plain text") from None
+    return text
+
+
 def _runs(text):
     runs = int(text)
     if not 1 <= runs <= 1_000_000:
@@ -162,7 +170,7 @@ def main(argv=None):
     parser.add_argument("command", choices=("check", "review", "run", "replay"))
     parser.add_argument("scenario")
     parser.add_argument("--runs", type=_runs, default=1000)
-    parser.add_argument("--seed", default="1")
+    parser.add_argument("--seed", type=_seed, default="1")
     parser.add_argument("--json", help="also write the numbers to this file")
     parser.add_argument("--out", help="write the report to this file and print only where it went")
     parser.add_argument("--record", help="replay: the played fight's recorded numbers")
@@ -196,15 +204,19 @@ def main(argv=None):
         logs = report.sample_logs(sc, results, args.seed)
         text = report.render(sc, summary, rows, logs, args.seed)
         payload = {"summary": summary, "variants": rows, "unmodelled": unmodelled(sc)}
-    if args.out:
-        with open(args.out, "w", encoding="utf-8") as f:
-            f.write(text)
-        print(f"Report written to {args.out}")
-    else:
-        print(text, end="")
-    if args.json:
-        with open(args.json, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
+    try:
+        if args.out:
+            with open(args.out, "w", encoding="utf-8", errors="backslashreplace") as f:
+                f.write(text)
+            print(f"Report written to {args.out}")
+        else:
+            print(text, end="")
+        if args.json:
+            with open(args.json, "w", encoding="utf-8", errors="backslashreplace") as f:
+                json.dump(payload, f, indent=2)
+    except OSError as e:
+        print(f"Cannot write the output: {e}")
+        return 1
     return 0
 
 

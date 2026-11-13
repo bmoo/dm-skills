@@ -346,24 +346,53 @@ def _paths(node, prefix=()):
         yield from _paths(child, (*prefix, key))
 
 
+STRAY_KEYS = ["kind", "when", "zone", "round", "max", "count", "name", "source", "until", "ability", "dc",
+              "rounds", "target_has", "long", "capacity", "hazard", "unless_down", "combatant", "set", "zzz"]
+STRAY_VALUES = WRONG_VALUES + [
+    "yard", "party", "all", "prone", "1d6", {"rounds": 1}, {"range": 30}, {"go": "x"},
+    {"kind": "damage", "dice": "1d4"}, {"kind": "move", "subject": "target", "feet": 30, "direction": "to"},
+    {"kind": "area", "who": "all", "effects": [{"kind": "damage", "dice": "1d4"}]},
+]
+
+
+def _mutate(sc, rng):
+    """One structural change: replace a value, drop a key, add a stray key, or repeat a list item."""
+    where = rng.choice(list(_paths(sc)))
+    parent = sc
+    for key in where[:-1]:
+        parent = parent[key]
+    op = rng.choice(["replace", "replace", "drop", "add", "repeat"])
+    child = parent[where[-1]]
+    if op == "drop":
+        del parent[where[-1]]
+    elif op == "add" and isinstance(child, dict):
+        child[rng.choice(STRAY_KEYS)] = copy.deepcopy(rng.choice(STRAY_VALUES))
+    elif op == "repeat" and isinstance(child, list) and child:
+        child.append(copy.deepcopy(rng.choice(child)))
+    else:
+        parent[where[-1]] = copy.deepcopy(rng.choice(STRAY_VALUES))
+    return f"{op} at {'/'.join(map(str, where))}"
+
+
 @pytest.mark.parametrize("path", GOOD, ids=lambda p: p.name)
-def test_any_scenario_that_passes_the_check_can_be_reviewed_and_played(path):
+def test_any_scenario_that_passes_the_check_can_be_reviewed_run_and_replayed(path):
     base = load(path)
-    paths = list(_paths(base))
     rng = random.Random(102)
     passed = 0
-    for _ in range(300):
+    for _ in range(400):
         sc = copy.deepcopy(base)
-        where, value = rng.choice(paths), copy.deepcopy(rng.choice(WRONG_VALUES))
-        _set(where, value)(sc)
+        changes = [_mutate(sc, rng) for _ in range(rng.choice([1, 1, 2, 3]))]
         try:
             if scenario_problems(sc):
                 continue
             passed += 1
             review_text(sc)
-            report.sensitivity(sc, report.run_many(sc, 2, "fuzz"), 2, "fuzz")
+            results = report.run_many(sc, 3, "fuzz")
+            report.render(sc, report.summarize(results), report.sensitivity(sc, results, 2, "fuzz"),
+                          report.sample_logs(sc, results, "fuzz"), "fuzz")
+            report.render_replay(sc, report.replay(results, {"rounds": 3, "party_met_objective": True}), 3, "fuzz")
         except Exception as e:
-            pytest.fail(f"{'/'.join(map(str, where))} = {value!r}: {type(e).__name__}: {e}")
+            pytest.fail(f"{'; '.join(changes)}: {type(e).__name__}: {e}")
     assert passed > 0
 
 
@@ -385,6 +414,13 @@ SECOND_ROUND_BREAKS = [
           [{"kind": "condition", "name": "prone", "duration": {"rounds": 1, "name": "doom"}}]), "'duration' must be"),
     (_set((*HERO, "tactics"), {"plan": [{"use": "swing", "when": {"target_has": ["x"]}}]}), "'target_has' must be text"),
     (_set(("name",), "\ud800"), "'name' must be plain text"),
+    (_set(("zones", 0, "hazard"), [{"kind": "move", "subject": "target", "feet": 30, "direction": "to"}]),
+     "direction 'to' needs a known zone"),
+    (_set((*HERO, "actions", 0, "effects"), [{"kind": "area", "who": "enemies", "effects": [
+        {"kind": "area", "who": "enemies", "effects": [{"kind": "damage", "dice": "1"}]}]}]),
+     "an area cannot sit inside another area"),
+    (_set(("links", 0, "feet"), 1e-20), "'feet' must be a number of 1 or more"),
+    (_set(("zones", 1, "id"), ""), "'id' must not be empty"),
     (_set((*OGRE, "hp"), 10**400), "'hp' must be a whole number"),
     (_set(("events",), [{"round": 0, "kind": "leave", "combatant": "ogre"}]), "'round' must be a whole number of 1"),
     (_set(("events",), [{"round": 2, "kind": "enter", "combatant": "ogre", "zone": "yard"}]),
@@ -413,6 +449,12 @@ def test_check_rejects_what_a_second_look_found(break_it, needle):
     assert check(sc) == []
     break_it(sc)
     assert any(needle in e for e in check(sc)), check(sc)
+
+
+def test_an_output_path_that_cannot_be_written_is_reported(tmp_path):
+    result = _cli("run", FIXTURES / "the_countdown.scenario.json", "--runs", "5", "--out", tmp_path)
+    assert result.returncode == 1 and "Cannot write the output" in result.stdout
+    assert "Traceback" not in result.stderr
 
 
 def test_check_reports_a_file_that_is_not_json(tmp_path):

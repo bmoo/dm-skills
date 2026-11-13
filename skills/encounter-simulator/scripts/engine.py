@@ -18,7 +18,7 @@ class Creature:
         self.side = spec["side"]
         self.pc = bool(spec.get("pc"))
         self.zone = spec.get("zone")
-        self.status = "up" if self.zone else "off"
+        self.status = "off" if self.zone is None else "up"
         self.hp = self.max_hp = spec["hp"]
         self.actions = {a["id"]: a for a in spec["actions"]}
         self.tactics = spec.get("tactics", {})
@@ -70,7 +70,7 @@ class Fight:
             "condition": self._condition, "heal": self._heal, "move": self._move, "area": self._area,
         }
 
-    def _distances(self, start, mover=None):
+    def _distances(self, start, mover=None, came_from=None):
         best = {start: 0}
         heap = [(0, start)]
         while heap:
@@ -81,6 +81,8 @@ class Fight:
                 nd = d + (self._step_cost(mover, z, nxt) if mover else feet)
                 if nd < best.get(nxt, float("inf")):
                     best[nxt] = nd
+                    if came_from is not None:
+                        came_from[nxt] = z
                     heapq.heappush(heap, (nd, nxt))
         return best
 
@@ -92,16 +94,13 @@ class Fight:
     def _path(self, mover, dest) -> list[tuple[ZoneId, StepCost]] | None:
         if dest == mover.zone:
             return []
-        costs = self._distances(mover.zone, mover)
-        if dest not in costs:
+        came_from = {}
+        if dest not in self._distances(mover.zone, mover, came_from):
             return None
         route, here = [], dest
         while here != mover.zone:
-            prev = min((z for z in self.adjacent[here] if z in costs
-                        and costs[z] + self._step_cost(mover, z, here) == costs[here]),
-                       key=lambda z: costs[z])
-            route.append((here, self._step_cost(mover, prev, here)))
-            here = prev
+            route.append((here, self._step_cost(mover, came_from[here], here)))
+            here = came_from[here]
         return route[::-1]
 
     def _room(self, zone, side):

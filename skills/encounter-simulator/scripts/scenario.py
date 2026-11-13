@@ -41,7 +41,8 @@ NESTED = {"attack": ("hit", "miss"), "save": ("fail", "success"), "area": ("effe
 # The shape, stated once. Every object lists its exact keys and every leaf its type, so a value
 # the table does not name is rejected. `_walk` reads this table; nothing else decides what a
 # scenario may contain.
-TEXT, FLAG, DICE = ("text",), ("flag",), ("dice",)
+TEXT, FLAG, DICE = ("text", 0), ("flag",), ("dice",)
+ID = ("text", 1)
 
 
 def whole(low=None, high=BIG):
@@ -110,7 +111,7 @@ TACTICS = obj({}, {
     "plan": listing(obj({"use": TEXT}, {"when": WHEN})),
     "flee": obj({}, {"hp_below": number(0, 10), "side_below": number(0, 10)}),
 })
-ACTION = obj({"id": TEXT}, {
+ACTION = obj({"id": ID}, {
     "name": TEXT,
     "time": one_of("action", "bonus"),
     "reach": either("must be 'melee', 'self', or {\"range\": feet}",
@@ -123,7 +124,7 @@ ACTION = obj({"id": TEXT}, {
     "unmodelled": TEXT,
 })
 COMBATANT = obj(
-    {"id": TEXT, "side": SIDE, "ac": whole(1, 100), "hp": whole(1), "actions": listing(ACTION)},
+    {"id": ID, "side": SIDE, "ac": whole(1, 100), "hp": whole(1), "actions": listing(ACTION)},
     {"name": TEXT, "count": whole(1, MOST_COPIES), "zone": either("must be a zone id or null", ("null",), TEXT),
      "pc": FLAG, "speed": number(0, 10_000), "initiative": whole(-1000, 1000),
      "saves": obj({}, {a: whole(-100, 100) for a in ABILITIES}), "surprised": FLAG,
@@ -135,7 +136,7 @@ ZONE_FIELDS = {
     "name": TEXT, "roles": listing(TEXT), "cover": one_of("none", "half", "three-quarters"),
     "light": one_of("bright", "dark"), "elevation": number(-BIG), "hazard": EFFECT_LIST,
 }
-ZONE = obj({"id": TEXT}, {**ZONE_FIELDS, "capacity": whole(1, 1000)})
+ZONE = obj({"id": ID}, {**ZONE_FIELDS, "capacity": whole(1, 1000)})
 EVENT_COMMON = {"unless_down": TEXT}
 EVENT = by_kind({
     "enter": obj({"round": whole(1, MOST_ROUNDS), "combatant": TEXT, "zone": TEXT}, EVENT_COMMON),
@@ -157,7 +158,7 @@ SCENARIO = obj(
     {"format": one_of(FORMAT), "name": TEXT, "zones": listing(ZONE), "combatants": listing(COMBATANT),
      "objectives": OBJECTIVES},
     {"sources": TEXT, "assumptions": listing(TEXT), "round_limit": whole(1, MOST_ROUNDS), "first": SIDE,
-     "links": listing(obj({"between": listing(TEXT), "feet": number(0)})), "events": listing(EVENT),
+     "links": listing(obj({"between": listing(TEXT), "feet": number(1, 100_000)})), "events": listing(EVENT),
      "variants": listing(VARIANT)},
 )
 RECORD = obj({}, {
@@ -265,6 +266,8 @@ def _walk(value, spec, path, key, errors, depth=0):
     if kind == "text":
         if not isinstance(value, str):
             errors.append(f"{at} must be text")
+        elif len(value) < spec[1]:
+            errors.append(f"{at} must not be empty")
         elif len(value) > MOST_TEXT:
             errors.append(f"{at} must be {MOST_TEXT} characters or fewer")
         else:
@@ -356,19 +359,23 @@ def _dice_ok(value, at, errors):
         errors.append(f"{at}: a roll takes at most {MOST_DICE} dice of at most {MOST_SIDES} sides: {value!r}")
 
 
-def _hazard_gap(fields, where, errors):
+def _hazard_meaning(fields, where, zones, errors):
     gap = effect_gap(fields.get("hazard"))
     if gap:
         errors.append(f"{where}.hazard: {gap}. A hazard must use the closed set")
+    _effects_meaning(fields.get("hazard"), f"{where}.hazard", zones, errors)
 
 
-def _move_targets(effects, where, zones, errors):
+def _effects_meaning(effects, where, zones, errors, in_area=False):
     for i, e in enumerate(effects or []):
         at = f"{where}[{i}]"
-        if e.get("kind") == "move" and e.get("direction") == "to" and e.get("zone") not in zones:
+        kind = e.get("kind")
+        if kind == "move" and e.get("direction") == "to" and e.get("zone") not in zones:
             errors.append(f"{at}: direction 'to' needs a known zone")
-        for key in NESTED.get(e.get("kind"), ()):
-            _move_targets(e.get(key), f"{at}.{key}", zones, errors)
+        if kind == "area" and in_area:
+            errors.append(f"{at}: an area cannot sit inside another area")
+        for key in NESTED.get(kind, ()):
+            _effects_meaning(e.get(key), f"{at}.{key}", zones, errors, in_area or kind == "area")
 
 
 def _tactics_meaning(card, where, action_ids, ids, zones, errors):
@@ -411,10 +418,11 @@ def _meaning(sc, errors):
         zones.add(z["id"])
         if "capacity" in z:
             capacity[z["id"]] = z["capacity"]
-        _hazard_gap(z, f"zone '{z['id']}'", errors)
     if not zones:
         errors.append("scenario: needs at least one zone")
         return
+    for z in sc["zones"]:
+        _hazard_meaning(z, f"zone '{z['id']}'", zones, errors)
     linked = {z: set() for z in zones}
     for i, link in enumerate(sc.get("links", [])):
         ends = link["between"]
@@ -476,7 +484,7 @@ def _meaning(sc, errors):
                     errors.append(f"{at}: step '{s}' must name another of this combatant's actions")
                 elif s in with_steps:
                     errors.append(f"{at}: step '{s}' has steps of its own. List every attack in one action")
-            _move_targets(a.get("effects"), f"{at}.effects", zones, errors)
+            _effects_meaning(a.get("effects"), f"{at}.effects", zones, errors)
         _tactics_meaning(c.get("tactics", {}), f"{where}.tactics", action_ids, ids, zones, errors)
 
     for side in SIDES:
@@ -497,7 +505,7 @@ def _meaning(sc, errors):
         if "zone" in e and e["zone"] not in zones:
             errors.append(f"{where}: unknown zone '{e['zone']}'")
         if e["kind"] == "zone":
-            _hazard_gap(e["set"], f"{where}.set", errors)
+            _hazard_meaning(e["set"], f"{where}.set", zones, errors)
         if "unless_down" in e and e["unless_down"] not in ids:
             errors.append(f"{where}: unless_down names unknown combatant '{e['unless_down']}'")
 
